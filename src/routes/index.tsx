@@ -262,8 +262,8 @@ const PANELS: Panel[] = [
   },
 ];
 
-/** Solid for the first third, gone by the end — the row shows through. */
-const ROW_PHOTO_FADE = "linear-gradient(to right, black 35%, transparent)";
+/** Solid on the right, fading leftward along a "/" slant — the row shows through. */
+const ROW_PHOTO_FADE = "linear-gradient(300deg, black 40%, transparent 75%)";
 
 /**
  * Two columns on a laptop (Clarence, 2026-10-25): the villas as a list on the
@@ -300,12 +300,12 @@ function Villas() {
                   onClick={() => setActive(i)}
                   aria-pressed={on}
                   className={cn(
-                    "group relative flex h-16 w-full items-center gap-3 overflow-hidden rounded-2xl pr-2.5 text-left transition-colors",
+                    "group relative flex h-16 w-full items-center gap-3 overflow-hidden rounded-2xl px-3 text-left transition-colors",
                     on ? "bg-secondary" : "hover:bg-secondary/60",
                   )}
                 >
-                  {/* The photo fills the row's left side and fades into it
-                      (Clarence, 2026-10-25), the name on the right. */}
+                  {/* The photo fills the row's right side and fades into it
+                      on a slant (Clarence, 2026-10-25), the name on the left. */}
                   <img
                     src={p.photos[0]}
                     alt=""
@@ -315,21 +315,21 @@ function Villas() {
                       maskImage: ROW_PHOTO_FADE,
                       WebkitMaskImage: ROW_PHOTO_FADE,
                     }}
-                    className="absolute inset-y-0 left-0 h-full w-3/5 object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="absolute inset-y-0 right-0 h-full w-3/5 object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <span className="relative ml-auto flex min-w-0 max-w-[62%] flex-col items-end text-right">
+                  <span className="relative mr-auto flex min-w-0 max-w-[62%] flex-col items-start">
                     <span className="flex max-w-full items-center gap-2">
-                      {p.soon && (
-                        <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-semibold text-success">
-                          Acquired
-                        </span>
-                      )}
                       <span className="text-[11px] font-semibold tabular-nums text-muted-foreground">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <span className={cn("truncate text-sm", on ? "font-bold" : "font-semibold")}>
                         {p.title}
                       </span>
+                      {p.soon && (
+                        <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-semibold text-success">
+                          Acquired
+                        </span>
+                      )}
                     </span>
                     <span className="mt-0.5 flex max-w-full items-center gap-1 text-xs text-muted-foreground">
                       <MapPin className="size-3 shrink-0" />
@@ -338,8 +338,9 @@ function Villas() {
                   </span>
                   <ChevronRight
                     className={cn(
-                      "relative size-4 shrink-0 text-muted-foreground transition-transform",
-                      on && "rotate-90 text-primary lg:rotate-0",
+                      // Sits on the photo now, so white with a shadow to read on it.
+                      "relative size-4 shrink-0 text-white drop-shadow transition-transform",
+                      on && "rotate-90 lg:rotate-0",
                     )}
                   />
                 </button>
