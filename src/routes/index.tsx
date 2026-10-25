@@ -262,13 +262,10 @@ const PANELS: Panel[] = [
   },
 ];
 
-/** Solid on the right, fading leftward along a "\" slant — the row shows through. */
-const ROW_PHOTO_FADE = "linear-gradient(240deg, black 40%, transparent 75%)";
-
 /**
- * Two columns on a laptop (Clarence, 2026-10-25): the villas as a list on the
- * left — the Inbox's list look — and the picked one large on the right. On a
- * phone the preview opens under the tapped row instead.
+ * Two columns on a laptop (Clarence, 2026-10-25): the villas as a stack of
+ * pills on the left, each its own photo, and the picked one large on the
+ * right. On a phone the preview opens under the tapped pill instead.
  *
  * Picking a row only picks it. The one way off the page is the preview's own
  * View villa button, so nobody leaves by accident.
@@ -290,7 +287,7 @@ function Villas() {
       </div>
 
       <div className="mx-auto mt-10 grid max-w-6xl gap-5 px-3 sm:px-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.25fr)] lg:items-start">
-        <ul className="flex flex-col gap-1 rounded-3xl bg-card p-2 shadow-level-2">
+        <ul className="flex flex-col gap-2">
           {PANELS.map((p, i) => {
             const on = i === active;
             return (
@@ -300,53 +297,56 @@ function Villas() {
                   onClick={() => setActive(i)}
                   aria-pressed={on}
                   className={cn(
-                    "group relative flex h-16 w-full items-center gap-3 overflow-hidden rounded-2xl px-3 text-left transition-colors",
-                    on ? "bg-secondary" : "hover:bg-secondary/60",
+                    "group relative flex h-16 w-full items-center gap-3 overflow-hidden rounded-2xl px-4 text-left shadow-level-1 transition duration-300",
+                    on
+                      ? "shadow-level-3 ring-2 ring-primary ring-offset-2 ring-offset-background"
+                      : "hover:-translate-y-0.5 hover:shadow-level-2",
                   )}
                 >
-                  {/* The photo fills the row's right side and fades into it
-                      on a slant (Clarence, 2026-10-25), the name on the left. */}
+                  {/* The photo is the pill (Clarence, 2026-10-25), shaded
+                      darkest behind the text so the white reads on any shot. */}
                   <img
                     src={p.photos[0]}
                     alt=""
                     loading="lazy"
-                    style={{
-                      ...(p.coverPosition ? { objectPosition: p.coverPosition } : {}),
-                      maskImage: ROW_PHOTO_FADE,
-                      WebkitMaskImage: ROW_PHOTO_FADE,
-                    }}
-                    className="absolute inset-y-0 right-0 h-full w-3/5 object-cover transition-transform duration-500 group-hover:scale-105"
+                    style={p.coverPosition ? { objectPosition: p.coverPosition } : undefined}
+                    className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <span className="relative mr-auto flex min-w-0 max-w-[62%] flex-col items-start">
+                  <span
+                    className={cn(
+                      "absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/20 transition-opacity",
+                      on ? "opacity-90" : "opacity-100",
+                    )}
+                  />
+                  <span className="relative mr-auto flex min-w-0 flex-col items-start text-white">
                     <span className="flex max-w-full items-center gap-2">
-                      <span className="text-[11px] font-semibold tabular-nums text-muted-foreground">
+                      <span className="text-[11px] font-semibold tabular-nums text-white/70">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <span className={cn("truncate text-sm", on ? "font-bold" : "font-semibold")}>
                         {p.title}
                       </span>
                       {p.soon && (
-                        <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-semibold text-success">
+                        <span className="rounded-full bg-success px-2 py-0.5 text-[10px] font-semibold text-white">
                           Acquired
                         </span>
                       )}
                     </span>
-                    <span className="mt-0.5 flex max-w-full items-center gap-1 text-xs text-muted-foreground">
+                    <span className="mt-0.5 flex max-w-full items-center gap-1 text-xs text-white/80">
                       <MapPin className="size-3 shrink-0" />
                       <span className="truncate">{p.location}</span>
                     </span>
                   </span>
                   <ChevronRight
                     className={cn(
-                      // Sits on the photo now, so white with a shadow to read on it.
-                      "relative size-4 shrink-0 text-white drop-shadow transition-transform",
+                      "relative size-4 shrink-0 text-white transition-transform",
                       on && "rotate-90 lg:rotate-0",
                     )}
                   />
                 </button>
-                {/* The phone's preview, right under the row it belongs to. */}
+                {/* The phone's preview, right under the pill it belongs to. */}
                 {on && (
-                  <div className="px-1 pb-2 pt-1 lg:hidden">
+                  <div className="pb-2 pt-3 lg:hidden">
                     <VillaPreview panel={p} n={i + 1} />
                   </div>
                 )}
