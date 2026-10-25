@@ -15,6 +15,7 @@ import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { TopProgress } from "@/components/top-progress";
 import { AuthProvider } from "@/state/auth";
+import { FiltersProvider } from "@/state/filters";
 import { BRAND } from "@/lib/brand";
 
 function NotFoundComponent() {
@@ -137,9 +138,11 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <TopProgress />
-        <Outlet />
-        <Toaster />
+        <FiltersProvider>
+          <TopProgress />
+          <Outlet />
+          <Toaster />
+        </FiltersProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

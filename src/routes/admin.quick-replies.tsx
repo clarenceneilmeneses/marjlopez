@@ -1,17 +1,28 @@
 /**
- * Quick replies — PRD §9.6. Saved answers to the questions every inquiry
- * asks, and the four thank-yous the form sends on its own (one per request
- * type, `auto_for_type`). `{first_name}` fills in the person's first name.
+ * Quick replies — PRD §9.6, in the dashboard's look. Saved answers to the
+ * questions every inquiry asks, and the four thank-yous the form sends on its
+ * own (one per request type, `auto_for_type`). `{first_name}` fills in the
+ * person's first name.
  */
 import { createFileRoute } from "@tanstack/react-router";
-import { Pencil, Plus, Trash2, Zap } from "@/components/icons";
-import { useState } from "react";
+import { MessageSquareText, Pencil, Plus, Search, Sparkles, Trash2, Zap } from "@/components/icons";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/admin/app-shell";
+import { Empty, PageHeader, Panel, Stat, TODAY_LINE } from "@/components/admin/page";
 import { InlineLoading } from "@/components/loading";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -30,8 +41,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { TYPE_ORDER, TYPES } from "@/lib/inquiry";
 import type { LeadType, QuickReply } from "@/lib/types";
-import { errorText, useDeleteQuickReply, useQuickReplies, useSaveQuickReply } from "@/state/data";
 import { useAuth } from "@/state/auth";
+import { errorText, useDeleteQuickReply, useQuickReplies, useSaveQuickReply } from "@/state/data";
 
 export const Route = createFileRoute("/admin/quick-replies")({
   head: () => ({ meta: [{ title: "Quick replies — Marj Lopez" }] }),
@@ -43,72 +54,190 @@ function QuickRepliesPage() {
   const replies = useQuickReplies(Boolean(staff));
   const del = useDeleteQuickReply();
   const [editing, setEditing] = useState<Partial<QuickReply> | null>(null);
+  const [deleting, setDeleting] = useState<QuickReply | null>(null);
+  const [q, setQ] = useState("");
+
+  const all = replies.data ?? [];
+  const autos = useMemo(
+    () => new Map(all.filter((r) => r.auto_for_type).map((r) => [r.auto_for_type!, r])),
+    [all],
+  );
+  const saved = all.filter((r) => !r.auto_for_type);
+  const shown = saved.filter((r) =>
+    `${r.title} ${r.body}`.toLowerCase().includes(q.trim().toLowerCase()),
+  );
 
   return (
     <AppShell title="Quick replies">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-3xl font-semibold">Quick replies</h1>
-          <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-            Saved answers for the questions everyone asks. Pick one from the &ldquo;+&rdquo; in any
-            conversation. <code className="rounded bg-secondary px-1">{"{first_name}"}</code>{" "}
-            becomes their first name.
-          </p>
-        </div>
-        <Button className="rounded-full" onClick={() => setEditing({ title: "", body: "" })}>
-          <Plus className="size-4" /> New quick reply
-        </Button>
-      </div>
+      <PageHeader
+        eyebrow={TODAY_LINE()}
+        title="Quick replies"
+        sub="Saved answers for the questions everyone asks. Pick one from the + in any conversation."
+        action={
+          <Button className="rounded-full" onClick={() => setEditing({ title: "", body: "" })}>
+            <Plus className="size-4" /> New quick reply
+          </Button>
+        }
+      />
 
       {replies.isLoading ? (
-        <InlineLoading className="mt-6" />
+        <InlineLoading className="mt-8" />
       ) : (
-        <div className="mt-6 grid gap-3 md:grid-cols-2">
-          {(replies.data ?? []).map((q) => (
-            <Card key={q.id} className="border-border/70 bg-surface shadow-level-1">
-              <CardContent className="flex h-full flex-col gap-2 p-4">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold">{q.title}</p>
-                  <div className="flex shrink-0 gap-1">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="size-8 rounded-full"
-                      aria-label="Edit"
-                      onClick={() => setEditing(q)}
+        <>
+          <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
+            <Stat
+              icon={MessageSquareText}
+              label="Saved replies"
+              value={String(saved.length)}
+              foot="Ready in every chat"
+            />
+            <Stat
+              icon={Zap}
+              label="Automatic thank-yous"
+              value={`${autos.size}/${TYPE_ORDER.length}`}
+              foot={
+                autos.size === TYPE_ORDER.length
+                  ? "Every request type covered"
+                  : "Some requests get none"
+              }
+              footTone={autos.size === TYPE_ORDER.length ? "up" : "alert"}
+            />
+            <div className="col-span-2 rounded-xl bg-primary/5 p-4 text-sm shadow-level-1 sm:p-5 lg:col-span-1">
+              <p className="flex items-center gap-1.5 font-semibold">
+                <Sparkles className="size-4 text-primary" /> Fill-ins
+              </p>
+              <p className="mt-1.5 text-muted-foreground">
+                <code className="rounded bg-card px-1 text-foreground">{"{first_name}"}</code>{" "}
+                becomes their first name,{" "}
+                <code className="rounded bg-card px-1 text-foreground">{"{my_name}"}</code> yours.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-3 grid gap-3 lg:grid-cols-5">
+            <Panel
+              className="lg:col-span-2"
+              title="Automatic thank-yous"
+              aside="Sent the moment a form arrives"
+            >
+              <ul className="-mx-2 space-y-0.5">
+                {TYPE_ORDER.map((t) => {
+                  const r = autos.get(t);
+                  const Icon = TYPES[t].icon;
+                  return (
+                    <li key={t}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEditing(
+                            r ?? {
+                              title: `Auto-reply · ${TYPES[t].short}`,
+                              body: "",
+                              auto_for_type: t,
+                            },
+                          )
+                        }
+                        className="flex w-full items-start gap-3 rounded-xl px-2 py-2.5 text-left transition-colors hover:bg-secondary"
+                      >
+                        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-primary">
+                          <Icon className="size-4" />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-semibold">{TYPES[t].label}</span>
+                          <span className="line-clamp-2 block text-xs text-muted-foreground">
+                            {r ? r.body : "None set — they get no thank-you."}
+                          </span>
+                        </span>
+                        <Pencil className="mt-1 size-4 shrink-0 text-muted-foreground" />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </Panel>
+
+            <Panel className="lg:col-span-3" title="Saved replies" aside={`${saved.length}`}>
+              <div className="relative mb-3">
+                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder="Search replies"
+                  className="h-9 rounded-full pl-9"
+                />
+              </div>
+              {shown.length === 0 ? (
+                <Empty>{saved.length ? "No reply matches that." : "No saved replies yet."}</Empty>
+              ) : (
+                <ul className="-mx-2 space-y-0.5">
+                  {shown.map((r) => (
+                    <li
+                      key={r.id}
+                      className="group flex items-start gap-2 rounded-xl px-2 py-2.5 transition-colors hover:bg-secondary"
                     >
-                      <Pencil className="size-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="size-8 rounded-full text-destructive"
-                      aria-label="Delete"
-                      onClick={() =>
-                        del.mutate(q.id, {
-                          onSuccess: () => toast.success("Deleted"),
-                          onError: (e) => toast.error(errorText(e)),
-                        })
-                      }
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
-                </div>
-                {q.auto_for_type && (
-                  <p className="inline-flex w-fit items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
-                    <Zap className="size-3" /> Sent automatically after a &ldquo;
-                    {TYPES[q.auto_for_type].short}&rdquo; request
-                  </p>
-                )}
-                <p className="whitespace-pre-wrap text-sm text-muted-foreground">{q.body}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                      <button
+                        type="button"
+                        onClick={() => setEditing(r)}
+                        className="min-w-0 flex-1 text-left"
+                      >
+                        <span className="block text-sm font-semibold">{r.title}</span>
+                        <span className="line-clamp-2 block whitespace-pre-line text-xs text-muted-foreground">
+                          {r.body}
+                        </span>
+                      </button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-8 shrink-0 rounded-full"
+                        aria-label={`Edit ${r.title}`}
+                        onClick={() => setEditing(r)}
+                      >
+                        <Pencil className="size-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-8 shrink-0 rounded-full text-destructive"
+                        aria-label={`Delete ${r.title}`}
+                        onClick={() => setDeleting(r)}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Panel>
+          </div>
+        </>
       )}
 
       {editing && <EditDialog reply={editing} onClose={() => setEditing(null)} />}
+      <AlertDialog open={Boolean(deleting)} onOpenChange={(o) => !o && setDeleting(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete &ldquo;{deleting?.title}&rdquo;?</AlertDialogTitle>
+            <AlertDialogDescription>
+              It disappears from everyone&apos;s quick replies.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep it</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() =>
+                deleting &&
+                del.mutate(deleting.id, {
+                  onSuccess: () => toast.success("Deleted"),
+                  onError: (e) => toast.error(errorText(e)),
+                })
+              }
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppShell>
   );
 }

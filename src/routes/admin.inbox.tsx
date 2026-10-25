@@ -97,6 +97,7 @@ import {
 import type { Lead, LeadStage, LeadType, Meeting, Message, QuickReply, Staff } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/state/auth";
+import { useFilters } from "@/state/filters";
 import {
   errorText,
   fillReply,
@@ -154,6 +155,7 @@ function InboxPage() {
   const { staff, session } = useAuth();
   const isStaff = Boolean(staff);
   useLiveUpdates(isStaff);
+  const filters = useFilters();
   const inbox = useInbox(isStaff);
   const staffList = useStaffList(isStaff);
 
@@ -197,6 +199,9 @@ function InboxPage() {
   }, [inbox.data]);
 
   const matches = (row: Row, t: TypeFilter, c: Chip) => {
+    // The top bar's filter first: which requests, whose, and active when.
+    if (!filters.passes(row.lead?.type, row.conv.assigned_to)) return false;
+    if (!filters.inRange(row.conv.last_activity)) return false;
     if (t === "archived") {
       if (!row.conv.archived) return false;
     } else if (row.conv.archived) return false;
@@ -237,7 +242,7 @@ function InboxPage() {
       return Date.parse(b.conv.last_activity) - Date.parse(a.conv.last_activity);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allRows, typeFilter, chip, stageFilter, search, session?.user.id]);
+  }, [allRows, typeFilter, chip, stageFilter, search, session?.user.id, filters]);
 
   const countFor = (t: TypeFilter, c: Chip = null) =>
     allRows.filter((r) => matches(r, t, c)).length;

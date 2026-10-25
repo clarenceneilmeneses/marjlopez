@@ -29,6 +29,7 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/admin/app-shell";
 import { BarList, ColumnChart, type Column } from "@/components/admin/charts";
+import { Empty, Panel, Stat } from "@/components/admin/page";
 import { meetingModeLabel } from "@/components/chat/thread";
 import { InlineLoading } from "@/components/loading";
 import { PlatformLogo, type Platform } from "@/components/site/logos";
@@ -46,6 +47,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/state/auth";
 import { useInbox, useLiveUpdates, type InboxData } from "@/state/data";
+import { useFilters } from "@/state/filters";
 
 export const Route = createFileRoute("/admin/")({
   head: () => ({ meta: [{ title: "Dashboard — Marj Lopez" }] }),
@@ -54,7 +56,6 @@ export const Route = createFileRoute("/admin/")({
 
 const DAY = 86_400_000;
 const TZ = "Asia/Manila";
-const manilaDay = (t: number) => new Date(t).toLocaleDateString("en-CA", { timeZone: TZ });
 
 function greeting() {
   const h = Number(
@@ -71,22 +72,28 @@ const SOURCE_LOGO: Partial<Record<string, Platform>> = {
 };
 
 function useStats(data: InboxData | undefined) {
+  const f = useFilters();
   return useMemo(() => {
     if (!data) return null;
     const now = Date.now();
-    const leads = data.leads;
-    const inLast = (iso: string, days: number, offset = 0) => {
-      const t = Date.parse(iso);
-      return t > now - (days + offset) * DAY && t <= now - offset * DAY;
-    };
-    const thisWeek = leads.filter((l) => inLast(l.created_at, 7)).length;
-    const lastWeek = leads.filter((l) => inLast(l.created_at, 7, 7)).length;
+    const convById = new Map(data.conversations.map((c) => [c.id, c]));
+    const assignee = (convId: string | null) =>
+      convId ? (convById.get(convId)?.assigned_to ?? null) : null;
 
-    const open = data.conversations.filter((c) => !c.archived);
-    const currentLead = new Map(leads.map((l) => [l.id, l]));
-    const waiting = open
-      .filter((c) => c.waiting_since)
+    // WHICH (type, person) applies to everything; WHEN to what happened in the range.
+    const leads = data.leads.filter((l) => f.passes(l.type, assignee(l.conversation_id)));
+    const inRange = leads.filter((l) => f.inRange(l.created_at));
+    const span = f.range.to - f.range.from;
+    const before = leads.filter((l) => {
+      const t = Date.parse(l.created_at);
+      return t >= f.range.from - span && t < f.range.from;
+    }).length;
+
+    const currentLead = new Map(data.leads.map((l) => [l.id, l]));
+    const waiting = data.conversations
+      .filter((c) => !c.archived && c.waiting_since)
       .map((c) => ({ c, lead: c.current_lead_id ? currentLead.get(c.current_lead_id) : undefined }))
+      .filter(({ c, lead }) => f.passes(lead?.type, c.assigned_to))
       .sort((a, b) => {
         const hot = Number(Boolean(b.lead?.hot)) - Number(Boolean(a.lead?.hot));
         return hot || Date.parse(a.c.waiting_since!) - Date.parse(b.c.waiting_since!);
@@ -101,8 +108,8 @@ function useStats(data: InboxData | undefined) {
       staffByConv.set(m.conversation_id, list);
     }
     const replyHours: number[] = [];
-    for (const l of leads) {
-      if (!l.conversation_id || !inLast(l.created_at, 30)) continue;
+    for (const l of inRange) {
+      if (!l.conversation_id) continue;
       const t0 = Date.parse(l.created_at);
       const after = (staffByConv.get(l.conversation_id) ?? []).filter((t) => t > t0);
       if (after.length) replyHours.push((Math.min(...after) - t0) / 3_600_000);
@@ -115,55 +122,65 @@ function useStats(data: InboxData | undefined) {
         (m) =>
           (m.status === "confirmed" || m.status === "proposed") && Date.parse(m.starts_at) > now,
       )
+      .filter((m) => {
+        const c = convById.get(m.conversation_id);
+        const lead = c?.current_lead_id ? currentLead.get(c.current_lead_id) : undefined;
+        return f.passes(lead?.type, c?.assigned_to ?? null);
+      })
       .sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
 
-    // 30 days of inquiries, oldest first, by Manila day.
-    const counts = new Map<string, number>();
-    for (const l of leads) {
-      const d = manilaDay(Date.parse(l.created_at));
-      counts.set(d, (counts.get(d) ?? 0) + 1);
-    }
-    const days: Column[] = [];
-    for (let i = 29; i >= 0; i--) {
-      const t = now - i * DAY;
-      const d = manilaDay(t);
-      const date = new Date(t);
-      days.push({
-        key: d,
-        label: date.toLocaleDateString("en-PH", { month: "short", day: "numeric", timeZone: TZ }),
-        hint: date.toLocaleDateString("en-PH", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-          timeZone: TZ,
-        }),
-        value: counts.get(d) ?? 0,
+    // The chart: a bar per day up to three months, a bar per week beyond.
+    const end = Math.min(f.range.to, now + DAY);
+    const firstLead = Math.min(...leads.map((l) => Date.parse(l.created_at)), end - 30 * DAY);
+    const start = Math.max(f.range.from, f.preset === "all" ? firstLead : f.range.from);
+    const step = end - start > 92 * DAY ? 7 * DAY : DAY;
+    const cols: Column[] = [];
+    for (let t = start; t < end; t += step) {
+      const n = inRange.filter((l) => {
+        const x = Date.parse(l.created_at);
+        return x >= t && x < t + step;
+      }).length;
+      const d = new Date(t);
+      const short = d.toLocaleDateString("en-PH", { month: "short", day: "numeric", timeZone: TZ });
+      cols.push({
+        key: String(t),
+        label: short,
+        hint:
+          step === DAY
+            ? d.toLocaleDateString("en-PH", {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+                timeZone: TZ,
+              })
+            : `Week of ${short}`,
+        value: n,
       });
     }
 
-    const recent30 = leads.filter((l) => inLast(l.created_at, 30));
     const bySource = new Map<string, number>();
-    for (const l of recent30)
+    for (const l of inRange)
       bySource.set(l.source ?? "other", (bySource.get(l.source ?? "other") ?? 0) + 1);
     const byType = new Map<string, number>();
-    for (const l of recent30) byType.set(l.type, (byType.get(l.type) ?? 0) + 1);
+    for (const l of inRange) byType.set(l.type, (byType.get(l.type) ?? 0) + 1);
 
     return {
-      thisWeek,
-      lastWeek,
+      count: inRange.length,
+      before,
       waiting,
       hotWaiting: waiting.filter((w) => w.lead?.hot).length,
       median,
       replies: replyHours.length,
       upcoming,
       confirmedUpcoming: upcoming.filter((m) => m.status === "confirmed").length,
-      won: leads.filter((l) => l.stage === "won").length,
-      days,
-      total30: recent30.length,
+      won: inRange.filter((l) => l.stage === "won").length,
+      days: cols,
+      tickEvery: Math.max(1, Math.ceil(cols.length / 5)),
+      latest: leads.slice(0, 6),
       stages: STAGES.map((s) => ({
         key: s.value,
         label: s.label,
-        value: leads.filter((l) => l.stage === s.value).length,
+        value: inRange.filter((l) => l.stage === s.value).length,
         muted: s.value === "lost",
       })),
       sources: [...bySource.entries()]
@@ -171,7 +188,7 @@ function useStats(data: InboxData | undefined) {
         .map(([k, v]) => ({ key: k, value: v })),
       types: TYPE_ORDER.map((t) => ({ key: t, value: byType.get(t) ?? 0 })),
     };
-  }, [data]);
+  }, [data, f]);
 }
 
 function hoursText(h: number | null) {
@@ -185,6 +202,7 @@ function Dashboard() {
   const { staff } = useAuth();
   useLiveUpdates(Boolean(staff));
   const inbox = useInbox(Boolean(staff));
+  const f = useFilters();
   const s = useStats(inbox.data);
   const byConv = useMemo(
     () => new Map((inbox.data?.conversations ?? []).map((c) => [c.id, c])),
@@ -249,14 +267,14 @@ function Dashboard() {
           <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
             <Stat
               icon={Send}
-              label="New this week"
-              value={String(s.thisWeek)}
+              label="New inquiries"
+              value={String(s.count)}
               foot={
-                s.lastWeek === s.thisWeek
-                  ? "Same as last week"
-                  : `${s.thisWeek > s.lastWeek ? "+" : "−"}${Math.abs(s.thisWeek - s.lastWeek)} vs last week`
+                s.before === s.count
+                  ? "Same as the period before"
+                  : `${s.count > s.before ? "+" : "−"}${Math.abs(s.count - s.before)} vs the period before`
               }
-              footTone={s.thisWeek >= s.lastWeek ? "up" : "down"}
+              footTone={s.count >= s.before ? "up" : "down"}
             />
             <Stat
               icon={Flame}
@@ -269,14 +287,14 @@ function Dashboard() {
               icon={Clock}
               label="First reply"
               value={hoursText(s.median)}
-              foot={s.replies ? `Median of ${s.replies}, last 30 days` : "No replies yet"}
+              foot={s.replies ? `Median of ${s.replies} in range` : "No replies in range"}
               footTone="quiet"
             />
             <Stat
               icon={CalendarCheck}
               label="Calls coming up"
               value={String(s.upcoming.length)}
-              foot={`${s.confirmedUpcoming} confirmed · ${s.won} won so far`}
+              foot={`${s.confirmedUpcoming} confirmed · ${s.won} won in range`}
               footTone="quiet"
             />
           </div>
@@ -286,9 +304,9 @@ function Dashboard() {
             <Panel
               className="lg:col-span-2"
               title="Inquiries"
-              aside={`${s.total30} in the last 30 days`}
+              aside={`${s.count} · ${f.range.label}`}
             >
-              <ColumnChart data={s.days} />
+              <ColumnChart data={s.days} tickEvery={s.tickEvery} />
             </Panel>
             <Panel title="Waiting on you" aside="Hot first">
               {s.waiting.length === 0 ? (
@@ -325,10 +343,10 @@ function Dashboard() {
 
           {/* Pipeline · sources · types */}
           <div className="mt-3 grid gap-3 md:grid-cols-3">
-            <Panel title="Pipeline" aside="All leads">
+            <Panel title="Pipeline" aside={f.range.label}>
               <BarList rows={s.stages} />
             </Panel>
-            <Panel title="Where they found Marj" aside="Last 30 days">
+            <Panel title="Where they found Marj" aside={f.range.label}>
               {s.sources.length === 0 ? (
                 <Empty>No inquiries yet.</Empty>
               ) : (
@@ -349,7 +367,7 @@ function Dashboard() {
                 />
               )}
             </Panel>
-            <Panel title="What they want" aside="Last 30 days">
+            <Panel title="What they want" aside={f.range.label}>
               <BarList
                 rows={s.types.map((r) => {
                   const Icon = TYPES[r.key].icon;
@@ -379,7 +397,7 @@ function Dashboard() {
               }
             >
               <ul className="-mx-2 space-y-0.5">
-                {(inbox.data?.leads ?? []).slice(0, 6).map((l) => {
+                {s.latest.map((l) => {
                   const c = l.conversation_id ? byConv.get(l.conversation_id) : undefined;
                   return (
                     <li key={l.id}>
@@ -522,69 +540,6 @@ function QuickAction({
   );
 }
 
-function Stat({
-  icon: Icon,
-  label,
-  value,
-  foot,
-  footTone,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string;
-  foot: string;
-  footTone: "up" | "down" | "alert" | "quiet";
-}) {
-  return (
-    <Card className="border-0 bg-card shadow-level-1">
-      <CardContent className="p-4 sm:p-5">
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-sm text-muted-foreground">{label}</p>
-          <Icon className="size-4 text-muted-foreground" />
-        </div>
-        <p className="mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight">
-          {value}
-        </p>
-        <p
-          className={cn(
-            "mt-1 text-xs",
-            footTone === "up" && "text-success",
-            footTone === "down" && "text-muted-foreground",
-            footTone === "alert" && "text-destructive",
-            footTone === "quiet" && "text-muted-foreground",
-          )}
-        >
-          {foot}
-        </p>
-      </CardContent>
-    </Card>
-  );
-}
-
-function Panel({
-  title,
-  aside,
-  className,
-  children,
-}: {
-  title: string;
-  aside?: ReactNode;
-  className?: string;
-  children: ReactNode;
-}) {
-  return (
-    <Card className={cn("border-0 bg-card shadow-level-1", className)}>
-      <CardContent className="p-4 sm:p-5">
-        <div className="mb-4 flex items-baseline justify-between gap-3">
-          <p className="font-semibold">{title}</p>
-          {aside && <span className="text-xs text-muted-foreground">{aside}</span>}
-        </div>
-        {children}
-      </CardContent>
-    </Card>
-  );
-}
-
 function TypeAvatar({ type }: { type: keyof typeof TYPES | undefined }) {
   const Icon = type ? TYPES[type].icon : Send;
   return (
@@ -592,8 +547,4 @@ function TypeAvatar({ type }: { type: keyof typeof TYPES | undefined }) {
       <Icon className="size-4" />
     </span>
   );
-}
-
-function Empty({ children }: { children: ReactNode }) {
-  return <p className="py-6 text-center text-sm text-muted-foreground">{children}</p>;
 }

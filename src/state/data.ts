@@ -495,6 +495,15 @@ export function useSaveQuickReply() {
   return useMutation({
     mutationFn: async (q: Partial<QuickReply> & { title: string; body: string }) => {
       const row = { title: q.title, body: q.body, auto_for_type: q.auto_for_type ?? null };
+      // One automatic reply per request type: taking the role hands it over.
+      if (row.auto_for_type) {
+        const { error: clearErr } = await supabase
+          .from("quick_replies")
+          .update({ auto_for_type: null })
+          .eq("auto_for_type", row.auto_for_type)
+          .neq("id", q.id ?? "00000000-0000-0000-0000-000000000000");
+        if (clearErr) throw clearErr;
+      }
       const { error } = q.id
         ? await supabase.from("quick_replies").update(row).eq("id", q.id)
         : await supabase.from("quick_replies").insert(row);
