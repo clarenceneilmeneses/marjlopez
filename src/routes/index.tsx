@@ -262,8 +262,8 @@ const PANELS: Panel[] = [
   },
 ];
 
-/** Solid on the right, fading leftward along a "/" slant — the row shows through. */
-const ROW_PHOTO_FADE = "linear-gradient(300deg, black 40%, transparent 75%)";
+/** Solid on the right, fading leftward along a "\" slant — the row shows through. */
+const ROW_PHOTO_FADE = "linear-gradient(240deg, black 40%, transparent 75%)";
 
 /**
  * Two columns on a laptop (Clarence, 2026-10-25): the villas as a list on the
