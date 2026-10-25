@@ -21,7 +21,6 @@ import {
   ArrowUpRight,
   BadgeCheck,
   Check,
-  ChevronRight,
   Globe,
   MapPin,
   Play,
@@ -225,8 +224,10 @@ interface Panel {
   title: string;
   group: string;
   location: string;
+  region: string;
   highlight: string;
   summary: string;
+  brief: string;
   stats: string[];
   photos: string[];
   coverPosition?: string;
@@ -240,8 +241,10 @@ const PANELS: Panel[] = [
     title: v.title,
     group: v.group,
     location: v.location,
+    region: regionOf(v.location),
     highlight: v.highlight,
     summary: v.summary,
+    brief: `${v.bedrooms} BR · ${v.maxPax} guests`,
     stats: [`${v.bedrooms} bedrooms`, `${v.bathrooms} baths`, `Up to ${v.maxPax} guests`],
     photos: [v.cover, ...v.more].map((n) => villaPhoto(v.code, n)),
     href: villaUrl(v.code),
@@ -251,9 +254,11 @@ const PANELS: Panel[] = [
     title: "Opening soon",
     group: `Villa no. ${VILLAS.length + 1} · Acquired`,
     location: "San Vicente, Bamban, Tarlac",
+    region: "Tarlac",
     highlight: "10 minutes from Clark Airport",
     summary:
       "Already acquired and opening soon — Malaya's newest, 10 minutes from Clark Airport. Want the next one to be yours?",
+    brief: "Acquired",
     stats: [],
     photos: ["/villas/next.webp"],
     coverPosition: "46% 62%",
@@ -262,10 +267,30 @@ const PANELS: Panel[] = [
   },
 ];
 
+/** "Vista Verde, Bacoor, Cavite" → "Cavite". */
+function regionOf(location: string) {
+  return location.split(",").pop()!.trim();
+}
+
+/** The list's sections, in the order the villas first appear. */
+const REGIONS = PANELS.reduce<{ region: string; rows: { panel: Panel; i: number }[] }[]>(
+  (groups, panel, i) => {
+    const group = groups.find((g) => g.region === panel.region);
+    if (group) group.rows.push({ panel, i });
+    else groups.push({ region: panel.region, rows: [{ panel, i }] });
+    return groups;
+  },
+  [],
+);
+
 /**
  * Two columns on a laptop (Clarence, 2026-10-25): the villas as a list on the
- * left — the Inbox's list look — and the picked one large on the right. On a
- * phone the preview opens under the tapped row instead.
+ * left and the picked one large on the right. On a phone the preview opens
+ * under the tapped row instead.
+ *
+ * The list is a brochure's index, not a card (Clarence, 2026-10-25: "looks
+ * basic"): ruled rows on the page itself, grouped by region, no thumbnails —
+ * the preview carries the photo — and a brown rule marking the picked one.
  *
  * Picking a row only picks it. The one way off the page is the preview's own
  * View villa button, so nobody leaves by accident.
@@ -287,62 +312,70 @@ function Villas() {
       </div>
 
       <div className="mx-auto mt-10 grid max-w-6xl gap-5 px-3 sm:px-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.25fr)] lg:items-start">
-        <ul className="flex flex-col gap-1 rounded-3xl bg-card p-2 shadow-level-2">
-          {PANELS.map((p, i) => {
-            const on = i === active;
-            return (
-              <li key={p.key}>
-                <button
-                  type="button"
-                  onClick={() => setActive(i)}
-                  aria-pressed={on}
-                  className={cn(
-                    "flex w-full items-center gap-3 rounded-2xl px-2.5 py-2 text-left transition-colors",
-                    on ? "bg-secondary" : "hover:bg-secondary/60",
-                  )}
-                >
-                  <img
-                    src={p.photos[0]}
-                    alt=""
-                    loading="lazy"
-                    style={p.coverPosition ? { objectPosition: p.coverPosition } : undefined}
-                    className="size-12 shrink-0 rounded-xl object-cover"
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-2">
-                      <span className="text-[11px] font-semibold tabular-nums text-muted-foreground">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <span className={cn("truncate text-sm", on ? "font-bold" : "font-semibold")}>
-                        {p.title}
-                      </span>
-                      {p.soon && (
-                        <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-semibold text-success">
-                          Acquired
+        <div className="flex flex-col gap-7 px-1">
+          {REGIONS.map(({ region, rows }) => (
+            <div key={region}>
+              <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                {region} <span className="font-normal tabular-nums">· {rows.length}</span>
+              </p>
+              <ul className="border-t border-border">
+                {rows.map(({ panel: p, i }) => {
+                  const on = i === active;
+                  return (
+                    <li key={p.key} className="border-b border-border">
+                      <button
+                        type="button"
+                        onClick={() => setActive(i)}
+                        aria-pressed={on}
+                        className="group relative flex w-full items-baseline gap-4 py-3.5 pl-4 pr-1 text-left"
+                      >
+                        <span
+                          aria-hidden
+                          className={cn(
+                            "absolute inset-y-2.5 left-0 w-0.5 rounded-full bg-primary transition-opacity",
+                            on ? "opacity-100" : "opacity-0",
+                          )}
+                        />
+                        <span
+                          className={cn(
+                            "w-12 shrink-0 text-[11px] font-semibold tabular-nums tracking-[0.08em] transition-colors",
+                            on ? "text-primary" : "text-muted-foreground",
+                          )}
+                        >
+                          No. {String(i + 1).padStart(2, "0")}
                         </span>
+                        <span
+                          className={cn(
+                            "site-display min-w-0 flex-1 truncate text-lg leading-none transition-colors",
+                            on
+                              ? "text-brand-heading"
+                              : "text-foreground/70 group-hover:text-foreground",
+                          )}
+                        >
+                          {p.title}
+                        </span>
+                        <span
+                          className={cn(
+                            "shrink-0 text-[10px] font-semibold uppercase tabular-nums tracking-[0.14em]",
+                            p.soon ? "text-success" : "text-muted-foreground",
+                          )}
+                        >
+                          {p.brief}
+                        </span>
+                      </button>
+                      {/* The phone's preview, right under the row it belongs to. */}
+                      {on && (
+                        <div className="pb-4 pt-1 lg:hidden">
+                          <VillaPreview panel={p} n={i + 1} />
+                        </div>
                       )}
-                    </span>
-                    <span className="mt-0.5 flex items-center gap-1 truncate text-xs text-muted-foreground">
-                      <MapPin className="size-3 shrink-0" /> {p.location}
-                    </span>
-                  </span>
-                  <ChevronRight
-                    className={cn(
-                      "size-4 shrink-0 text-muted-foreground transition-transform",
-                      on && "rotate-90 text-primary lg:rotate-0",
-                    )}
-                  />
-                </button>
-                {/* The phone's preview, right under the row it belongs to. */}
-                {on && (
-                  <div className="px-1 pb-2 pt-1 lg:hidden">
-                    <VillaPreview panel={p} n={i + 1} />
-                  </div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
 
         <div className="hidden lg:sticky lg:top-24 lg:block">
           <VillaPreview key={current.key} panel={current} n={active + 1} />
