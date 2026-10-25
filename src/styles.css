@@ -1181,13 +1181,3 @@
     overflow-x: auto;
   }
 }
-
-/* The build story's per-step clock (routes/index.tsx, Built). */
-@keyframes build-step {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}

@@ -27,7 +27,7 @@ import {
   Play,
   Star,
 } from "@/components/icons";
-import { useEffect, useState, type CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 
 import { PublicFooter, PublicHeader } from "@/components/site/chrome";
 import { PlatformLogo, type Platform } from "@/components/site/logos";
@@ -272,7 +272,12 @@ const PANELS: Panel[] = [
  */
 function Villas() {
   // Opens on the acquired villa (Clarence, 2026-10-25), the newest one.
-  const [active, setActive] = useState(() => Math.max(0, PANELS.findIndex((p) => p.soon)));
+  const [active, setActive] = useState(() =>
+    Math.max(
+      0,
+      PANELS.findIndex((p) => p.soon),
+    ),
+  );
   const current = PANELS[active] ?? PANELS[0]!;
   return (
     <section id="villas" className="scroll-mt-20 pt-20 lg:pt-24">
@@ -477,34 +482,22 @@ const BUILD_FACTS = [
 ];
 
 /**
- * The build as a story: the steps on the left play through on their own
- * (paused while you point at the section), the photo on the right follows,
- * and clicking a step jumps to it.
+ * The build as a strip of all four photos, side by side (Clarence,
+ * 2026-10-25: nobody clicks through a slideshow, so the photos past the first
+ * went unseen). Each step is written on its own photo, the villa pills' look.
  */
 function Built() {
-  const [step, setStep] = useState(0);
-  const [paused, setPaused] = useState(false);
-  useEffect(() => {
-    if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = window.setTimeout(() => setStep((s) => (s + 1) % BUILD_STEPS.length), 3800);
-    return () => window.clearTimeout(t);
-  }, [step, paused]);
-  const current = BUILD_STEPS[step]!;
-
   return (
-    <section
-      id="built"
-      className="scroll-mt-20 pt-24 lg:pt-28"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
-      <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
-        <div className="order-2 lg:order-1">
-          <Eyebrow>Built from the ground up · Lian, Batangas</Eyebrow>
-          <h2 className="site-display mt-4 text-4xl leading-none text-brand-heading sm:text-5xl">
-            From bare lot to beach cabins
-          </h2>
-          <div className="mt-5 flex flex-wrap gap-1.5">
+    <section id="built" className="scroll-mt-20 pt-24 lg:pt-28">
+      <div className="mx-auto max-w-6xl px-4 sm:px-8">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-end lg:gap-14">
+          <div>
+            <Eyebrow>Built from the ground up · Lian, Batangas</Eyebrow>
+            <h2 className="site-display mt-4 text-4xl leading-none text-brand-heading sm:text-5xl">
+              From bare lot to beach cabins
+            </h2>
+          </div>
+          <div className="flex flex-wrap gap-1.5 lg:justify-end">
             {BUILD_FACTS.map((f) => (
               <span
                 key={f}
@@ -514,94 +507,53 @@ function Built() {
               </span>
             ))}
           </div>
-
-          <ol className="relative mt-7 space-y-1">
-            {BUILD_STEPS.map((s, i) => {
-              const on = i === step;
-              const done = i < step;
-              return (
-                <li key={s.step}>
-                  <button
-                    type="button"
-                    onClick={() => setStep(i)}
-                    aria-current={on ? "step" : undefined}
-                    className={cn(
-                      "relative flex w-full items-start gap-4 overflow-hidden rounded-2xl px-3 py-3 text-left transition-colors",
-                      on ? "bg-card shadow-level-2" : "hover:bg-card/60",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "grid size-8 shrink-0 place-items-center rounded-full text-xs font-bold tabular-nums transition-colors",
-                        on || done
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-secondary text-muted-foreground",
-                      )}
-                    >
-                      {done ? <Check className="size-4" /> : String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span
-                        className={cn(
-                          "brand-caps block text-base",
-                          on ? "text-primary" : "text-foreground/80",
-                        )}
-                      >
-                        {s.step}
-                      </span>
-                      <span className="block text-sm text-muted-foreground">{s.note}</span>
-                    </span>
-                    {/* The step's own clock — fills while it plays. */}
-                    {on && !paused && (
-                      <span
-                        key={step}
-                        className="absolute inset-x-0 bottom-0 h-0.5 origin-left bg-primary/60"
-                        style={{ animation: "build-step 3.8s linear forwards" }}
-                      />
-                    )}
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
-
-          <div className="mt-7 flex flex-wrap items-center gap-3">
-            <Link
-              to="/inquire"
-              search={{ type: "build", step: 2 }}
-              className="brand-caps inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-[15px] text-primary-foreground shadow-level-2 transition hover:bg-primary/90"
-            >
-              Build yours <ArrowRight className="size-4" />
-            </Link>
-            <Link
-              to="/inquire"
-              search={{ type: "other", step: 2 }}
-              className="inline-flex h-11 items-center gap-2 rounded-full bg-card px-5 text-sm shadow-level-1 transition hover:shadow-level-2"
-            >
-              <span className="size-2 rounded-full bg-success" />
-              <span className="font-semibold">Now for sale</span>
-              <span className="text-muted-foreground">· ₱8.8M for both</span>
-            </Link>
-          </div>
         </div>
 
-        <div className="relative order-1 aspect-[4/5] overflow-hidden rounded-[2rem] bg-secondary shadow-level-3 lg:order-2">
-          {BUILD_STEPS.map((s, i) => (
-            <img
-              key={s.photo}
-              src={s.photo}
-              alt={s.step}
-              loading="lazy"
-              className={cn(
-                "absolute inset-0 size-full object-cover transition-all duration-700",
-                i === step ? "scale-100 opacity-100" : "scale-105 opacity-0",
-              )}
-            />
-          ))}
-          <span className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full bg-card/95 px-3 py-1.5 text-xs font-semibold shadow-level-1">
-            {step === BUILD_STEPS.length - 1 && <Check className="size-3.5 text-success" />}
-            {String(step + 1).padStart(2, "0")} · {current.step}
-          </span>
+        <ol className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+          {BUILD_STEPS.map((s, i) => {
+            const last = i === BUILD_STEPS.length - 1;
+            return (
+              <li
+                key={s.step}
+                className="group relative aspect-[3/4] overflow-hidden rounded-3xl bg-secondary shadow-level-2"
+              >
+                <img
+                  src={s.photo}
+                  alt={s.step}
+                  loading="lazy"
+                  className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <span className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
+                <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-card/95 px-2.5 py-1 text-[11px] font-semibold tabular-nums shadow-level-1">
+                  {last && <Check className="size-3.5 text-success" />}
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="absolute inset-x-4 bottom-4 text-white">
+                  <span className="brand-caps block text-base sm:text-lg">{s.step}</span>
+                  <span className="mt-0.5 block text-xs text-white/80 sm:text-sm">{s.note}</span>
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            to="/inquire"
+            search={{ type: "build", step: 2 }}
+            className="brand-caps inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-[15px] text-primary-foreground shadow-level-2 transition hover:bg-primary/90"
+          >
+            Build yours <ArrowRight className="size-4" />
+          </Link>
+          <Link
+            to="/inquire"
+            search={{ type: "other", step: 2 }}
+            className="inline-flex h-11 items-center gap-2 rounded-full bg-card px-5 text-sm shadow-level-1 transition hover:shadow-level-2"
+          >
+            <span className="size-2 rounded-full bg-success" />
+            <span className="font-semibold">Now for sale</span>
+            <span className="text-muted-foreground">· ₱8.8M for both</span>
+          </Link>
         </div>
       </div>
     </section>
