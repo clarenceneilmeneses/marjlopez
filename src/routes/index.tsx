@@ -120,10 +120,7 @@ function Hero() {
           </a>
 
           <div className="absolute inset-x-0 bottom-0 p-6 pb-12 sm:p-10 sm:pb-14 lg:inset-y-0 lg:right-auto lg:flex lg:w-[58%] lg:flex-col lg:justify-center lg:p-16 lg:pb-24">
-            <p className="brand-eyebrow text-[10px] text-white/85 sm:text-xs">
-              Airbnb · Build · Systems
-            </p>
-            <h1 className="site-display mt-4 text-[2.7rem] leading-[0.95] text-white sm:text-6xl xl:text-7xl">
+            <h1 className="site-display text-[2.7rem] leading-[0.95] text-white sm:text-6xl xl:text-7xl">
               Start &amp; earn
               <br />
               through Airbnb
@@ -175,7 +172,12 @@ function Hero() {
   );
 }
 
-/** Every audience number, in one quiet row of pills — the admin's chip strip. */
+/**
+ * Every audience number. A quiet row of pills on a laptop. On a phone the
+ * row wrapped 2 · 1 · 1 · 1, centred and ragged (Clarence, 2026-10-25: "placement
+ * looks awkward"), so there it is a two-column grid of equal tiles, number
+ * over label, with "As seen on PTV" across the bottom.
+ */
 function Followers() {
   const pills: { logo?: Platform; big: string; small: string; href: string; tv?: boolean }[] = [
     { logo: "facebook", big: FACEBOOK.followers, small: "Facebook", href: FACEBOOK.url },
@@ -195,23 +197,28 @@ function Followers() {
     },
   ];
   return (
-    <div className="mx-auto mt-6 flex max-w-5xl flex-wrap justify-center gap-2 px-1">
+    <div className="mx-auto mt-6 grid max-w-5xl grid-cols-2 gap-2 px-3 sm:flex sm:flex-wrap sm:justify-center sm:px-1">
       {pills.map((p) => (
         <a
           key={p.small}
           href={p.href}
           {...(p.href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}
-          className="flex items-center gap-2 rounded-full bg-card px-3.5 py-2 text-sm shadow-level-1 transition hover:shadow-level-2"
+          className={cn(
+            "flex items-center gap-3 rounded-2xl bg-card px-4 py-3 text-sm shadow-level-1 transition hover:shadow-level-2 sm:gap-2 sm:rounded-full sm:px-3.5 sm:py-2",
+            p.tv && "col-span-2",
+          )}
         >
           {p.logo ? (
-            <PlatformLogo platform={p.logo} className="size-[18px]" />
+            <PlatformLogo platform={p.logo} className="size-5 shrink-0 sm:size-[18px]" />
           ) : p.tv ? (
-            <Play className="size-[18px] fill-[#FF0000] text-[#FF0000]" />
+            <Play className="size-5 shrink-0 fill-[#FF0000] text-[#FF0000] sm:size-[18px]" />
           ) : (
-            <Star className="size-[18px] fill-warning text-warning" />
+            <Star className="size-5 shrink-0 fill-warning text-warning sm:size-[18px]" />
           )}
-          <span className="font-semibold tabular-nums">{p.big}</span>
-          <span className="text-muted-foreground">{p.small}</span>
+          <span className="flex min-w-0 flex-col leading-tight sm:flex-row sm:items-center sm:gap-2">
+            <span className="font-semibold tabular-nums">{p.big}</span>
+            <span className="truncate text-xs text-muted-foreground sm:text-sm">{p.small}</span>
+          </span>
         </a>
       ))}
     </div>
@@ -667,25 +674,16 @@ function MeetMarj() {
             {mine.map((l) => (
               <AccountRow key={l.url} link={l} />
             ))}
-            <div className="flex flex-wrap gap-1.5 border-t border-border/60 p-3">
-              {more.map((l) => (
-                <a
-                  key={l.url}
-                  href={l.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-primary/10 hover:text-primary"
-                >
-                  {l.platform === "web" ? (
-                    <Globe className="size-3.5 text-primary" />
-                  ) : (
-                    <PlatformLogo platform={l.platform} className="size-3.5" />
-                  )}
-                  {l.name}
-                  {l.stat && <span className="text-muted-foreground">· {l.stat}</span>}
-                </a>
+            {/* The villas' own pages, grouped by where they live. They were one
+                cloud of chips — nine pills of the same weight, no order
+                (Clarence, 2026-10-25: "no clear hierarchy … just messy"). */}
+            <LinkGroup title="Malaya on Facebook" links={more.filter((l) => l.kind === "page")} />
+            <LinkGroup title="On Airbnb" links={more.filter((l) => l.kind === "listing")} />
+            {more
+              .filter((l) => l.kind === "site")
+              .map((l) => (
+                <AccountRow key={l.url} link={l} last />
               ))}
-            </div>
           </div>
         </div>
       </div>
@@ -693,13 +691,46 @@ function MeetMarj() {
   );
 }
 
-function AccountRow({ link }: { link: ProfileLink }) {
+/** A titled block of the villas' pages: two columns on a laptop, one on a phone. */
+function LinkGroup({ title, links }: { title: string; links: ProfileLink[] }) {
+  if (!links.length) return null;
+  return (
+    <div className="border-b border-border/60 px-2 pb-2 pt-3">
+      <p className="px-2 pb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+        {title}
+      </p>
+      <div className="grid sm:grid-cols-2">
+        {links.map((l) => (
+          <a
+            key={l.url}
+            href={l.url}
+            target="_blank"
+            rel="noreferrer"
+            className="group flex items-center gap-2.5 rounded-xl px-2 py-2 transition hover:bg-secondary/60"
+          >
+            {l.platform !== "web" && (
+              <PlatformLogo platform={l.platform} className="size-4 shrink-0" />
+            )}
+            <span className="min-w-0 flex-1 truncate text-sm font-medium">{l.name}</span>
+            {l.stat && <span className="text-xs text-muted-foreground">{l.stat}</span>}
+            <ArrowUpRight className="size-3.5 shrink-0 text-muted-foreground/60 transition group-hover:text-primary" />
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AccountRow({ link, last = false }: { link: ProfileLink; last?: boolean }) {
   return (
     <a
       href={link.url}
       target="_blank"
       rel="noreferrer"
-      className="group flex items-center gap-3 border-b border-border/60 px-4 py-3 transition hover:bg-secondary/60"
+      className={cn(
+        "group flex items-center gap-3 px-4 py-3 transition hover:bg-secondary/60",
+        !last && "border-b border-border/60",
+      )}
     >
       {link.platform === "web" ? (
         <Globe className="size-6 text-primary" />

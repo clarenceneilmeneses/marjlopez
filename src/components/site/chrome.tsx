@@ -5,6 +5,7 @@
  */
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
+  Building2,
   CircleHelp,
   FileText,
   Home,
@@ -30,7 +31,7 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { BRAND, FACEBOOK, LINKS } from "@/lib/brand";
 import { MALAYA_SITE } from "@/lib/villas";
 import { PlatformLogo, type Platform } from "./logos";
-import { useParallaxVar } from "./parallax";
+import { ParallaxImage } from "./parallax";
 import { initial } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/state/auth";
@@ -218,10 +219,17 @@ function PublicBottomNav() {
   const hidden = typing || scrolledAway;
   const client = Boolean(session) && !staff;
 
-  const tabs = [
-    { to: "/" as const, label: "Home", icon: Home, active: pathname === "/" },
+  const tabs: {
+    to: "/" | "/inquire" | "/messages";
+    hash?: string;
+    label: string;
+    icon: typeof Home;
+    active: boolean;
+    badge?: number;
+  }[] = [
+    { to: "/", label: "Home", icon: Home, active: pathname === "/" },
     {
-      to: "/inquire" as const,
+      to: "/inquire",
       label: "Inquire",
       icon: Send,
       active: pathname.startsWith("/inquire"),
@@ -237,6 +245,9 @@ function PublicBottomNav() {
           },
         ]
       : []),
+    // Clarence, 2026-10-25: one more tab before More. The villas are the
+    // proof the whole page leans on, so they get the slot (and leave More).
+    { to: "/", hash: "villas", label: "Villas", icon: Building2, active: false },
   ];
 
   return (
@@ -250,14 +261,15 @@ function PublicBottomNav() {
             const Icon = tab.icon;
             return (
               <Link
-                key={tab.to}
+                key={tab.label}
                 to={tab.to}
+                {...(tab.hash ? { hash: tab.hash } : {})}
                 aria-current={tab.active ? "page" : undefined}
                 className={navPillTab(tab.active)}
               >
                 <span className="relative">
                   <Icon className="size-[22px]" strokeWidth={tab.active ? 2.2 : 1.8} />
-                  {"badge" in tab && tab.badge ? (
+                  {tab.badge ? (
                     <span className="absolute -right-1 -top-0.5 size-2 rounded-full bg-destructive" />
                   ) : null}
                   <NavPillBadge count={0} />
@@ -281,7 +293,6 @@ function PublicBottomNav() {
           <nav className="flex flex-col gap-1 px-3">
             {[
               { to: "/" as const, hash: "about", label: "About Marj", icon: User },
-              { to: "/" as const, hash: "villas", label: "The villas", icon: Home },
               { to: "/" as const, hash: "reviews", label: "Guest reviews", icon: CircleHelp },
               { to: "/privacy" as const, hash: undefined, label: "Privacy", icon: FileText },
             ].map((l) => (
@@ -311,37 +322,30 @@ function PublicBottomNav() {
 }
 
 /**
- * The negative footer — Malaya's footer draft "04 — Negative": his name in
- * giant type, white on the dark brown band and cut off by its bottom edge,
- * then the columns on white. The name rises a little as it scrolls into view
- * (the same --parallax as the photos).
+ * The footer opens on Marj and Team Malaya under their sign (Clarence,
+ * 2026-10-25, in place of the giant MARJUN on a brown band). The photo
+ * straddles the page and the white footer, the way the hero's inquiry pill
+ * straddles the hero, and drifts like the other photos. On a phone it crops
+ * to 4:3 from the left, so both people stay in frame and the sign gives way.
  */
 export function PublicFooter() {
-  const ref = useParallaxVar<HTMLDivElement>();
   const col = "text-[11px] font-bold uppercase tracking-[0.16em] text-primary";
   const link = "text-sm text-foreground/80 transition-colors hover:text-primary";
   return (
     <footer className="mt-10">
-      <div
-        ref={ref}
-        className="relative h-[24vw] max-h-[260px] min-h-[96px] overflow-hidden bg-[#3a2314]"
-        aria-hidden
-      >
-        <p
-          className="site-display absolute inset-x-0 bottom-0 select-none text-center text-white"
-          style={{
-            // Outfit is wider than the Barqen this was sized for: 21vw keeps
-            // MARJUN inside a phone's width, tracked in like the headings.
-            fontSize: "min(21vw, 290px)",
-            letterSpacing: "-0.04em",
-            lineHeight: 0.8,
-            translate: "0 calc(12% - var(--parallax, 0) * 8%)",
-          }}
-        >
-          MARJUN
-        </p>
+      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-10">
+        <ParallaxImage
+          src="/brand/about-team.webp"
+          alt="Marj Lopez with Team Malaya"
+          loading="lazy"
+          strength={4}
+          frameClassName="aspect-[4/3] rounded-3xl shadow-level-3 sm:aspect-[1672/772]"
+          // The drift's slack crops the sides. Take it from the left on a
+          // laptop, so the TEAM MALAYA sign on the right stays whole.
+          className="object-[25%_center] sm:object-right"
+        />
       </div>
-      <div className="bg-card pb-28 md:pb-0">
+      <div className="-mt-20 bg-card pb-28 pt-20 sm:-mt-32 sm:pt-32 md:pb-0">
         <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 sm:px-10 lg:grid-cols-[1.5fr_1fr_1fr_1fr_auto]">
           <div>
             <p className="site-display text-3xl text-foreground">
