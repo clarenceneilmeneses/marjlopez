@@ -631,11 +631,11 @@ function Reviews() {
           </div>
         ))}
       </div>
-      <div className="mt-8 columns-1 gap-4 md:columns-2 lg:columns-3">
+      <div className="-mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 no-scrollbar sm:-mx-8 sm:px-8 md:mx-0 md:block md:columns-2 md:overflow-visible md:px-0 md:pb-0 lg:columns-3">
         {GUEST_REVIEWS.map((r) => (
           <figure
             key={r.name + r.when}
-            className="mb-4 break-inside-avoid rounded-2xl border border-border/70 bg-card p-5 shadow-level-1"
+            className="w-[82vw] max-w-sm shrink-0 snap-start break-inside-avoid rounded-2xl md:mb-4 md:w-auto md:max-w-none border border-border/70 bg-card p-5 shadow-level-1"
           >
             <div className="flex items-center gap-0.5 text-warning">
               {Array.from({ length: 5 }).map((_, i) => (
