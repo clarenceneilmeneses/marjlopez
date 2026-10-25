@@ -30,6 +30,7 @@ import {
 import { useState, type CSSProperties } from "react";
 
 import { PublicFooter, PublicHeader } from "@/components/site/chrome";
+import { GlideRow } from "@/components/site/glide";
 import { PlatformLogo, type Platform } from "@/components/site/logos";
 import { ParallaxImage } from "@/components/site/parallax";
 import {
@@ -132,31 +133,36 @@ function Hero() {
           </div>
         </div>
 
-        {/* The inquiry starter — overlaps the frame's edge, like Malaya's search pill. */}
+        {/* The inquiry starter — overlaps the frame's edge, like Malaya's search
+            pill, and behaves like it: one highlight glides between the three
+            choices, no hairlines between them (Clarence, 2026-10-25). */}
         <div className="relative z-10 mx-auto -mt-8 w-[calc(100%-1.5rem)] max-w-3xl lg:-mt-9">
           <div className="flex flex-col gap-1 rounded-3xl bg-card p-2 shadow-level-3 sm:flex-row sm:items-center sm:rounded-full">
-            {STARTERS.map((s, i) => {
-              const Icon = TYPES[s.type].icon;
-              return (
-                <Link
-                  key={s.type}
-                  to="/inquire"
-                  search={{ type: s.type, step: 2 }}
-                  className={cn(
-                    "flex flex-1 items-center gap-3 rounded-2xl px-4 py-2.5 transition hover:bg-secondary sm:rounded-full",
-                    i > 0 && "sm:border-l sm:border-border/70",
-                  )}
-                >
-                  <Icon className="size-5 shrink-0 text-primary" />
-                  <span className="leading-tight">
-                    <span className="block text-[11px] font-bold uppercase tracking-[0.12em] text-foreground">
-                      {s.label}
+            <GlideRow
+              className="flex flex-1 flex-col gap-1 sm:flex-row sm:items-center"
+              highlightClassName="bg-secondary rounded-2xl sm:rounded-full"
+            >
+              {STARTERS.map((s) => {
+                const Icon = TYPES[s.type].icon;
+                return (
+                  <Link
+                    key={s.type}
+                    to="/inquire"
+                    search={{ type: s.type, step: 2 }}
+                    data-glide
+                    className="relative flex flex-1 items-center gap-3 rounded-2xl px-4 py-2.5 sm:rounded-full"
+                  >
+                    <Icon className="size-5 shrink-0 text-primary" />
+                    <span className="leading-tight">
+                      <span className="block text-[11px] font-bold uppercase tracking-[0.12em] text-foreground">
+                        {s.label}
+                      </span>
+                      <span className="block text-sm text-muted-foreground">{s.sub}</span>
                     </span>
-                    <span className="block text-sm text-muted-foreground">{s.sub}</span>
-                  </span>
-                </Link>
-              );
-            })}
+                  </Link>
+                );
+              })}
+            </GlideRow>
             <Link
               to="/inquire"
               className="flex h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-[15px] font-semibold text-primary-foreground transition hover:bg-primary/90 sm:rounded-full"
@@ -492,27 +498,44 @@ const BUILD_FACTS = [
  * The build as a strip of all four photos, side by side (Clarence,
  * 2026-10-25: nobody clicks through a slideshow, so the photos past the first
  * went unseen). Each step is written on its own photo, the villa pills' look.
+ *
+ * Polished the same day ("looks off"): the five fact chips floated on the
+ * right and wrapped 4 + 1, the CTAs sat centred under the strip, and the
+ * captions started at different heights. Now the heading carries the facts as
+ * one quiet line, the two CTAs answer it on the right, and every caption is
+ * two lines tall so the four step names share a baseline.
  */
 function Built() {
   return (
     <section id="built" className="scroll-mt-20 pt-24 lg:pt-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-8">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-end lg:gap-14">
-          <div>
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
             <Eyebrow>Built from the ground up · Lian, Batangas</Eyebrow>
             <h2 className="site-display mt-4 text-4xl leading-none text-brand-heading sm:text-5xl">
               From bare lot to beach cabins
             </h2>
+            <p className="mt-4 text-sm text-muted-foreground sm:text-base">
+              {BUILD_FACTS.join(" · ")}
+            </p>
           </div>
-          <div className="flex flex-wrap gap-1.5 lg:justify-end">
-            {BUILD_FACTS.map((f) => (
-              <span
-                key={f}
-                className="rounded-full bg-card px-3 py-1.5 text-xs shadow-level-1 sm:text-sm"
-              >
-                {f}
-              </span>
-            ))}
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <Link
+              to="/inquire"
+              search={{ type: "other", step: 2 }}
+              className="inline-flex h-11 items-center gap-2 rounded-full bg-card px-5 text-sm shadow-level-1 transition hover:shadow-level-2"
+            >
+              <span className="size-2 rounded-full bg-success" />
+              <span className="font-semibold">Now for sale</span>
+              <span className="text-muted-foreground">₱8.8M for both</span>
+            </Link>
+            <Link
+              to="/inquire"
+              search={{ type: "build", step: 2 }}
+              className="brand-caps inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-[15px] text-primary-foreground shadow-level-2 transition hover:bg-primary/90"
+            >
+              Build yours <ArrowRight className="size-4" />
+            </Link>
           </div>
         </div>
 
@@ -537,31 +560,15 @@ function Built() {
                 </span>
                 <span className="absolute inset-x-4 bottom-4 text-white">
                   <span className="brand-caps block text-base sm:text-lg">{s.step}</span>
-                  <span className="mt-0.5 block text-xs text-white/80 sm:text-sm">{s.note}</span>
+                  {/* Two lines tall whatever the note, so the names line up. */}
+                  <span className="mt-0.5 line-clamp-2 block min-h-[2lh] text-xs leading-snug text-white/80 sm:text-sm">
+                    {s.note}
+                  </span>
                 </span>
               </li>
             );
           })}
         </ol>
-
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            to="/inquire"
-            search={{ type: "build", step: 2 }}
-            className="brand-caps inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-[15px] text-primary-foreground shadow-level-2 transition hover:bg-primary/90"
-          >
-            Build yours <ArrowRight className="size-4" />
-          </Link>
-          <Link
-            to="/inquire"
-            search={{ type: "other", step: 2 }}
-            className="inline-flex h-11 items-center gap-2 rounded-full bg-card px-5 text-sm shadow-level-1 transition hover:shadow-level-2"
-          >
-            <span className="size-2 rounded-full bg-success" />
-            <span className="font-semibold">Now for sale</span>
-            <span className="text-muted-foreground">· ₱8.8M for both</span>
-          </Link>
-        </div>
       </div>
     </section>
   );

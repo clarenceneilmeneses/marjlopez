@@ -31,6 +31,7 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { BRAND, FACEBOOK, LINKS } from "@/lib/brand";
 import { MALAYA_SITE } from "@/lib/villas";
 import { PlatformLogo, type Platform } from "./logos";
+import { GlideRow } from "./glide";
 import { ParallaxImage } from "./parallax";
 import { initial } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -99,12 +100,60 @@ function useHideOnScroll() {
   return hidden;
 }
 
+/**
+ * The admin's top-bar pill (components/admin/app-shell.tsx, TOP_PILL): white,
+ * a hairline edge, a soft shadow, round items inside.
+ */
+const TOP_PILL =
+  "flex items-center gap-0.5 rounded-full border border-border/70 bg-card p-0.5 shadow-level-2";
+
+/**
+ * The section in the middle of the screen, for the nav pill's resting
+ * highlight. Only on the landing page, where the sections are.
+ */
+function useActiveSection(enabled: boolean): string | undefined {
+  const [active, setActive] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    if (!enabled) {
+      setActive(undefined);
+      return;
+    }
+    const els = SECTIONS.map((s) => document.getElementById(s.hash)).filter(
+      (el): el is HTMLElement => Boolean(el),
+    );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) setActive(e.target.id);
+        }
+        // Above the first section (the hero) nothing is current.
+        if (window.scrollY < (els[0]?.offsetTop ?? 0) - window.innerHeight / 2) {
+          setActive(undefined);
+        }
+      },
+      { rootMargin: "-45% 0px -50% 0px" },
+    );
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [enabled]);
+  return active;
+}
+
+/**
+ * The header in the admin's top-bar language (Clarence, 2026-10-25: "implement
+ * the admin nav topbar principles on the landing page nav as well. we'll make
+ * it pill too"): the section links in one white pill with the inquiry pill's
+ * glide, resting on the section in view; Sign in and Work with me in a second
+ * pill on the right; the avatar a separate circle, as on the admin.
+ */
 export function PublicHeader() {
   const { session, staff, signOut } = useAuth();
   const [signInOpen, setSignInOpen] = useState(false);
   const unread = useClientUnread();
   const hidden = useHideOnScroll();
   const signedIn = Boolean(session);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const active = useActiveSection(pathname === "/");
 
   return (
     <>
@@ -115,37 +164,59 @@ export function PublicHeader() {
           hidden && "-translate-y-full",
         )}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-3 sm:px-8 md:py-4">
-          <Link to="/" aria-label={`${BRAND.name} home`}>
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-8">
+          <Link to="/" aria-label={`${BRAND.name} home`} className="shrink-0">
             <Wordmark />
           </Link>
 
-          <nav className="brand-caps hidden items-center gap-8 text-[15px] text-primary lg:gap-10 md:flex">
-            {SECTIONS.map((sec) => (
-              <Link
-                key={sec.hash}
-                to="/"
-                hash={sec.hash}
-                className="underline-offset-8 transition-opacity hover:opacity-70"
-              >
-                {sec.label}
-              </Link>
-            ))}
+          <nav aria-label="Sections" className="hidden md:block">
+            <GlideRow activeKey={active} className={TOP_PILL}>
+              {SECTIONS.map((sec) => (
+                <Link
+                  key={sec.hash}
+                  to="/"
+                  hash={sec.hash}
+                  data-glide
+                  data-active={active === sec.hash}
+                  className="relative rounded-full px-4 py-2 text-sm text-foreground/70 transition-colors hover:text-foreground data-[active=true]:font-medium data-[active=true]:text-primary"
+                >
+                  {sec.label}
+                </Link>
+              ))}
+            </GlideRow>
           </nav>
 
-          <div className="flex items-center gap-3">
-            {signedIn && !staff && (
+          <div className="flex shrink-0 items-center gap-2.5">
+            {/* On a phone only a client's Messages button is in it. */}
+            <div className={cn(TOP_PILL, !(signedIn && !staff) && "max-md:hidden")}>
+              {signedIn && !staff && (
+                <Link
+                  to="/messages"
+                  className="relative grid size-9 place-items-center rounded-full text-foreground/75 transition-colors hover:bg-secondary hover:text-primary"
+                  aria-label="Messages"
+                >
+                  <MessageCircle className="size-[18px]" />
+                  {unread && (
+                    <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-destructive ring-2 ring-card" />
+                  )}
+                </Link>
+              )}
+              {!signedIn && (
+                <button
+                  type="button"
+                  onClick={() => setSignInOpen(true)}
+                  className="h-9 rounded-full px-4 text-sm text-foreground/75 transition-colors hover:bg-secondary hover:text-foreground"
+                >
+                  Sign in
+                </button>
+              )}
               <Link
-                to="/messages"
-                className="relative hidden size-10 place-items-center rounded-full border border-border/70 bg-card text-foreground/75 shadow-level-2 transition hover:text-primary md:grid"
-                aria-label="Messages"
+                to="/inquire"
+                className="brand-caps hidden h-9 items-center rounded-full bg-primary px-5 text-sm text-primary-foreground transition hover:bg-primary/90 md:inline-flex"
               >
-                <MessageCircle className="size-[18px]" />
-                {unread && (
-                  <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-destructive" />
-                )}
+                Work with me
               </Link>
-            )}
+            </div>
             {signedIn ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -177,25 +248,10 @@ export function PublicHeader() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <button
-                type="button"
-                onClick={() => setSignInOpen(true)}
-                className="brand-caps hidden text-[15px] text-primary hover:opacity-70 md:inline"
-              >
-                Sign in
-              </button>
-            )}
-            <Button
-              asChild
-              size="sm"
-              className="brand-caps hidden h-10 rounded-full px-6 text-[15px] md:inline-flex"
-            >
-              <Link to="/inquire">Work with me</Link>
-            </Button>
-            {!signedIn && (
+              // A phone has no room for the pills: one Sign in button.
               <Button
                 size="sm"
-                className="brand-caps h-10 rounded-full px-5 text-[15px] md:hidden"
+                className="brand-caps h-10 rounded-full px-5 text-sm md:hidden"
                 onClick={() => setSignInOpen(true)}
               >
                 Sign in
@@ -322,122 +378,141 @@ function PublicBottomNav() {
 }
 
 /**
- * The footer opens on Marj and Team Malaya under their sign (Clarence,
- * 2026-10-25, in place of the giant MARJUN on a brown band). The photo
- * straddles the page and the white footer, the way the hero's inquiry pill
- * straddles the hero, and drifts like the other photos. On a phone it crops
- * to 4:3 from the left, so both people stay in frame and the sign gives way.
+ * The grounded footer — Malaya's footer draft "05 — Grounded" (Clarence,
+ * 2026-10-25: "i meant this kind of footer"): the columns on white, and under
+ * them a villa rising out of the page, its sky fading into the white so the
+ * links sit on the fade. The copyright sits on the photo's foot, over a soft
+ * shade for contrast.
+ *
+ * The photo is Casa Grey, the draft's own. It needs open sky at the top for
+ * the fade to land on; the Team Malaya photo it replaces has faces up there,
+ * which the fade would wash out.
  */
 export function PublicFooter() {
   const col = "text-[11px] font-bold uppercase tracking-[0.16em] text-primary";
   const link = "text-sm text-foreground/80 transition-colors hover:text-primary";
   return (
-    <footer className="mt-10">
-      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-10">
-        <ParallaxImage
-          src="/brand/about-team.webp"
-          alt="Marj Lopez with Team Malaya"
-          loading="lazy"
-          strength={4}
-          frameClassName="aspect-[4/3] rounded-3xl shadow-level-3 sm:aspect-[1672/772]"
-          // The drift's slack crops the sides. Take it from the left on a
-          // laptop, so the TEAM MALAYA sign on the right stays whole.
-          className="object-[25%_center] sm:object-right"
-        />
-      </div>
-      <div className="-mt-20 bg-card pb-28 pt-20 sm:-mt-32 sm:pt-32 md:pb-0">
-        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 sm:px-10 lg:grid-cols-[1.5fr_1fr_1fr_1fr_auto]">
-          <div>
-            <p className="site-display text-3xl text-foreground">
-              Start. Build.
-              <br />
-              Earn.
-            </p>
-            <p className="mt-4 text-sm text-muted-foreground">
-              {BRAND.name} · {FACEBOOK.intro}
-            </p>
-            <a
-              href={`mailto:${FACEBOOK.email}`}
-              className="text-sm text-muted-foreground hover:text-primary"
+    <footer className="mt-16 overflow-hidden bg-card">
+      <div className="relative z-10 mx-auto grid max-w-6xl gap-10 px-6 pt-16 sm:px-10 lg:grid-cols-[1.5fr_1fr_1fr_1fr_auto]">
+        <div>
+          <p className="site-display text-3xl text-foreground">
+            Start. Build.
+            <br />
+            Earn.
+          </p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            {BRAND.name} · {FACEBOOK.intro}
+          </p>
+          <a
+            href={`mailto:${FACEBOOK.email}`}
+            className="text-sm text-muted-foreground hover:text-primary"
+          >
+            {FACEBOOK.email}
+          </a>
+          <div className="mt-6">
+            <Link
+              to="/inquire"
+              className="brand-caps inline-flex h-11 items-center rounded-full bg-primary px-6 text-[15px] text-primary-foreground transition hover:bg-primary/90"
             >
-              {FACEBOOK.email}
-            </a>
-            <div className="mt-6">
-              <Link
-                to="/inquire"
-                className="brand-caps inline-flex h-11 items-center rounded-full bg-primary px-6 text-[15px] text-primary-foreground transition hover:bg-primary/90"
-              >
-                Work with me
-              </Link>
-            </div>
-          </div>
-          <FooterCol title="Work with me" titleClass={col}>
-            <Link to="/inquire" search={{ type: "start", step: 2 }} className={link}>
-              Start an Airbnb
+              Work with me
             </Link>
-            <Link to="/inquire" search={{ type: "build", step: 2 }} className={link}>
-              Build my Airbnb
-            </Link>
-            <Link to="/inquire" search={{ type: "system", step: 2 }} className={link}>
-              Booking system
-            </Link>
-            <Link to="/inquire" search={{ type: "other", step: 2 }} className={link}>
-              Partnerships
-            </Link>
-          </FooterCol>
-          <FooterCol title="Explore" titleClass={col}>
-            <Link to="/" hash="villas" className={link}>
-              The villas
-            </Link>
-            <Link to="/" hash="about" className={link}>
-              Meet Marj
-            </Link>
-            <Link to="/" hash="reviews" className={link}>
-              Guest reviews
-            </Link>
-            <a href={MALAYA_SITE} target="_blank" rel="noreferrer" className={link}>
-              Book a stay
-            </a>
-          </FooterCol>
-          <FooterCol title="Help" titleClass={col}>
-            <Link to="/messages" className={link}>
-              My messages
-            </Link>
-            <Link to="/privacy" className={link}>
-              Privacy notice
-            </Link>
-            <Link to="/admin/login" className={link}>
-              Team sign in
-            </Link>
-          </FooterCol>
-          <div>
-            <p className={col}>Social</p>
-            <div className="mt-4 flex gap-2">
-              {LINKS.filter((l) => l.kind === "personal").map((l) => (
-                <a
-                  key={l.url}
-                  href={l.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={`${l.name} on ${l.platform}`}
-                  className="grid size-10 place-items-center rounded-full bg-secondary text-primary transition hover:bg-primary hover:text-primary-foreground"
-                >
-                  <PlatformLogo platform={l.platform as Platform} mono className="size-[18px]" />
-                </a>
-              ))}
-            </div>
           </div>
         </div>
-        <div className="mx-auto flex max-w-6xl flex-col gap-2 border-t border-border/70 px-6 py-6 text-xs text-primary sm:flex-row sm:items-center sm:justify-between sm:px-10">
-          <p>
-            © {new Date().getFullYear()} {BRAND.name}. All rights reserved.
-          </p>
-          <a href={MALAYA_SITE} target="_blank" rel="noreferrer" className="hover:underline">
-            malayavillas.com
+        <FooterCol title="Work with me" titleClass={col}>
+          <Link to="/inquire" search={{ type: "start", step: 2 }} className={link}>
+            Start an Airbnb
+          </Link>
+          <Link to="/inquire" search={{ type: "build", step: 2 }} className={link}>
+            Build my Airbnb
+          </Link>
+          <Link to="/inquire" search={{ type: "system", step: 2 }} className={link}>
+            Booking system
+          </Link>
+          <Link to="/inquire" search={{ type: "other", step: 2 }} className={link}>
+            Partnerships
+          </Link>
+        </FooterCol>
+        <FooterCol title="Explore" titleClass={col}>
+          <Link to="/" hash="villas" className={link}>
+            The villas
+          </Link>
+          <Link to="/" hash="about" className={link}>
+            Meet Marj
+          </Link>
+          <Link to="/" hash="reviews" className={link}>
+            Guest reviews
+          </Link>
+          <a href={MALAYA_SITE} target="_blank" rel="noreferrer" className={link}>
+            Book a stay
           </a>
+        </FooterCol>
+        <FooterCol title="Help" titleClass={col}>
+          <Link to="/messages" className={link}>
+            My messages
+          </Link>
+          <Link to="/privacy" className={link}>
+            Privacy notice
+          </Link>
+          <Link to="/admin/login" className={link}>
+            Team sign in
+          </Link>
+        </FooterCol>
+        <div>
+          <p className={col}>Social</p>
+          <div className="mt-4 flex gap-2">
+            {LINKS.filter((l) => l.kind === "personal").map((l) => (
+              <a
+                key={l.url}
+                href={l.url}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`${l.name} on ${l.platform}`}
+                className="grid size-10 place-items-center rounded-full bg-secondary text-primary transition hover:bg-primary hover:text-primary-foreground"
+              >
+                <PlatformLogo platform={l.platform as Platform} mono className="size-[18px]" />
+              </a>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-start justify-between gap-4 border-t border-border/70 pt-5 text-xs text-muted-foreground md:hidden">
+          <FooterLegal />
+        </div>
+      </div>
+
+      {/* The villa. Pulled up under the last links so they sit on its faded sky. */}
+      <div className="relative -mt-10 aspect-[4/5] w-full sm:-mt-28 sm:aspect-[16/9] lg:aspect-[2/1]">
+        <img
+          src="/villas/pr-012/0.webp"
+          alt="Casa Grey, one of the Malaya villas"
+          loading="lazy"
+          className="absolute inset-0 size-full object-cover object-[60%_bottom]"
+        />
+        <span className="absolute inset-x-0 top-0 h-3/5 bg-gradient-to-b from-card via-card/85 to-transparent" />
+        {/* On a phone the floating nav covers the photo's foot, so the
+            copyright sits on the white above instead (FooterLegal, md:hidden). */}
+        <span className="absolute inset-x-0 bottom-0 hidden h-40 bg-gradient-to-t from-black/50 to-transparent md:block" />
+        <div className="absolute inset-x-0 bottom-0 mx-auto hidden max-w-6xl items-end justify-between px-10 pb-7 text-xs text-white/90 md:flex">
+          <FooterLegal />
         </div>
       </div>
     </footer>
+  );
+}
+
+/** Copyright on one side; the photo's villa and malayavillas.com on the other. */
+function FooterLegal() {
+  return (
+    <>
+      <p>
+        © {new Date().getFullYear()} {BRAND.name}. All rights reserved.
+      </p>
+      <p className="flex flex-col items-end gap-1">
+        <span className="uppercase tracking-[0.16em] opacity-75">Casa Grey</span>
+        <a href={MALAYA_SITE} target="_blank" rel="noreferrer" className="hover:underline">
+          malayavillas.com
+        </a>
+      </p>
+    </>
   );
 }
 
