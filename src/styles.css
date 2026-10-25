@@ -653,52 +653,28 @@
                           never change what "this failed" looks like.
    ============================================================================ */
 
-/* ============================================================================
-   THE DESIGNER'S REDESIGN — MAIN.psd / OWN VILLA.psd / ABOUT.psd, 2026-09-28
-   ============================================================================
+/* ------------------------------------------------- the public side = the admin
+   Clarence, 2026-10-25: "the ui of the landing page doesnt quite match the ui
+   of the admin like the admin side looks more professional and posh". The
+   guest side was still dressed as Malaya's guest site — Barqen caps, Clash
+   eyebrows at 0.54em, Montserrat, brown headings on grained paper — while the
+   admin is Outfit and Karla, sentence case, one neutral family with one brown
+   accent, white cards on a page a step darker. Two brands in one product.
 
-   Three faces, each with one job (design/extracted/TOKENS.md):
-
-     --font-display       Barqen — headings, nav, buttons, villa names. Always
-                          caps. Self-hosted from the designer's file (Storytype
-                          Studio), 2026-09-29; Galdeano stood in before that.
-     --font-sans          Montserrat — body, forms, card meta, the footer.
-     --font-voice         Clash Display — the wide-tracked eyebrows and the
-                          marketing paragraphs in the hero sections.
-
-   The ground is the designer's paper: a warm off-white with a grain texture
-   under everything. Light mode only — dark mode keeps its own ground, because
-   a paper photograph at 5% lightness is mud. The palette itself barely moves:
-   the owner's brown was already the designer's brown. What changes is that
-   body ink turns from neutral grey-black to the designer's dark brown.
-   ============================================================================ */
-/* public/fonts/barqen.woff2 is the designer's Barqen.otf, converted as-is
-   (one weight). It has no ₱ — prices are Montserrat, and a stray one falls
-   through to the next face in the stack. */
-@font-face {
-  font-family: "Barqen";
-  src: url("/fonts/barqen.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
+   So the public side now takes the admin's faces and ground. The class names
+   (`site-display`, `brand-caps`, `brand-eyebrow`) stay, so no page changes;
+   what they draw is the admin's heading, button and eyebrow. Barqen and the
+   paper grain are no longer used here. */
 [data-site="public"] {
-  --font-display: "Barqen", ui-serif, Georgia, serif;
-  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-  --font-voice: "Clash Display", "Montserrat", ui-sans-serif, system-ui, sans-serif;
-  /* Headings are a shade lighter and warmer than buttons in every PSD. */
-  --brand-heading: #8b5826;
+  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Karla", ui-sans-serif, system-ui, sans-serif;
+  --font-voice: var(--font-sans);
+  --brand-heading: var(--foreground);
 }
 
+/* The admin's page tint (the depth block below), under white cards. */
 [data-site="public"]:not(.dark) {
-  --background: #f5f4f2;
-  --foreground: #3c2411;
-  --card-foreground: #3c2411;
-  --surface-foreground: #3c2411;
-  --popover-foreground: #3c2411;
-  /* Warm, and still AA: 6.9:1 on the paper, 7.4:1 on a white card. */
-  --muted-foreground: #5f4a3a;
+  --background: oklch(0.965 0.002 90);
 }
 
 /* ------------------------------------------------------- admin light, depth
@@ -718,10 +694,10 @@
      - lighter borders (L 0.79 -> 0.895), since the step and the shadow now
        hold a card off the page, and softer outline buttons (--control, L 0.84).
        Fields keep their own 3:1 edge (--input).
-   The brown accent is the one colour left, as in dark mode. The guest site
-   has its own paper (above) and is untouched. Muted text (L 0.44) is 5.3:1 on
-   the new page tint. */
-:root:not([data-site]):not(.dark) {
+   The brown accent is the one colour left, as in dark mode. Since 2026-10-25
+   the guest side uses this block too (see "the public side = the admin"
+   above). Muted text (L 0.44) is 5.3:1 on the new page tint. */
+:root:not(.dark) {
   --surface-muted: oklch(0.965 0.002 90);
   --secondary: oklch(0.965 0.002 90);
   --muted: oklch(0.965 0.002 90);
@@ -736,82 +712,38 @@
   --scrollbar-thumb-hover: oklch(0.74 0.002 90);
 }
 
-/* On the body AND on every `bg-background` surface, because most pages wrap
-   themselves in one and a flat fill would hide the grain. `fixed` pins the
-   grain to the viewport, so a page wrapper, a section and a sticky bar all
-   show the same sheet of paper with no seam where they meet. (iOS ignores
-   `fixed` and scrolls it instead — harmless.)
-
-   GRAIN SIZE, fixed 2026-09-28 after the owner said the grain looked large.
-   The PSD scales a 5704px paper photograph down to a third; the first export
-   was that third (1901px) shown at 1900px, so a retina screen doubled it and
-   every speck came out big and soft. `paper-grain.webp` is cut from the
-   full-resolution original instead, mirrored 2x2 so it tiles without a seam,
-   and stored at ~3x the size it is drawn: 1520px shown at 520px, which was
-   matched side by side against the PSD at a 1440px screen, and is sharp on
-   a 2x or 3x display. */
-[data-site="public"]:not(.dark) body,
-[data-site="public"]:not(.dark) .bg-background {
-  background-image: url("/brand/paper-grain.webp");
-  background-size: 520px 520px;
-  background-repeat: repeat;
-  background-attachment: fixed;
-}
-
-/* Finer on a phone — the owner's call, 2026-09-28. The same 520px tile on a
-   390px screen makes the grain a much bigger share of the view than on a
-   laptop. 300px was picked side by side against 380px and 520px on a 3x
-   phone: still paper, calmer, and the 1520px tile is still sharp (~1.7 image
-   pixels per device pixel). Below `md`, the breakpoint the rest of the site
-   treats as "phone". */
-@media (max-width: 767px) {
-  [data-site="public"]:not(.dark) body,
-  [data-site="public"]:not(.dark) .bg-background {
-    background-size: 300px 300px;
-  }
-}
-
-/* ...but never inside something that floats over the page. The date picker
-   (components/ui/calendar.tsx) is `bg-background`, so the check-in and
-   check-out calendars came out grained, and the numbers were hard to read on
-   it — the owner asked for them plain white, 2026-09-28. Popovers, dialogs
-   and sheets are panels, not paper: no grain, and white. */
+/* Panels that float over the page — popovers, dialogs, sheets — are white,
+   not the page tint. The date picker is `bg-background`, and the owner asked
+   for it plain white (2026-09-28). */
 [data-site="public"]:not(.dark) [data-radix-popper-content-wrapper] .bg-background,
 [data-site="public"]:not(.dark) [role="dialog"] .bg-background,
 [data-site="public"]:not(.dark) [role="dialog"].bg-background {
-  background-image: none;
-  /* White, not the page's off-white: the owner asked for "plain white". */
   background-color: var(--popover);
 }
 
-/* ...nor on anything that sits ON the paper. The paper is the page. A box
-   inside a white card (the arrival guide's check-in and house rules) or a
-   button anywhere (every outline button is `bg-background`) came out grained,
-   and read as see-through. Clarence, 2026-10-22: "turn these pills white".
-   Buttons and links keep their hover fill, so their white is only set at rest. */
-[data-site="public"]:not(.dark) :is(.bg-card, .bg-surface) .bg-background,
-[data-site="public"]:not(.dark) :is(button, a).bg-background {
-  background-image: none;
-}
+/* ...and so is anything that sits on a card, and every outline button and
+   pill (`bg-background`), at rest. Clarence, 2026-10-22: "turn these pills
+   white". They keep their hover fill. */
 [data-site="public"]:not(.dark) :is(.bg-card, .bg-surface) .bg-background:not(:is(button, a)),
 [data-site="public"]:not(.dark) :is(button, a).bg-background:not(:hover) {
   background-color: var(--card);
 }
 
-/* Barqen caps, tracked the way every heading in the PSDs is (100/1000 em). */
+/* Buttons and the nav: the admin's — Outfit, sentence case, medium weight.
+   (Was Barqen caps at 0.1em.) */
 [data-site="public"] .brand-caps {
   font-family: var(--font-display);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-weight: 500;
+  letter-spacing: -0.005em;
 }
 
-/* "CAVITE | TAGAYTAY", "WHAT'S COMING", "OWN A VILLA WITH MALAYA": Clash
-   Display caps at 540/1000 em — the widest tracking in the files. */
+/* Eyebrows: the admin's `malaya-eyebrow` — small Karla caps at 0.16em, set
+   600. (Was Clash Display at 0.54em, the widest tracking in the PSDs.) */
 [data-site="public"] .brand-eyebrow {
-  font-family: var(--font-voice);
-  font-weight: 500;
+  font-family: var(--font-sans);
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.54em;
+  letter-spacing: 0.16em;
 }
 
 [data-site="public"] .font-voice {
@@ -823,38 +755,20 @@
 }
 
 .dark[data-site="public"] .text-brand-heading {
-  color: var(--primary);
+  color: var(--foreground);
 }
 
-[data-site="public"] {
-  /* THE ONE THING THAT IS STILL GUEST-ONLY.
-     The palette moved to :root on 2026-09-09 so the admin shares it; the face
-     did not. Outfit is a UI sans and it is the right one for dense operational
-     screens -- a display serif in a Finance table is harder to scan and buys
-     nothing. Playfair carries the reference's thick-thin contrast at hero size,
-     which is a thing only the marketing pages do.
-
-     Body copy is Karla on both. The reference's small text is a plain sans,
-     and a serif at 14px in a villa card is harder to read for no gain.
-
-     2026-09-28: Playfair and Karla are gone from the guest site — the
-     designer's faces replace both, in the block above. The admin keeps
-     Outfit and Karla. */
-}
-
-/* Hero and section headings. Caps with the counter-spacing a display serif
-   needs — set caps tighten optically, and Playfair at 0.02em looks cramped
-   without it.
-
-   A utility rather than a rule on `h1, h2` inside the scope: villa names,
-   guest names and reservation codes are also h1s and h2s on this site, and
-   SHOUTING A GUEST'S NAME because it happens to be a heading is how a
-   type change becomes a bug report. */
+/* Hero and section headings: the admin's page title ("Good afternoon, Marj")
+   — Outfit semibold, sentence case, tight. A utility rather than a rule on
+   `h1, h2`, so a name that happens to be a heading is never restyled. Line
+   height is floored at 1.05: the pages set `leading-none` for the old caps,
+   and lowercase descenders need the room. */
 [data-site="public"] .site-display {
   font-family: var(--font-display);
-  text-transform: uppercase;
-  /* 0.1em from the PSDs (was 0.02em for Playfair). */
-  letter-spacing: 0.1em;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  text-wrap: balance;
 }
 
 /* The search's calendars have round days — Clarence, 2026-09-29: "rounded,

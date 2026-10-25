@@ -1,6 +1,6 @@
 /**
  * The public site's frame — Malaya's guest chrome (components/public/chrome.tsx
- * and bottom-nav.tsx there): Barqen caps in brown, a white bar on a laptop,
+ * and bottom-nav.tsx there), in the admin's type since 2026-10-25: a white bar on a laptop,
  * and on a phone the floating nav pill at the bottom with "More".
  */
 import { Link, useRouterState } from "@tanstack/react-router";
@@ -328,11 +328,14 @@ export function PublicFooter() {
         aria-hidden
       >
         <p
-          className="site-display absolute inset-x-0 bottom-0 select-none text-center leading-[0.78] text-white"
+          className="site-display absolute inset-x-0 bottom-0 select-none text-center text-white"
           style={{
-            fontSize: "min(25vw, 330px)",
-            letterSpacing: "0.03em",
-            translate: "0 calc(30% - var(--parallax, 0) * 8%)",
+            // Outfit is wider than the Barqen this was sized for: 21vw keeps
+            // MARJUN inside a phone's width, tracked in like the headings.
+            fontSize: "min(21vw, 290px)",
+            letterSpacing: "-0.04em",
+            lineHeight: 0.8,
+            translate: "0 calc(12% - var(--parallax, 0) * 8%)",
           }}
         >
           MARJUN
@@ -341,7 +344,7 @@ export function PublicFooter() {
       <div className="bg-card pb-28 md:pb-0">
         <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 sm:px-10 lg:grid-cols-[1.5fr_1fr_1fr_1fr_auto]">
           <div>
-            <p className="site-display text-3xl leading-tight text-[#3a2314]">
+            <p className="site-display text-3xl text-foreground">
               Start. Build.
               <br />
               Earn.

@@ -90,20 +90,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        // Outfit + Karla: the admin. Montserrat: the public site — Malaya's faces.
-        href: "https://fonts.googleapis.com/css2?family=Outfit:wght@400..700&family=Karla:ital,wght@0,300..800;1,300..800&family=Montserrat:wght@400;500;600;700&display=swap",
-      },
-      {
-        rel: "preload",
-        href: "/fonts/barqen.woff2",
-        as: "font",
-        type: "font/woff2",
-        crossOrigin: "anonymous",
-      },
-      { rel: "preconnect", href: "https://api.fontshare.com" },
-      {
-        rel: "stylesheet",
-        href: "https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600&display=swap",
+        // Outfit + Karla, on both sides since 2026-10-25 (styles.css, "the
+        // public side = the admin"). Barqen, Montserrat and Clash are gone.
+        href: "https://fonts.googleapis.com/css2?family=Outfit:wght@400..700&family=Karla:ital,wght@0,300..800;1,300..800&display=swap",
       },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
     ],
@@ -115,8 +104,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
-  // Malaya's split: the public pages get the paper and Barqen
-  // (`data-site="public"` in styles.css); the admin keeps Outfit and Karla.
+  // `data-site="public"` marks the guest side. Since 2026-10-25 it shares the
+  // admin's faces and ground (styles.css); the flag is kept for the few rules
+  // that still differ, like white pills on the page tint.
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const isPublic = !pathname.startsWith("/admin");
 
