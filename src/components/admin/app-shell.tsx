@@ -343,11 +343,11 @@ function AppShellInner({
                   {toolbar && <div className="min-w-0">{toolbar}</div>}
                 </div>
                 <div className="ml-auto flex items-center gap-2.5">
+                  <LiveClock className="mr-1 hidden lg:block" />
                   <div className={TOP_PILL}>
                     <span className="px-3 text-xs font-medium text-foreground lg:hidden">
                       {title}
                     </span>
-                    <LiveClock className="hidden pl-3.5 pr-1 lg:block" />
                     <NotificationBell />
                   </div>
                   <div className="hidden lg:block">
