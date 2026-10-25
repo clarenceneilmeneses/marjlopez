@@ -611,7 +611,9 @@ function ScreenFields({
     <div className="space-y-7">
       {screen.questions.map((q) => (
         <div key={q.key}>
-          {(many || q.control !== "cards") && <Label optional={q.optional}>{q.label}</Label>}
+          {(many || q.control !== "cards") && q.label !== screen.title && (
+            <Label optional={q.optional}>{q.label}</Label>
+          )}
           <QuestionControl q={q} value={answers[q.key]} onChange={(v) => onAnswer(q.key, v)} />
           {showProblems && !q.optional && !hasValue(answers[q.key]) && (
             <p className="mt-2 text-sm text-destructive">
