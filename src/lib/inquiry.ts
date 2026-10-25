@@ -12,12 +12,17 @@
  * decide Hot, so rename a value there too or Hot quietly stops firing.
  */
 import { Building2, Home, LayoutDashboard, Mail, type LucideIcon } from "@/components/icons";
+import type { Mark } from "@/components/site/logos";
 import type { LeadStage, LeadType } from "./types";
 
 export interface Option {
   value: string;
   label: string;
   hint?: string;
+  /** The companies this option names, drawn as their logos (2026-10-25). */
+  marks?: Mark[];
+  /** A plain icon where there is no company: a website, a friend. */
+  glyph?: "web" | "people";
 }
 
 export type Control = "cards" | "select" | "chips" | "text" | "textarea";
@@ -56,37 +61,40 @@ export const LOCATIONS: Option[] = [
 ];
 
 export const SOURCES: Option[] = [
-  { value: "facebook", label: "Facebook" },
-  { value: "instagram", label: "Instagram" },
-  { value: "tiktok", label: "TikTok" },
-  { value: "threads", label: "Threads" },
-  { value: "youtube", label: "YouTube" },
-  { value: "referral", label: "A friend referred me" },
-  { value: "malaya-guest", label: "I stayed at Malaya Villas" },
+  { value: "facebook", label: "Facebook", marks: ["facebook"] },
+  { value: "instagram", label: "Instagram", marks: ["instagram"] },
+  { value: "tiktok", label: "TikTok", marks: ["tiktok"] },
+  { value: "threads", label: "Threads", marks: ["threads"] },
+  { value: "youtube", label: "YouTube", marks: ["youtube"] },
+  { value: "referral", label: "A friend referred me", glyph: "people" },
+  { value: "malaya-guest", label: "I stayed at Malaya Villas", marks: ["malaya"] },
   { value: "other", label: "Somewhere else" },
 ];
 
 export const TYPES: Record<
   LeadType,
-  { label: string; short: string; blurb: string; icon: LucideIcon }
+  { label: string; short: string; blurb: string; icon: LucideIcon; marks?: Mark[] }
 > = {
   start: {
     label: "Start an Airbnb business",
     short: "Start",
     blurb: "Coaching on where to begin — the numbers, the location, the first listing.",
     icon: Home,
+    marks: ["airbnb"],
   },
   build: {
     label: "Build my own Airbnb",
     short: "Build",
     blurb: "Design and construction of a rental that books — villa, cabin or glamping.",
     icon: Building2,
+    marks: ["airbnb"],
   },
   system: {
     label: "Get a booking system",
     short: "System",
     blurb: "A website, inbox and back office like the one that runs Malaya Villas.",
     icon: LayoutDashboard,
+    marks: ["malaya"],
   },
   other: {
     label: "Something else",
@@ -274,11 +282,11 @@ export const SCREENS: Record<LeadType, Screen[]> = {
           label: "Where are you listed?",
           control: "chips",
           options: [
-            { value: "airbnb", label: "Airbnb" },
-            { value: "booking", label: "Booking.com" },
-            { value: "agoda", label: "Agoda" },
-            { value: "social", label: "FB / IG direct" },
-            { value: "website", label: "Own website" },
+            { value: "airbnb", label: "Airbnb", marks: ["airbnb"] },
+            { value: "booking", label: "Booking.com", marks: ["booking"] },
+            { value: "agoda", label: "Agoda", marks: ["agoda"] },
+            { value: "social", label: "FB / IG direct", marks: ["facebook", "instagram"] },
+            { value: "website", label: "Own website", glyph: "web" },
             { value: "none", label: "None yet" },
           ],
         },

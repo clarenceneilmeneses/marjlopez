@@ -15,12 +15,22 @@
  *   until Send, so a sign-in, a refresh or an email confirmation keeps them.
  */
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Check, Loader2, Lock, Pencil } from "@/components/icons";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Globe,
+  Loader2,
+  Lock,
+  Pencil,
+  Users,
+} from "@/components/icons";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AuthPanel } from "@/components/site/auth-panel";
-import { Wordmark } from "@/components/site/chrome";
+import { TOP_PILL, Wordmark } from "@/components/site/chrome";
+import { BrandMark } from "@/components/site/logos";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MobileInput } from "@/components/ui/form-field";
@@ -44,6 +54,7 @@ import { BRAND } from "@/lib/brand";
 import {
   answerLabel,
   type Answers,
+  type Option,
   type Question,
   type Screen,
   SCREENS,
@@ -257,13 +268,15 @@ function InquirePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border/40 bg-surface">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-8 sm:py-5">
+      {/* The landing's header language (2026-10-25): a blurred bar, not a
+          white strip with a rule, and the admin's white pill on the right. */}
+      <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-8">
           <Link to="/" aria-label={`${BRAND.name} home`}>
             <Wordmark />
           </Link>
-          <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-            <Lock className="size-4" /> About a minute
+          <span className={cn(TOP_PILL, "px-3.5 py-2 text-sm text-muted-foreground")}>
+            <Lock className="mr-2 size-4" /> About a minute
           </span>
         </div>
       </header>
@@ -274,7 +287,7 @@ function InquirePage() {
             <Link
               to="/"
               aria-label="Back home"
-              className="grid size-9 place-items-center rounded-full text-foreground transition-colors hover:bg-surface-muted"
+              className="grid size-9 place-items-center rounded-full bg-card text-foreground shadow-level-1 transition hover:shadow-level-2"
             >
               <ArrowLeft className="size-5" />
             </Link>
@@ -283,7 +296,7 @@ function InquirePage() {
               type="button"
               onClick={() => goTo(stage - 1)}
               aria-label="Previous question"
-              className="grid size-9 place-items-center rounded-full text-foreground transition-colors hover:bg-surface-muted"
+              className="grid size-9 place-items-center rounded-full bg-card text-foreground shadow-level-1 transition hover:shadow-level-2"
             >
               <ArrowLeft className="size-5" />
             </button>
@@ -327,14 +340,22 @@ function InquirePage() {
                         key={t}
                         type="button"
                         onClick={() => pickType(t)}
+                        aria-pressed={on}
                         className={cn(
-                          "flex flex-col items-start gap-3 rounded-2xl border bg-card p-5 text-left transition hover:border-primary/60 hover:shadow-level-1",
-                          on ? "border-primary ring-2 ring-primary/20" : "border-border/70",
+                          "relative flex flex-col items-start gap-3 rounded-2xl bg-card p-5 text-left shadow-level-1 transition hover:shadow-level-2",
+                          on && "ring-2 ring-primary",
                         )}
                       >
                         <span className="grid size-11 place-items-center rounded-xl bg-secondary text-primary">
                           <Icon className="size-5" />
                         </span>
+                        {meta.marks && (
+                          <span className="absolute right-4 top-4 flex items-center gap-1.5">
+                            {meta.marks.map((m) => (
+                              <BrandMark key={m} mark={m} className="size-6" />
+                            ))}
+                          </span>
+                        )}
                         <span>
                           <span className="block text-base font-semibold text-foreground">
                             {meta.label}
@@ -369,7 +390,7 @@ function InquirePage() {
 
               {stage === LAST && type && (
                 <div className="space-y-6">
-                  <dl className="divide-y divide-border/60 rounded-2xl border border-border/70 bg-card">
+                  <dl className="divide-y divide-border/60 rounded-2xl bg-card shadow-level-1">
                     <ReviewRow label="What you need" onEdit={() => goTo(1)}>
                       {TYPES[type].label}
                     </ReviewRow>
@@ -401,7 +422,7 @@ function InquirePage() {
                       You&apos;re signed in as the team. Sign out to send an inquiry as a client.
                     </p>
                   ) : !session ? (
-                    <div className="rounded-2xl border border-border/70 bg-surface p-5">
+                    <div className="rounded-2xl bg-card p-5 shadow-level-1">
                       <p className="font-semibold text-foreground">
                         Last step: an account, so we can reply
                       </p>
@@ -421,7 +442,7 @@ function InquirePage() {
             </div>
 
             {stage > 1 && (
-              <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-card/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur md:static md:mt-8 md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
+              <div className="fixed inset-x-0 bottom-0 z-40 bg-card/95 px-4 shadow-[0_-6px_20px_-12px_rgb(0_0_0/0.18)] pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur md:static md:mt-8 md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
                 <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
                   <div className="min-w-0 text-sm md:hidden">
                     <span className="block font-semibold text-foreground">
@@ -434,7 +455,7 @@ function InquirePage() {
                   {stage < LAST ? (
                     <Button
                       type="submit"
-                      className="h-12 shrink-0 rounded-xl px-8 text-base md:w-full md:justify-between md:px-6"
+                      className="h-12 shrink-0 rounded-full px-8 text-base md:w-full md:justify-between md:px-6"
                     >
                       <span>Next</span>
                       <ArrowRight className="size-5" />
@@ -443,7 +464,7 @@ function InquirePage() {
                     <Button
                       type="button"
                       onClick={() => void send()}
-                      className="h-12 shrink-0 rounded-xl px-6 text-base md:h-14 md:w-full md:justify-between"
+                      className="h-12 shrink-0 rounded-full px-6 text-base md:h-14 md:w-full md:justify-between"
                       disabled={!session || Boolean(staff) || submit.isPending || !aboutDone}
                     >
                       <span>{submit.isPending ? "Sending" : "Send to Marj's team"}</span>
@@ -465,7 +486,7 @@ function InquirePage() {
           </form>
 
           <aside className="hidden lg:block">
-            <div className="sticky top-8 rounded-2xl border border-border/70 bg-card p-5 shadow-level-1">
+            <div className="sticky top-24 rounded-2xl bg-card p-5 shadow-level-1">
               <p className="brand-eyebrow text-[10px] text-muted-foreground">Your request</p>
               {type ? (
                 <>
@@ -475,6 +496,9 @@ function InquirePage() {
                       return <Icon className="size-4 text-primary" />;
                     })()}
                     {TYPES[type].label}
+                    {TYPES[type].marks?.map((m) => (
+                      <BrandMark key={m} mark={m} className="ml-auto size-4" />
+                    ))}
                   </p>
                   <dl className="mt-4 space-y-2.5 text-sm">
                     {summary.map((r) => (
@@ -529,7 +553,7 @@ function InquirePage() {
               />
             )}
             <Button
-              className="mt-6 h-12 w-full rounded-xl text-base"
+              className="mt-6 h-12 w-full rounded-full text-base"
               disabled={editing !== null && !complete(editing)}
               onClick={() => setEditing(null)}
             >
@@ -630,6 +654,22 @@ function hasValue(v: string | string[] | undefined) {
   return Array.isArray(v) ? v.length > 0 : Boolean(v && v.trim());
 }
 
+/** An option's company logos, or its plain glyph; nothing when it has neither. */
+function OptionMarks({ option }: { option: Option }) {
+  if (option.marks?.length) {
+    return (
+      <span className="flex shrink-0 items-center -space-x-1">
+        {option.marks.map((m) => (
+          <BrandMark key={m} mark={m} className="size-5 rounded-full bg-card" />
+        ))}
+      </span>
+    );
+  }
+  if (option.glyph === "web") return <Globe className="size-5 shrink-0 text-primary" />;
+  if (option.glyph === "people") return <Users className="size-5 shrink-0 text-primary" />;
+  return null;
+}
+
 function QuestionControl({
   q,
   value,
@@ -651,13 +691,16 @@ function QuestionControl({
               onClick={() => onChange(o.value)}
               aria-pressed={on}
               className={cn(
-                "flex items-center justify-between gap-3 rounded-2xl border bg-card px-4 py-3.5 text-left transition hover:border-primary/60",
-                on ? "border-primary ring-2 ring-primary/20" : "border-border/70",
+                "flex items-center justify-between gap-3 rounded-2xl bg-card px-4 py-3.5 text-left shadow-level-1 transition hover:shadow-level-2",
+                on && "ring-2 ring-primary",
               )}
             >
-              <span>
-                <span className="block text-[15px] font-medium text-foreground">{o.label}</span>
-                {o.hint && <span className="block text-xs text-muted-foreground">{o.hint}</span>}
+              <span className="flex min-w-0 items-center gap-3">
+                <OptionMarks option={o} />
+                <span>
+                  <span className="block text-[15px] font-medium text-foreground">{o.label}</span>
+                  {o.hint && <span className="block text-xs text-muted-foreground">{o.hint}</span>}
+                </span>
               </span>
               <span
                 className={cn(
@@ -686,14 +729,13 @@ function QuestionControl({
               aria-pressed={on}
               onClick={() => onChange(on ? list.filter((v) => v !== o.value) : [...list, o.value])}
               className={cn(
-                "inline-flex h-11 items-center gap-1.5 rounded-full border px-4 text-[15px] transition",
-                on
-                  ? "border-primary bg-secondary font-medium text-primary"
-                  : "border-border/70 bg-card text-foreground hover:border-primary/60",
+                "inline-flex h-11 items-center gap-2 rounded-full bg-card px-4 text-[15px] shadow-level-1 transition hover:shadow-level-2",
+                on ? "font-medium text-primary ring-2 ring-primary" : "text-foreground",
               )}
             >
-              {on && <Check className="size-4" />}
+              <OptionMarks option={o} />
               {o.label}
+              {on && <Check className="size-4" />}
             </button>
           );
         })}
@@ -777,18 +819,27 @@ function AboutFields({
       </div>
       <div>
         <Label>Where did you find Marj?</Label>
-        <Select value={about.source} onValueChange={(v) => onChange({ source: v })}>
-          <SelectTrigger className="h-14 rounded-2xl bg-card px-4 text-base">
-            <SelectValue placeholder="Choose one" />
-          </SelectTrigger>
-          <SelectContent>
-            {SOURCES.map((s) => (
-              <SelectItem key={s.value} value={s.value}>
-                {s.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* Taps, not a dropdown, with each platform's logo (2026-10-25). */}
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {SOURCES.map((s) => {
+            const on = about.source === s.value;
+            return (
+              <button
+                key={s.value}
+                type="button"
+                aria-pressed={on}
+                onClick={() => onChange({ source: s.value })}
+                className={cn(
+                  "flex min-h-12 items-center gap-2.5 rounded-2xl bg-card px-3.5 py-2.5 text-left text-sm leading-tight shadow-level-1 transition hover:shadow-level-2",
+                  on ? "font-medium text-primary ring-2 ring-primary" : "text-foreground",
+                )}
+              >
+                <OptionMarks option={s} />
+                <span className="min-w-0">{s.label}</span>
+              </button>
+            );
+          })}
+        </div>
         {showProblems && !about.source && (
           <p className="mt-2 text-sm text-destructive">Please pick one.</p>
         )}

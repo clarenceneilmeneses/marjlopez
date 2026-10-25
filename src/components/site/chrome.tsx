@@ -104,7 +104,7 @@ function useHideOnScroll() {
  * The admin's top-bar pill (components/admin/app-shell.tsx, TOP_PILL): white,
  * a hairline edge, a soft shadow, round items inside.
  */
-const TOP_PILL =
+export const TOP_PILL =
   "flex items-center gap-0.5 rounded-full border border-border/70 bg-card p-0.5 shadow-level-2";
 
 /**
