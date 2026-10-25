@@ -59,6 +59,9 @@ export interface InboxData {
   leads: Lead[];
   /** Newest message per conversation, for the list preview. */
   last: Map<string, Message>;
+  /** The latest 1,500 messages, newest first — the dashboard and the bell read these. */
+  messages: Message[];
+  meetings: Meeting[];
 }
 
 export function useInbox(enabled: boolean) {
@@ -67,15 +70,17 @@ export function useInbox(enabled: boolean) {
     enabled,
     refetchInterval: 30_000,
     queryFn: async (): Promise<InboxData> => {
-      const [convs, leads, msgs] = await Promise.all([
+      const [convs, leads, msgs, meetings] = await Promise.all([
         supabase
           .from("conversations")
           .select("*, profile:profiles(*)")
           .order("last_activity", { ascending: false }),
         supabase.from("leads").select("*").order("created_at", { ascending: false }),
         supabase.from("messages").select("*").order("sent_at", { ascending: false }).limit(1500),
+        supabase.from("meetings").select("*").order("starts_at"),
       ]);
       if (convs.error) throw convs.error;
+      if (meetings.error) throw meetings.error;
       if (leads.error) throw leads.error;
       if (msgs.error) throw msgs.error;
       const last = new Map<string, Message>();
@@ -86,6 +91,8 @@ export function useInbox(enabled: boolean) {
         conversations: convs.data as ConversationWithPerson[],
         leads: leads.data as Lead[],
         last,
+        messages: msgs.data as Message[],
+        meetings: meetings.data as Meeting[],
       };
     },
   });

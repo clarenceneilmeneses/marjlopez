@@ -89,3 +89,10 @@ export function googleCalendarUrl(opts: {
   if (opts.location) p.set("location", opts.location);
   return `https://calendar.google.com/calendar/render?${p.toString()}`;
 }
+
+/** "just now", "5m ago", "3h ago", "2d ago", then a date. */
+export function ago(iso: string): string {
+  const t = timeAgo(iso);
+  if (t === "now") return "just now";
+  return /^\d+[mhd]$/.test(t) ? `${t} ago` : t;
+}

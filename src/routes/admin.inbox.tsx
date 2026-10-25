@@ -17,8 +17,10 @@ import {
   ArchiveRestore,
   ArrowLeft,
   CalendarPlus,
+  Check,
   ChevronDown,
   Flame,
+  Lightbulb,
   Mail,
   MailOpen,
   MessageSquareText,
@@ -78,7 +80,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { dateTime, firstName, hoursSince, initial, timeAgo } from "@/lib/format";
+import { dateTime, firstName, hoursSince, initial, shortDate, timeAgo } from "@/lib/format";
 import {
   answerLabel,
   LOST_REASONS,
@@ -120,6 +122,9 @@ import {
 } from "@/state/data";
 
 export const Route = createFileRoute("/admin/inbox")({
+  // `?c=<conversation id>` opens that conversation — the bell and the dashboard link here.
+  validateSearch: (s: Record<string, unknown>): { c?: string } =>
+    typeof s["c"] === "string" ? { c: s["c"] } : {},
   head: () => ({ meta: [{ title: "Inbox — Marj Lopez" }] }),
   component: InboxPage,
 });
@@ -156,8 +161,14 @@ function InboxPage() {
   const [stageFilter, setStageFilter] = useState<LeadStage | "all">("all");
   const [chip, setChip] = useState<Chip>(null);
   const [search, setSearch] = useState("");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [threadOnPhone, setThreadOnPhone] = useState(false);
+  const params = Route.useSearch();
+  const [selectedId, setSelectedId] = useState<string | null>(params.c ?? null);
+  const [threadOnPhone, setThreadOnPhone] = useState(Boolean(params.c));
+  useEffect(() => {
+    if (!params.c) return;
+    setSelectedId(params.c);
+    setThreadOnPhone(true);
+  }, [params.c]);
   useNavPillAway(threadOnPhone);
 
   const allRows = useMemo<Row[]>(() => {
@@ -860,6 +871,8 @@ function ThreadPane({
             </DropdownMenu>
           </div>
 
+          {row.lead && <StageStepper lead={row.lead} />}
+
           <div
             ref={scrollRef}
             className="max-h-[60vh] overflow-y-auto pr-1 lg:max-h-[55vh] xl:max-h-none xl:min-h-0 xl:flex-1"
@@ -1080,6 +1093,8 @@ function LeadPanel({
           </div>
         </CardContent>
       </Card>
+
+      <AtAGlance row={row} />
 
       {lead && (
         <Card className="border-border/70 bg-surface shadow-level-1">
@@ -1515,5 +1530,109 @@ function MeetingDialog({
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ------------------------------------------------------- stage and glance
+
+const PIPELINE: LeadStage[] = ["new", "talking", "call_booked", "proposal_sent", "won"];
+
+/** Where this lead is, as a clickable row of steps. Lost sits apart at the end. */
+function StageStepper({ lead }: { lead: Lead }) {
+  const patch = usePatchLead();
+  const at = PIPELINE.indexOf(lead.stage);
+  const set = (stage: LeadStage) =>
+    patch.mutate(
+      { id: lead.id, patch: { stage, ...(stage !== "lost" ? { lost_reason: null } : {}) } },
+      { onSuccess: () => toast.success(`Stage: ${stageLabel(stage)}`) },
+    );
+  return (
+    <div className="-mt-1 flex items-center gap-1 overflow-x-auto no-scrollbar">
+      {PIPELINE.map((st, i) => {
+        const done = lead.stage !== "lost" && i <= at;
+        const current = st === lead.stage;
+        return (
+          <button
+            key={st}
+            type="button"
+            onClick={() => set(st)}
+            disabled={patch.isPending}
+            className={cn(
+              "flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs transition-colors",
+              current
+                ? "bg-primary font-semibold text-primary-foreground"
+                : done
+                  ? "bg-primary/10 text-primary hover:bg-primary/15"
+                  : "bg-secondary text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {done && !current && <Check className="size-3" />}
+            {stageLabel(st)}
+          </button>
+        );
+      })}
+      <span className="mx-1 h-4 w-px shrink-0 bg-border" />
+      <button
+        type="button"
+        onClick={() => set("lost")}
+        disabled={patch.isPending}
+        className={cn(
+          "shrink-0 rounded-full px-2.5 py-1 text-xs transition-colors",
+          lead.stage === "lost"
+            ? "bg-muted-foreground font-semibold text-background"
+            : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+        )}
+      >
+        Lost
+      </button>
+    </div>
+  );
+}
+
+const NEXT_STEP: Record<LeadStage, string> = {
+  new: "Reply — they haven't heard from a person yet.",
+  talking: "Book a call: + → Schedule a call.",
+  call_booked: "After the call, send the proposal and move it to Proposal sent.",
+  proposal_sent: "Follow up in a few days if they go quiet.",
+  won: "Won. Keep the chat for the work ahead.",
+  lost: "Closed. It reopens if they write again.",
+};
+
+/** The conversation in numbers, and the obvious next move. */
+function AtAGlance({ row }: { row: Row }) {
+  const inbox = useInbox(true);
+  const msgs = (inbox.data?.messages ?? []).filter((m) => m.conversation_id === row.conv.id);
+  const fromThem = msgs.filter((m) => m.author === "client" && m.kind === "message").length;
+  const fromUs = msgs.filter((m) => m.author === "staff" && m.kind !== "auto").length;
+  const stats = [
+    { label: "First contact", value: shortDate(row.conv.created_at) },
+    { label: "Requests", value: String(row.leads.length) },
+    { label: "Their messages", value: String(fromThem) },
+    { label: "Our replies", value: String(fromUs) },
+  ];
+  return (
+    <Card className="border-border/70 bg-surface shadow-level-1">
+      <CardContent className="space-y-3 p-4">
+        <div className="grid grid-cols-4 gap-2 text-center">
+          {stats.map((s) => (
+            <div key={s.label} className="rounded-xl bg-secondary/60 px-1 py-2">
+              <p className="text-sm font-semibold tabular-nums">{s.value}</p>
+              <p className="text-[10px] leading-tight text-muted-foreground">{s.label}</p>
+            </div>
+          ))}
+        </div>
+        {row.lead && (
+          <p className="flex items-start gap-2 rounded-xl bg-primary/5 px-3 py-2.5 text-sm">
+            <Lightbulb className="mt-0.5 size-4 shrink-0 text-primary" />
+            <span>
+              <span className="font-semibold">Next: </span>
+              {row.waitingHours !== null
+                ? `Reply — they've been waiting ${Math.max(1, Math.floor(row.waitingHours))}h.`
+                : NEXT_STEP[row.lead.stage]}
+            </span>
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 }
