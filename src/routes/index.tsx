@@ -271,7 +271,8 @@ const PANELS: Panel[] = [
  * View villa button, so nobody leaves by accident.
  */
 function Villas() {
-  const [active, setActive] = useState(0);
+  // Opens on the acquired villa (Clarence, 2026-10-25), the newest one.
+  const [active, setActive] = useState(() => Math.max(0, PANELS.findIndex((p) => p.soon)));
   const current = PANELS[active] ?? PANELS[0]!;
   return (
     <section id="villas" className="scroll-mt-20 pt-20 lg:pt-24">
