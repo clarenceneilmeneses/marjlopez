@@ -120,7 +120,9 @@ function InquirePage() {
   const { session, staff, profile, ready } = useAuth();
   const submit = useSubmitInquiry();
 
-  const [draft, setDraft] = useState<Draft>(EMPTY);
+  // The type from the link renders on the server too, so "Build my Airbnb"
+  // opens on its own first question rather than flashing the type picker.
+  const [draft, setDraft] = useState<Draft>({ ...EMPTY, type: search.type ?? null });
   const [loaded, setLoaded] = useState(false);
   const [editing, setEditing] = useState<number | null>(null);
   const [showProblems, setShowProblems] = useState(false);
