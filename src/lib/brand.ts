@@ -27,6 +27,18 @@ export const AIRBNB_HOST = {
   bio: "I'm a single dad of 4, a content creator, and a businessman, striving to provide my kids with a better future. Growing up without a home, I dreamed of having one. I started renting and trying out various accommodations like hotels, staycations, and Airbnb, and I found joy in it. That's why I decided to start my own rental business. I love places with great views, so my units are simple as long as there's a great view from the balcony.",
 };
 
+/** His personal Facebook, verified (screenshot from Clarence, 2026-10-25). */
+export const FACEBOOK = {
+  url: "https://www.facebook.com/marj.lopez.264561",
+  followers: "73K",
+  intro: "Entrepreneur · Manila · Malaya Villa",
+  email: "mrjnlpzg@gmail.com",
+  /** His cover photo's line — his own pitch, word for word. */
+  headline: "We help you start & earn through Airbnb",
+  pitch:
+    "Helping property owners lease smarter · Connecting people through Airbnb arbitrage · Helping aspiring hosts to start & earn without owning a property",
+};
+
 /** Instagram @mrjnlpzg (read 2026-10-25). */
 export const INSTAGRAM = {
   handle: "mrjnlpzg",
@@ -54,6 +66,15 @@ export interface ProfileLink {
 }
 
 export const LINKS: ProfileLink[] = [
+  // His own accounts, biggest audience first.
+  {
+    platform: "facebook",
+    name: "Marj Lopez",
+    handle: "Verified profile",
+    url: FACEBOOK.url,
+    stat: `${FACEBOOK.followers} followers`,
+    kind: "personal",
+  },
   {
     platform: "instagram",
     name: "Marj Lopez",
@@ -63,21 +84,15 @@ export const LINKS: ProfileLink[] = [
     kind: "personal",
   },
   {
-    platform: "facebook",
-    name: "Marj Lopez",
-    handle: "Personal profile",
-    url: "https://www.facebook.com/marj.lopez.264561",
-    stat: null,
-    kind: "personal",
-  },
-  {
     platform: "airbnb",
-    name: "Marjun · Host",
-    handle: "Identity verified",
+    name: "Marjun",
+    handle: "Identity-verified host",
     url: AIRBNB_HOST.url,
     stat: `${AIRBNB_HOST.rating} ★ · ${AIRBNB_HOST.reviews} reviews`,
     kind: "personal",
   },
+  // The villas' pages. Facebook hides page follower counts from fetches —
+  // put a page's count in `stat` (e.g. "12K followers") and it shows.
   {
     platform: "facebook",
     name: "Malaya Staycations",
@@ -113,7 +128,7 @@ export const LINKS: ProfileLink[] = [
   {
     platform: "airbnb",
     name: "Hidden Villas · Main Villa",
-    handle: "airbnb.com/h/malayahiddenmain",
+    handle: "Airbnb listing",
     url: "https://www.airbnb.com/h/malayahiddenmain",
     stat: null,
     kind: "listing",
@@ -121,7 +136,7 @@ export const LINKS: ProfileLink[] = [
   {
     platform: "airbnb",
     name: "Hidden Villas · Cabin",
-    handle: "airbnb.com/h/malayahiddenvillascabin",
+    handle: "Airbnb listing",
     url: "https://www.airbnb.com/h/malayahiddenvillascabin",
     stat: null,
     kind: "listing",
@@ -129,7 +144,7 @@ export const LINKS: ProfileLink[] = [
   {
     platform: "airbnb",
     name: "Hidden Villas · Loft House",
-    handle: "airbnb.com/h/malayahiddenlofthouse",
+    handle: "Airbnb listing",
     url: "https://www.airbnb.com/h/malayahiddenlofthouse",
     stat: null,
     kind: "listing",
@@ -137,17 +152,17 @@ export const LINKS: ProfileLink[] = [
   {
     platform: "airbnb",
     name: "Tagaytay Cabin",
-    handle: "airbnb.com/h/tagaytaycabin",
+    handle: "Airbnb listing",
     url: "https://www.airbnb.com/h/tagaytaycabin",
     stat: null,
     kind: "listing",
   },
   {
     platform: "web",
-    name: "Malaya Villas",
-    handle: "malayavillas.com",
+    name: "malayavillas.com",
+    handle: "Book direct",
     url: "https://www.malayavillas.com",
-    stat: "Book direct",
+    stat: null,
     kind: "site",
   },
 ];
@@ -222,5 +237,61 @@ export const GUEST_REVIEWS: {
     villa: "Hidden Villas",
     when: "June 2026",
     text: "Our stay at Malaya Hidden Villa was incredibly cozy and relaxing. The peaceful atmosphere, calming ambiance, and comfortable setup made it the perfect place to unwind and recharge. It truly felt like a hidden escape away from the busy city…",
+  },
+  {
+    platform: "airbnb",
+    name: "Kim",
+    villa: "Malaya Villas",
+    when: "September 2026",
+    text: "We had a wonderful stay! The place was clean, cozy, and exactly as described. The host was very accommodating and easy to communicate with. We really enjoyed our time here and would definitely love to stay again. Highly recommended! ❤️",
+  },
+  {
+    platform: "airbnb",
+    name: "Kei",
+    villa: "Loft House",
+    when: "July 2026",
+    text: "My family & I had a great time at this villa. What you see is truly what you get. I love the set up of the place, it's spacious & clean… The caretaker is very welcoming and friendly. I would love to go back to this place!😊❤️",
+  },
+  {
+    platform: "google",
+    name: "Gio",
+    villa: "Main Villa",
+    when: "June 2026",
+    text: "Rating this main villa 5 star! For its beautiful ambiance,cleanliness,cozy feels. Highly recommended! Perfect place to relax.",
+  },
+  {
+    platform: "facebook",
+    name: "Shadelle",
+    villa: "Malaya Villas",
+    when: "October 2025",
+    text: "Thankyou so so much Malaya Villa for being part of my 30th birthday! Super ganda ng place, comfy and super saya ng celebration namin dito🤍 laki ng place, worth more than what we paid for🤍",
+  },
+  {
+    platform: "airbnb",
+    name: "Colleen",
+    villa: "Malaya Villas",
+    when: "August 2026",
+    text: "My family definitely enjoyed our stay here, recommended for big family like us. Rooms are clean and the helpers are very accomodating. Thank you so much, will definitely come back herr ☺️☺️",
+  },
+  {
+    platform: "facebook",
+    name: "Bernard",
+    villa: "Saglit",
+    when: "May 2026",
+    text: "Our family celebrated my Nanay's birthday. We had a very good time. Generous space. And a lot of instagrammable corners and views. Caretakers were very helpful.",
+  },
+  {
+    platform: "google",
+    name: "Christine",
+    villa: "Hidden Villas",
+    when: "July 2026",
+    text: "Super relaxing and peaceful ng place. Malinis, cozy, at mababait ang staff. Perfect for a quick getaway. Will definitely come back",
+  },
+  {
+    platform: "facebook",
+    name: "Danielle",
+    villa: "Malaya Villas",
+    when: "March 2026",
+    text: "Sobrang nag enjoy yung team ko dito! Sobrang ganda nung Villa, sobrang linis, and very accommodating ung mga tao. Mabango din ung place and very spacious. Worth it ang stay namin. ☺️",
   },
 ];

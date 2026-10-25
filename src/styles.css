@@ -1152,3 +1152,32 @@
   inherits: true;
   initial-value: 1;
 }
+
+/* ---------------------------------------------------------------------------
+ * The guest-review marquee (routes/index.tsx). The track holds the list twice
+ * and slides one copy's width, so the loop has no seam. Hover or focus pauses
+ * it so a review can be read; reduced motion gets a still, scrollable row.
+ * ------------------------------------------------------------------------- */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  animation: marquee var(--marquee-speed, 70s) linear infinite;
+}
+.marquee-track[data-reverse] {
+  animation-direction: reverse;
+}
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+  .marquee {
+    overflow-x: auto;
+  }
+}

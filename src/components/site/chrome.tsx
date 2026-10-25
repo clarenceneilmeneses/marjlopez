@@ -27,9 +27,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { BRAND, INSTAGRAM, LINKS } from "@/lib/brand";
+import { BRAND, FACEBOOK, LINKS } from "@/lib/brand";
 import { MALAYA_SITE } from "@/lib/villas";
 import { PlatformLogo, type Platform } from "./logos";
+import { useParallaxVar } from "./parallax";
 import { initial } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/state/auth";
@@ -38,10 +39,9 @@ import { SignInDialog } from "./auth-panel";
 
 /** The landing page's sections, for the header and the phone menu. */
 const SECTIONS = [
-  { hash: "about", label: "About" },
   { hash: "villas", label: "Villas" },
+  { hash: "about", label: "Meet Marj" },
   { hash: "reviews", label: "Reviews" },
-  { hash: "faq", label: "FAQ" },
 ];
 
 export function Wordmark({ size = "header" }: { size?: "header" | "footer" }) {
@@ -109,7 +109,7 @@ export function PublicHeader() {
       <PublicBottomNav />
       <header
         className={cn(
-          "sticky top-0 z-30 transition-transform duration-300 md:border-b md:border-border/40 md:bg-card/95 md:backdrop-blur",
+          "sticky top-0 z-30 bg-background/80 backdrop-blur-md transition-transform duration-300",
           hidden && "-translate-y-full",
         )}
       >
@@ -282,7 +282,6 @@ function PublicBottomNav() {
               { to: "/" as const, hash: "about", label: "About Marj", icon: User },
               { to: "/" as const, hash: "villas", label: "The villas", icon: Home },
               { to: "/" as const, hash: "reviews", label: "Guest reviews", icon: CircleHelp },
-              { to: "/" as const, hash: "faq", label: "FAQ", icon: CircleHelp },
               { to: "/privacy" as const, hash: undefined, label: "Privacy", icon: FileText },
             ].map((l) => (
               <Link
@@ -311,65 +310,58 @@ function PublicBottomNav() {
 }
 
 /**
- * The hero footer — Malaya's footer draft "01 — Hero": one dark, rounded
- * photo card at the foot of every page, the wordmark and a last call to act
- * above the columns, so the page ends on a villa rather than on a list of links.
+ * The negative footer — Malaya's footer draft "04 — Negative": his name in
+ * giant type, white on the dark brown band and cut off by its bottom edge,
+ * then the columns on white. The name rises a little as it scrolls into view
+ * (the same --parallax as the photos).
  */
 export function PublicFooter() {
-  const col = "text-[11px] font-bold uppercase tracking-[0.16em] text-white/90";
-  const link = "text-sm text-white/75 transition-colors hover:text-white";
+  const ref = useParallaxVar<HTMLDivElement>();
+  const col = "text-[11px] font-bold uppercase tracking-[0.16em] text-primary";
+  const link = "text-sm text-foreground/80 transition-colors hover:text-primary";
   return (
-    <footer className="px-3 pb-28 pt-6 sm:px-6 md:pb-6">
+    <footer className="mt-10">
       <div
-        className="relative overflow-hidden rounded-[2rem] bg-[#2a1a0e] bg-cover bg-center text-white shadow-level-3"
-        style={{
-          backgroundImage:
-            "linear-gradient(180deg, rgb(32 20 10 / 0.72) 0%, rgb(32 20 10 / 0.86) 55%, rgb(32 20 10 / 0.96) 100%), url(/villas/pr-casa-martha/4.webp)",
-        }}
+        ref={ref}
+        className="relative h-[24vw] max-h-[260px] min-h-[96px] overflow-hidden bg-[#3a2314]"
+        aria-hidden
       >
-        <div className="mx-auto max-w-6xl px-6 pb-12 pt-16 text-center sm:px-10 md:pt-20">
-          <span className="inline-block leading-none">
-            <span className="block font-display text-4xl tracking-[0.12em] text-white sm:text-5xl">
-              {BRAND.wordmark}
-            </span>
-            <span className="mt-1.5 block text-[10px] font-medium uppercase tracking-[0.3em] text-white/80">
-              {BRAND.tagline}
-            </span>
-          </span>
-          <h2 className="site-display mx-auto mt-8 max-w-3xl text-4xl leading-[1.05] text-white sm:text-6xl">
-            Your Airbnb starts here.
-          </h2>
-          <p className="mx-auto mt-5 max-w-xl text-[15px] text-white/80 sm:text-base">
-            Start one, build one, or run yours on the system behind Malaya Villas. Tell us what you
-            need — it takes about a minute.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              to="/inquire"
-              className="brand-caps inline-flex h-12 items-center rounded-full bg-[#f6efe4] px-7 text-[15px] text-[#3c2411] transition hover:bg-white"
+        <p
+          className="absolute inset-x-0 bottom-0 select-none text-center font-display leading-[0.78] text-white"
+          style={{
+            fontSize: "min(25vw, 330px)",
+            letterSpacing: "0.02em",
+            translate: "0 calc(30% - var(--parallax, 0) * 8%)",
+          }}
+        >
+          MARJUN
+        </p>
+      </div>
+      <div className="bg-card pb-28 md:pb-0">
+        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 sm:px-10 lg:grid-cols-[1.5fr_1fr_1fr_1fr_auto]">
+          <div>
+            <p className="site-display text-3xl leading-tight text-[#3a2314]">
+              Start. Build.
+              <br />
+              Earn.
+            </p>
+            <p className="mt-4 text-sm text-muted-foreground">
+              {BRAND.name} · {FACEBOOK.intro}
+            </p>
+            <a
+              href={`mailto:${FACEBOOK.email}`}
+              className="text-sm text-muted-foreground hover:text-primary"
             >
-              Work with me
-            </Link>
-            <Link
-              to="/"
-              hash="villas"
-              className="brand-caps inline-flex h-12 items-center rounded-full border border-white/50 px-7 text-[15px] text-white transition hover:bg-white/10"
-            >
-              See the villas
-            </Link>
-          </div>
-        </div>
-
-        <div className="mx-6 border-t border-white/15 sm:mx-10" />
-
-        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-12 text-left sm:grid-cols-2 sm:px-10 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
-          <div className="space-y-1.5">
-            <p className={col}>{BRAND.name}</p>
-            <p className="text-sm text-white/75">{BRAND.tagline}</p>
-            <p className="text-sm text-white/75">{BRAND.base}</p>
-            <a href={INSTAGRAM.url} target="_blank" rel="noreferrer" className={cn(link, "block")}>
-              @{INSTAGRAM.handle} · {INSTAGRAM.followers} followers
+              {FACEBOOK.email}
             </a>
+            <div className="mt-6">
+              <Link
+                to="/inquire"
+                className="brand-caps inline-flex h-11 items-center rounded-full bg-primary px-6 text-[15px] text-primary-foreground transition hover:bg-primary/90"
+              >
+                Work with me
+              </Link>
+            </div>
           </div>
           <FooterCol title="Work with me" titleClass={col}>
             <Link to="/inquire" search={{ type: "start", step: 2 }} className={link}>
@@ -382,7 +374,7 @@ export function PublicFooter() {
               Booking system
             </Link>
             <Link to="/inquire" search={{ type: "other", step: 2 }} className={link}>
-              Collabs & media
+              Partnerships
             </Link>
           </FooterCol>
           <FooterCol title="Explore" titleClass={col}>
@@ -390,37 +382,37 @@ export function PublicFooter() {
               The villas
             </Link>
             <Link to="/" hash="about" className={link}>
-              About Marj
+              Meet Marj
             </Link>
             <Link to="/" hash="reviews" className={link}>
               Guest reviews
             </Link>
-            <Link to="/" hash="faq" className={link}>
-              FAQ
-            </Link>
+            <a href={MALAYA_SITE} target="_blank" rel="noreferrer" className={link}>
+              Book a stay
+            </a>
           </FooterCol>
           <FooterCol title="Help" titleClass={col}>
             <Link to="/messages" className={link}>
               My messages
             </Link>
-            <a href={MALAYA_SITE} target="_blank" rel="noreferrer" className={link}>
-              Book a stay
-            </a>
             <Link to="/privacy" className={link}>
               Privacy notice
+            </Link>
+            <Link to="/admin/login" className={link}>
+              Team sign in
             </Link>
           </FooterCol>
           <div>
             <p className={col}>Social</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {LINKS.filter((l) => l.kind === "personal" && l.platform !== "web").map((l) => (
+            <div className="mt-4 flex gap-2">
+              {LINKS.filter((l) => l.kind === "personal").map((l) => (
                 <a
                   key={l.url}
                   href={l.url}
                   target="_blank"
                   rel="noreferrer"
                   aria-label={`${l.name} on ${l.platform}`}
-                  className="grid size-10 place-items-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+                  className="grid size-10 place-items-center rounded-full bg-secondary text-primary transition hover:bg-primary hover:text-primary-foreground"
                 >
                   <PlatformLogo platform={l.platform as Platform} mono className="size-[18px]" />
                 </a>
@@ -428,12 +420,13 @@ export function PublicFooter() {
             </div>
           </div>
         </div>
-
-        <div className="flex flex-col gap-2 border-t border-white/15 px-6 py-5 text-xs text-white/70 sm:flex-row sm:items-center sm:justify-between sm:px-10">
+        <div className="mx-auto flex max-w-6xl flex-col gap-2 border-t border-border/70 px-6 py-6 text-xs text-primary sm:flex-row sm:items-center sm:justify-between sm:px-10">
           <p>
             © {new Date().getFullYear()} {BRAND.name}. All rights reserved.
           </p>
-          <p>Start. Build. Run it right.</p>
+          <a href={MALAYA_SITE} target="_blank" rel="noreferrer" className="hover:underline">
+            malayavillas.com
+          </a>
         </div>
       </div>
     </footer>
