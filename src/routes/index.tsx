@@ -30,7 +30,7 @@ import { useState, type CSSProperties } from "react";
 
 import { PublicFooter, PublicHeader } from "@/components/site/chrome";
 import { PlatformLogo, type Platform } from "@/components/site/logos";
-import { ParallaxImage } from "@/components/site/parallax";
+import { ParallaxImage, useParallaxVar } from "@/components/site/parallax";
 import {
   AIRBNB_HOST,
   FACEBOOK,
@@ -64,6 +64,7 @@ function Landing() {
       <main id="content">
         <Hero />
         <Villas />
+        <Built />
         <MeetMarj />
         <Reviews />
       </main>
@@ -435,6 +436,116 @@ function Villas() {
         >
           See them on malayavillas.com <ArrowUpRight className="size-4" />
         </a>
+      </div>
+    </section>
+  );
+}
+
+// ------------------------------------------------------------------ built
+
+/** His beach cabins in Lian, Batangas — built from scratch (his FB post, 2026-10). */
+const BUILD_STEPS = [
+  {
+    photo: "/builds/lian/1.webp",
+    step: "Breaking ground",
+    note: "Walls, arches and the plunge pool's shell",
+  },
+  { photo: "/builds/lian/2.webp", step: "Shell up", note: "Glass gables in, tiles going on" },
+  { photo: "/builds/lian/3.webp", step: "Finishing", note: "Pools tiled, lights and planters in" },
+  { photo: "/builds/lian/4.webp", step: "Airbnb-ready", note: "Fully furnished, ready for guests" },
+];
+
+const BUILD_FACTS = [
+  "2 cabins",
+  "60 sqm each",
+  "High ceilings",
+  "Private plunge pools",
+  "5-min walk to the beach",
+];
+
+function Built() {
+  // The line under the steps fills as the section crosses the screen.
+  const ref = useParallaxVar<HTMLDivElement>();
+  return (
+    <section id="built" className="scroll-mt-20 pt-24 lg:pt-28">
+      <div className="mx-auto max-w-3xl px-4 text-center">
+        <Eyebrow>Built from the ground up · Lian, Batangas</Eyebrow>
+        <h2 className="site-display mt-4 text-4xl leading-none text-brand-heading sm:text-6xl">
+          From bare lot to beach cabins
+        </h2>
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          {BUILD_FACTS.map((f) => (
+            <span key={f} className="rounded-full bg-card px-3.5 py-1.5 text-sm shadow-level-1">
+              {f}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div ref={ref} className="mx-auto mt-10 max-w-6xl px-4 sm:px-8">
+        {/* The progress line, desktop only — the phone swipes instead. */}
+        <div className="relative mb-6 hidden h-1 rounded-full bg-border md:block">
+          <div
+            className="absolute inset-y-0 left-0 w-full origin-left rounded-full bg-primary"
+            style={{ scale: "clamp(0, calc((var(--parallax, 0) + 0.85) * 1.05), 1) 1" }}
+          />
+          <div className="absolute inset-x-0 -top-1.5 grid grid-cols-4">
+            {BUILD_STEPS.map((s) => (
+              <span key={s.step} className="flex justify-center">
+                <span className="size-4 rounded-full border-[3px] border-primary bg-card" />
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <ol className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 no-scrollbar md:mx-0 md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:px-0">
+          {BUILD_STEPS.map((s, i) => (
+            <li
+              key={s.step}
+              className="group w-[70vw] max-w-[280px] shrink-0 snap-start overflow-hidden rounded-3xl bg-card shadow-level-2 md:w-auto md:max-w-none"
+            >
+              <div className="relative aspect-[3/4] overflow-hidden">
+                <img
+                  src={s.photo}
+                  alt={s.step}
+                  loading="lazy"
+                  className="size-full object-cover transition duration-700 group-hover:scale-105"
+                />
+                <span className="absolute left-3 top-3 rounded-full bg-card/95 px-2.5 py-1 text-[11px] font-semibold tabular-nums shadow-level-1">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                {i === BUILD_STEPS.length - 1 && (
+                  <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-success px-2.5 py-1 text-[11px] font-semibold text-success-foreground shadow-level-1">
+                    <Check className="size-3" /> Done
+                  </span>
+                )}
+              </div>
+              <div className="p-4">
+                <p className="brand-caps text-base text-primary">{s.step}</p>
+                <p className="mt-0.5 text-sm text-muted-foreground">{s.note}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            to="/inquire"
+            search={{ type: "build", step: 2 }}
+            className="brand-caps inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-[15px] text-primary-foreground shadow-level-2 transition hover:bg-primary/90"
+          >
+            Build yours <ArrowRight className="size-4" />
+          </Link>
+          <Link
+            to="/inquire"
+            search={{ type: "other", step: 2 }}
+            className="inline-flex h-11 items-center gap-2 rounded-full bg-card px-5 text-sm shadow-level-1 transition hover:shadow-level-2"
+          >
+            <span className="size-2 rounded-full bg-success" />
+            <span className="font-semibold">Now for sale</span>
+            <span className="text-muted-foreground">· ₱8.8M for both</span>
+          </Link>
+        </div>
       </div>
     </section>
   );

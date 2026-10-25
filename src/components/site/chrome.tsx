@@ -40,6 +40,7 @@ import { SignInDialog } from "./auth-panel";
 /** The landing page's sections, for the header and the phone menu. */
 const SECTIONS = [
   { hash: "villas", label: "Villas" },
+  { hash: "built", label: "Builds" },
   { hash: "about", label: "Meet Marj" },
   { hash: "reviews", label: "Reviews" },
 ];
