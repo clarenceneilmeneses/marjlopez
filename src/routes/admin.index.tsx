@@ -496,13 +496,13 @@ function QuickAction({
         <Icon className="size-[18px]" />
       </span>
       <span className="min-w-0">
-        <span className="block truncate text-sm font-semibold">{title}</span>
+        <span className="block text-sm font-semibold sm:truncate">{title}</span>
         <span className="block truncate text-xs text-muted-foreground">{sub}</span>
       </span>
     </>
   );
   const cls =
-    "group flex items-center gap-3 rounded-2xl bg-card p-3.5 text-left shadow-level-1 transition hover:-translate-y-0.5 hover:shadow-level-2";
+    "group flex flex-col items-start gap-2.5 rounded-2xl bg-card p-3.5 text-left shadow-level-1 sm:flex-row sm:items-center sm:gap-3 transition hover:-translate-y-0.5 hover:shadow-level-2";
   if (to)
     return (
       <Link to={to} className={cls}>
