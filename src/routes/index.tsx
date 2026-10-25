@@ -21,16 +21,17 @@ import {
   ArrowUpRight,
   BadgeCheck,
   Check,
+  ChevronRight,
   Globe,
   MapPin,
   Play,
   Star,
 } from "@/components/icons";
-import { useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
 import { PublicFooter, PublicHeader } from "@/components/site/chrome";
 import { PlatformLogo, type Platform } from "@/components/site/logos";
-import { ParallaxImage, useParallaxVar } from "@/components/site/parallax";
+import { ParallaxImage } from "@/components/site/parallax";
 import {
   AIRBNB_HOST,
   FACEBOOK,
@@ -227,9 +228,8 @@ interface Panel {
   highlight: string;
   summary: string;
   stats: string[];
-  cover: string;
+  photos: string[];
   coverPosition?: string;
-  more: string[];
   href: string;
   soon?: boolean;
 }
@@ -243,8 +243,7 @@ const PANELS: Panel[] = [
     highlight: v.highlight,
     summary: v.summary,
     stats: [`${v.bedrooms} bedrooms`, `${v.bathrooms} baths`, `Up to ${v.maxPax} guests`],
-    cover: villaPhoto(v.code, v.cover),
-    more: v.more.map((n) => villaPhoto(v.code, n)),
+    photos: [v.cover, ...v.more].map((n) => villaPhoto(v.code, n)),
     href: villaUrl(v.code),
   })),
   {
@@ -256,23 +255,24 @@ const PANELS: Panel[] = [
     summary:
       "Already acquired and opening soon — Malaya's newest, 10 minutes from Clark Airport. Want the next one to be yours?",
     stats: [],
-    cover: "/villas/next.webp",
+    photos: ["/villas/next.webp"],
     coverPosition: "46% 62%",
-    more: [],
     href: "",
     soon: true,
   },
 ];
 
 /**
- * Every villa as a photo strip, stacked — the same at every width (Clarence,
- * 2026-10-25: "stack these vertically as well like on the mobile view").
- * Clicking a strip opens it and shows what it is; clicking an open one goes
- * to the villa on malayavillas.com. Hover only brightens: opening on hover
- * would change the list's height under the pointer and make it jump.
+ * Two columns on a laptop (Clarence, 2026-10-25): the villas as a list on the
+ * left — the Inbox's list look — and the picked one large on the right. On a
+ * phone the preview opens under the tapped row instead.
+ *
+ * Picking a row only picks it. The one way off the page is the preview's own
+ * View villa button, so nobody leaves by accident.
  */
 function Villas() {
   const [active, setActive] = useState(0);
+  const current = PANELS[active] ?? PANELS[0]!;
   return (
     <section id="villas" className="scroll-mt-20 pt-20 lg:pt-24">
       <div className="mx-auto max-w-3xl px-4 text-center">
@@ -285,146 +285,67 @@ function Villas() {
         </p>
       </div>
 
-      <div className="mx-auto mt-10 flex max-w-5xl flex-col gap-2 px-3 sm:px-6">
-        {PANELS.map((p, i) => {
-          const open = i === active;
-          const body = (
-            <>
-              <img
-                src={p.cover}
-                alt={p.title}
-                loading="lazy"
-                style={p.coverPosition ? { objectPosition: p.coverPosition } : undefined}
-                className={cn(
-                  "absolute inset-0 size-full object-cover transition duration-700",
-                  open ? "scale-100" : "scale-110",
-                )}
-              />
-              <span
-                className={cn(
-                  "absolute inset-0 transition-opacity duration-500",
-                  open
-                    ? "bg-gradient-to-t from-black/85 via-black/25 to-transparent"
-                    : "bg-black/45 group-hover:bg-black/30",
-                )}
-              />
-
-              {/* Closed: number and name; the location joins them where there's room. */}
-              <span
-                className={cn(
-                  "absolute inset-0 flex items-center gap-3 px-5 text-white transition-opacity duration-300 sm:px-7",
-                  open ? "pointer-events-none opacity-0" : "opacity-100",
-                )}
-              >
-                <span className="text-[11px] font-semibold tabular-nums text-white/70">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="site-display whitespace-nowrap text-base sm:text-xl">
-                  {p.soon ? "Opening soon" : p.title}
-                </span>
-                <span className="ml-auto hidden items-center gap-1.5 truncate text-sm text-white/85 sm:flex">
-                  <MapPin className="size-3.5 shrink-0" /> {p.location}
-                </span>
-              </span>
-
-              {/* Open: everything about it. */}
-              <span
-                className={cn(
-                  "absolute inset-x-0 bottom-0 p-5 text-white transition-all duration-500 sm:p-7",
-                  open
-                    ? "translate-y-0 opacity-100 delay-200"
-                    : "pointer-events-none translate-y-4 opacity-0",
-                )}
-              >
-                <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/75">
-                  <span className="rounded-full bg-white/15 px-2 py-0.5 tabular-nums backdrop-blur">
-                    No. {i + 1}
-                  </span>
-                  {p.group}
-                </span>
-                <span className="site-display mt-2 block text-3xl leading-none sm:text-4xl">
-                  {p.title}
-                </span>
-                <span className="mt-1.5 flex items-center gap-1.5 text-sm text-white/85">
-                  <MapPin className="size-3.5 shrink-0" /> {p.location} · {p.highlight}
-                </span>
-                <span className="mt-3 line-clamp-2 block max-w-md text-sm leading-relaxed text-white/80">
-                  {p.summary}
-                </span>
-                {p.stats.length > 0 && (
-                  <span className="mt-4 flex flex-wrap gap-1.5">
-                    {p.stats.map((s) => (
-                      <span
-                        key={s}
-                        className="rounded-full bg-white/15 px-2.5 py-1 text-xs backdrop-blur"
-                      >
-                        {s}
+      <div className="mx-auto mt-10 grid max-w-6xl gap-5 px-3 sm:px-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.25fr)] lg:items-start">
+        <ul className="flex flex-col gap-1 rounded-3xl bg-card p-2 shadow-level-2">
+          {PANELS.map((p, i) => {
+            const on = i === active;
+            return (
+              <li key={p.key}>
+                <button
+                  type="button"
+                  onClick={() => setActive(i)}
+                  aria-pressed={on}
+                  className={cn(
+                    "flex w-full items-center gap-3 rounded-2xl px-2.5 py-2 text-left transition-colors",
+                    on ? "bg-secondary" : "hover:bg-secondary/60",
+                  )}
+                >
+                  <img
+                    src={p.photos[0]}
+                    alt=""
+                    loading="lazy"
+                    style={p.coverPosition ? { objectPosition: p.coverPosition } : undefined}
+                    className="size-12 shrink-0 rounded-xl object-cover"
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2">
+                      <span className="text-[11px] font-semibold tabular-nums text-muted-foreground">
+                        {String(i + 1).padStart(2, "0")}
                       </span>
-                    ))}
+                      <span className={cn("truncate text-sm", on ? "font-bold" : "font-semibold")}>
+                        {p.title}
+                      </span>
+                      {p.soon && (
+                        <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-semibold text-success">
+                          Acquired
+                        </span>
+                      )}
+                    </span>
+                    <span className="mt-0.5 flex items-center gap-1 truncate text-xs text-muted-foreground">
+                      <MapPin className="size-3 shrink-0" /> {p.location}
+                    </span>
                   </span>
-                )}
-                <span className="mt-5 flex items-end justify-between gap-4">
-                  <span className="hidden gap-1.5 sm:flex">
-                    {p.more.map((m) => (
-                      <img
-                        key={m}
-                        src={m}
-                        alt=""
-                        loading="lazy"
-                        className="h-14 w-20 rounded-lg object-cover ring-2 ring-white/70"
-                      />
-                    ))}
-                  </span>
-                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#3c2411]">
-                    {p.soon ? "Build yours" : "View villa"}
-                    {p.soon ? (
-                      <ArrowRight className="size-4" />
-                    ) : (
-                      <ArrowUpRight className="size-4" />
+                  <ChevronRight
+                    className={cn(
+                      "size-4 shrink-0 text-muted-foreground transition-transform",
+                      on && "rotate-90 text-primary lg:rotate-0",
                     )}
-                  </span>
-                </span>
-              </span>
-            </>
-          );
-          const cls = cn(
-            "group relative block overflow-hidden rounded-3xl bg-secondary shadow-level-2 outline-none transition-all duration-500 ease-out focus-visible:ring-2 focus-visible:ring-primary",
-            open ? "h-[440px] sm:h-[480px]" : "h-14 sm:h-16",
-          );
-          // A tap on a closed panel opens it; only an open panel navigates.
-          const onClick = (e: React.MouseEvent) => {
-            if (!open) {
-              e.preventDefault();
-              setActive(i);
-            }
-          };
-          const handlers = {
-            onFocus: () => setActive(i),
-            onClick,
-          };
-          return p.soon ? (
-            <Link
-              key={p.key}
-              to="/inquire"
-              search={{ type: "build", step: 2 }}
-              className={cls}
-              {...handlers}
-            >
-              {body}
-            </Link>
-          ) : (
-            <a
-              key={p.key}
-              href={p.href}
-              target="_blank"
-              rel="noreferrer"
-              className={cls}
-              {...handlers}
-            >
-              {body}
-            </a>
-          );
-        })}
+                  />
+                </button>
+                {/* The phone's preview, right under the row it belongs to. */}
+                {on && (
+                  <div className="px-1 pb-2 pt-1 lg:hidden">
+                    <VillaPreview panel={p} n={i + 1} />
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className="hidden lg:sticky lg:top-24 lg:block">
+          <VillaPreview key={current.key} panel={current} n={active + 1} />
+        </div>
       </div>
 
       <div className="mt-6 flex flex-col items-center gap-3 px-4 text-center">
@@ -442,6 +363,82 @@ function Villas() {
         </a>
       </div>
     </section>
+  );
+}
+
+function VillaPreview({ panel: p, n }: { panel: Panel; n: number }) {
+  const [shown, setShown] = useState(0);
+  const photo = p.photos[shown] ?? p.photos[0]!;
+  return (
+    <div className="animate-in fade-in overflow-hidden rounded-3xl bg-card shadow-level-3 duration-300">
+      <div className="relative aspect-[4/3] overflow-hidden bg-secondary">
+        <img
+          key={photo}
+          src={photo}
+          alt={p.title}
+          style={p.coverPosition && shown === 0 ? { objectPosition: p.coverPosition } : undefined}
+          className="animate-in fade-in absolute inset-0 size-full object-cover duration-500"
+        />
+        <span className="absolute left-3 top-3 rounded-full bg-card/95 px-2.5 py-1 text-[11px] font-semibold tabular-nums shadow-level-1">
+          No. {n}
+        </span>
+        {p.photos.length > 1 && (
+          <span className="absolute inset-x-3 bottom-3 flex gap-1.5">
+            {p.photos.map((ph, i) => (
+              <button
+                key={ph}
+                type="button"
+                onClick={() => setShown(i)}
+                aria-label={`Photo ${i + 1}`}
+                className={cn(
+                  "h-12 w-16 overflow-hidden rounded-lg ring-2 transition sm:h-14 sm:w-20",
+                  i === shown ? "ring-white" : "opacity-75 ring-white/40 hover:opacity-100",
+                )}
+              >
+                <img src={ph} alt="" loading="lazy" className="size-full object-cover" />
+              </button>
+            ))}
+          </span>
+        )}
+      </div>
+      <div className="p-5 sm:p-6">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          {p.group}
+        </p>
+        <p className="site-display mt-1 text-3xl leading-none text-brand-heading">{p.title}</p>
+        <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
+          <MapPin className="size-3.5 shrink-0" /> {p.location} · {p.highlight}
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-foreground">{p.summary}</p>
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+          <span className="flex flex-wrap gap-1.5">
+            {p.stats.map((s) => (
+              <span key={s} className="rounded-full bg-secondary px-2.5 py-1 text-xs">
+                {s}
+              </span>
+            ))}
+          </span>
+          {p.soon ? (
+            <Link
+              to="/inquire"
+              search={{ type: "build", step: 2 }}
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+            >
+              Build yours <ArrowRight className="size-4" />
+            </Link>
+          ) : (
+            <a
+              href={p.href}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+            >
+              View villa <ArrowUpRight className="size-4" />
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -467,88 +464,132 @@ const BUILD_FACTS = [
   "5-min walk to the beach",
 ];
 
+/**
+ * The build as a story: the steps on the left play through on their own
+ * (paused while you point at the section), the photo on the right follows,
+ * and clicking a step jumps to it.
+ */
 function Built() {
-  // The line under the steps fills as the section crosses the screen.
-  const ref = useParallaxVar<HTMLDivElement>();
-  return (
-    <section id="built" className="scroll-mt-20 pt-24 lg:pt-28">
-      <div className="mx-auto max-w-3xl px-4 text-center">
-        <Eyebrow>Built from the ground up · Lian, Batangas</Eyebrow>
-        <h2 className="site-display mt-4 text-4xl leading-none text-brand-heading sm:text-6xl">
-          From bare lot to beach cabins
-        </h2>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          {BUILD_FACTS.map((f) => (
-            <span key={f} className="rounded-full bg-card px-3.5 py-1.5 text-sm shadow-level-1">
-              {f}
-            </span>
-          ))}
-        </div>
-      </div>
+  const [step, setStep] = useState(0);
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = window.setTimeout(() => setStep((s) => (s + 1) % BUILD_STEPS.length), 3800);
+    return () => window.clearTimeout(t);
+  }, [step, paused]);
+  const current = BUILD_STEPS[step]!;
 
-      <div ref={ref} className="mx-auto mt-10 max-w-6xl px-4 sm:px-8">
-        {/* The progress line, desktop only — the phone swipes instead. */}
-        <div className="relative mb-6 hidden h-1 rounded-full bg-border md:block">
-          <div
-            className="absolute inset-y-0 left-0 w-full origin-left rounded-full bg-primary"
-            style={{ scale: "clamp(0, calc((var(--parallax, 0) + 0.85) * 1.05), 1) 1" }}
-          />
-          <div className="absolute inset-x-0 -top-1.5 grid grid-cols-4">
-            {BUILD_STEPS.map((s) => (
-              <span key={s.step} className="flex justify-center">
-                <span className="size-4 rounded-full border-[3px] border-primary bg-card" />
+  return (
+    <section
+      id="built"
+      className="scroll-mt-20 pt-24 lg:pt-28"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
+        <div className="order-2 lg:order-1">
+          <Eyebrow>Built from the ground up · Lian, Batangas</Eyebrow>
+          <h2 className="site-display mt-4 text-4xl leading-none text-brand-heading sm:text-5xl">
+            From bare lot to beach cabins
+          </h2>
+          <div className="mt-5 flex flex-wrap gap-1.5">
+            {BUILD_FACTS.map((f) => (
+              <span
+                key={f}
+                className="rounded-full bg-card px-3 py-1.5 text-xs shadow-level-1 sm:text-sm"
+              >
+                {f}
               </span>
             ))}
           </div>
+
+          <ol className="relative mt-7 space-y-1">
+            {BUILD_STEPS.map((s, i) => {
+              const on = i === step;
+              const done = i < step;
+              return (
+                <li key={s.step}>
+                  <button
+                    type="button"
+                    onClick={() => setStep(i)}
+                    aria-current={on ? "step" : undefined}
+                    className={cn(
+                      "relative flex w-full items-start gap-4 overflow-hidden rounded-2xl px-3 py-3 text-left transition-colors",
+                      on ? "bg-card shadow-level-2" : "hover:bg-card/60",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "grid size-8 shrink-0 place-items-center rounded-full text-xs font-bold tabular-nums transition-colors",
+                        on || done
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-secondary text-muted-foreground",
+                      )}
+                    >
+                      {done ? <Check className="size-4" /> : String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span
+                        className={cn(
+                          "brand-caps block text-base",
+                          on ? "text-primary" : "text-foreground/80",
+                        )}
+                      >
+                        {s.step}
+                      </span>
+                      <span className="block text-sm text-muted-foreground">{s.note}</span>
+                    </span>
+                    {/* The step's own clock — fills while it plays. */}
+                    {on && !paused && (
+                      <span
+                        key={step}
+                        className="absolute inset-x-0 bottom-0 h-0.5 origin-left bg-primary/60"
+                        style={{ animation: "build-step 3.8s linear forwards" }}
+                      />
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+
+          <div className="mt-7 flex flex-wrap items-center gap-3">
+            <Link
+              to="/inquire"
+              search={{ type: "build", step: 2 }}
+              className="brand-caps inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-[15px] text-primary-foreground shadow-level-2 transition hover:bg-primary/90"
+            >
+              Build yours <ArrowRight className="size-4" />
+            </Link>
+            <Link
+              to="/inquire"
+              search={{ type: "other", step: 2 }}
+              className="inline-flex h-11 items-center gap-2 rounded-full bg-card px-5 text-sm shadow-level-1 transition hover:shadow-level-2"
+            >
+              <span className="size-2 rounded-full bg-success" />
+              <span className="font-semibold">Now for sale</span>
+              <span className="text-muted-foreground">· ₱8.8M for both</span>
+            </Link>
+          </div>
         </div>
 
-        <ol className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 no-scrollbar md:mx-0 md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:px-0">
+        <div className="relative order-1 aspect-[4/5] overflow-hidden rounded-[2rem] bg-secondary shadow-level-3 lg:order-2">
           {BUILD_STEPS.map((s, i) => (
-            <li
-              key={s.step}
-              className="group w-[70vw] max-w-[280px] shrink-0 snap-start overflow-hidden rounded-3xl bg-card shadow-level-2 md:w-auto md:max-w-none"
-            >
-              <div className="relative aspect-[3/4] overflow-hidden">
-                <img
-                  src={s.photo}
-                  alt={s.step}
-                  loading="lazy"
-                  className="size-full object-cover transition duration-700 group-hover:scale-105"
-                />
-                <span className="absolute left-3 top-3 rounded-full bg-card/95 px-2.5 py-1 text-[11px] font-semibold tabular-nums shadow-level-1">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                {i === BUILD_STEPS.length - 1 && (
-                  <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-success px-2.5 py-1 text-[11px] font-semibold text-success-foreground shadow-level-1">
-                    <Check className="size-3" /> Done
-                  </span>
-                )}
-              </div>
-              <div className="p-4">
-                <p className="brand-caps text-base text-primary">{s.step}</p>
-                <p className="mt-0.5 text-sm text-muted-foreground">{s.note}</p>
-              </div>
-            </li>
+            <img
+              key={s.photo}
+              src={s.photo}
+              alt={s.step}
+              loading="lazy"
+              className={cn(
+                "absolute inset-0 size-full object-cover transition-all duration-700",
+                i === step ? "scale-100 opacity-100" : "scale-105 opacity-0",
+              )}
+            />
           ))}
-        </ol>
-
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            to="/inquire"
-            search={{ type: "build", step: 2 }}
-            className="brand-caps inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-[15px] text-primary-foreground shadow-level-2 transition hover:bg-primary/90"
-          >
-            Build yours <ArrowRight className="size-4" />
-          </Link>
-          <Link
-            to="/inquire"
-            search={{ type: "other", step: 2 }}
-            className="inline-flex h-11 items-center gap-2 rounded-full bg-card px-5 text-sm shadow-level-1 transition hover:shadow-level-2"
-          >
-            <span className="size-2 rounded-full bg-success" />
-            <span className="font-semibold">Now for sale</span>
-            <span className="text-muted-foreground">· ₱8.8M for both</span>
-          </Link>
+          <span className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full bg-card/95 px-3 py-1.5 text-xs font-semibold shadow-level-1">
+            {step === BUILD_STEPS.length - 1 && <Check className="size-3.5 text-success" />}
+            {String(step + 1).padStart(2, "0")} · {current.step}
+          </span>
         </div>
       </div>
     </section>
