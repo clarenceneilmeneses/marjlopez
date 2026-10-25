@@ -16,12 +16,21 @@
  * Every figure's source is in lib/brand.ts.
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ArrowUpRight, BadgeCheck, Check, Globe, Play, Star } from "@/components/icons";
-import type { CSSProperties } from "react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BadgeCheck,
+  Check,
+  Globe,
+  MapPin,
+  Play,
+  Star,
+} from "@/components/icons";
+import { useState, type CSSProperties } from "react";
 
 import { PublicFooter, PublicHeader } from "@/components/site/chrome";
 import { PlatformLogo, type Platform } from "@/components/site/logos";
-import { ParallaxImage, useParallaxVar } from "@/components/site/parallax";
+import { ParallaxImage } from "@/components/site/parallax";
 import {
   AIRBNB_HOST,
   FACEBOOK,
@@ -209,31 +218,60 @@ function Followers() {
 
 // ---------------------------------------------------------------- villas
 
-interface FanCard {
+interface Panel {
   key: string;
   title: string;
-  photo: string;
+  group: string;
+  location: string;
+  highlight: string;
+  summary: string;
+  stats: string[];
+  cover: string;
+  coverPosition?: string;
+  more: string[];
   href: string;
   soon?: boolean;
 }
 
-const FAN: FanCard[] = [
+const PANELS: Panel[] = [
   ...VILLAS.map((v) => ({
     key: v.code,
     title: v.title,
-    photo: villaPhoto(v.code, v.cover),
+    group: v.group,
+    location: v.location,
+    highlight: v.highlight,
+    summary: v.summary,
+    stats: [`${v.bedrooms} bedrooms`, `${v.bathrooms} baths`, `Up to ${v.maxPax} guests`],
+    cover: villaPhoto(v.code, v.cover),
+    more: v.more.map((n) => villaPhoto(v.code, n)),
     href: villaUrl(v.code),
   })),
-  { key: "next", title: "Coming soon", photo: "/villas/next.webp", href: "", soon: true },
+  {
+    key: "next",
+    title: "Coming soon",
+    group: `Villa no. ${VILLAS.length + 1}`,
+    location: "Being built now",
+    highlight: "Private pool · Event lawn",
+    summary: "The next Malaya villa is on its way. Want the one after it to be yours?",
+    stats: [],
+    cover: "/villas/next.webp",
+    coverPosition: "46% 62%",
+    more: [],
+    href: "",
+    soon: true,
+  },
 ];
 
+/**
+ * Every villa as a tall photo panel. The one you point at (or tap, on a
+ * phone) opens up and shows what it is; the rest stay narrow strips with
+ * their names. Clicking an open panel goes to the villa on malayavillas.com.
+ * A row from `md`, a stack below it.
+ */
 function Villas() {
-  // --parallax runs -1 → 1 as the fan crosses the screen; it opens from a
-  // quarter to full as it rises into view, and stays open.
-  const ref = useParallaxVar<HTMLDivElement>();
-  const mid = (FAN.length - 1) / 2;
+  const [active, setActive] = useState(0);
   return (
-    <section id="villas" className="scroll-mt-20 overflow-hidden pt-20 lg:pt-24">
+    <section id="villas" className="scroll-mt-20 pt-20 lg:pt-24">
       <div className="mx-auto max-w-3xl px-4 text-center">
         <Eyebrow>Cavite | Tagaytay</Eyebrow>
         <h2 className="site-display mt-4 text-4xl leading-none text-brand-heading sm:text-6xl">
@@ -244,63 +282,139 @@ function Villas() {
         </p>
       </div>
 
-      <div
-        ref={ref}
-        className="relative mx-auto mt-10 h-[200px] max-w-[1400px] [--fa:4deg] [--fx:20px] [--fy:2.2px] sm:h-[270px] sm:[--fx:40px] sm:[--fy:3px] md:h-[300px] md:[--fx:52px] lg:h-[380px] lg:[--fa:4.5deg] lg:[--fx:84px] lg:[--fy:4px]"
-        style={
-          { "--spread": "clamp(0.22, calc(1.3 + var(--parallax, 0) * 1.1), 1)" } as CSSProperties
-        }
-      >
-        {FAN.map((c, i) => {
-          const k = i - mid;
+      <div className="mx-auto mt-10 flex max-w-[1400px] flex-col gap-2 px-3 sm:px-6 md:h-[520px] md:flex-row">
+        {PANELS.map((p, i) => {
+          const open = i === active;
           const body = (
             <>
               <img
-                src={c.photo}
-                alt={c.title}
+                src={p.cover}
+                alt={p.title}
                 loading="lazy"
-                className={cn("size-full object-cover", c.soon && "object-[46%_62%]")}
+                style={p.coverPosition ? { objectPosition: p.coverPosition } : undefined}
+                className={cn(
+                  "absolute inset-0 size-full object-cover transition duration-700",
+                  open ? "scale-100" : "scale-110",
+                )}
               />
-              {c.soon && (
-                <span className="absolute inset-x-0 top-0 bg-gradient-to-b from-black/65 to-transparent p-2 pb-6 sm:p-3 sm:pb-10">
-                  <span className="site-display block text-[11px] leading-tight text-white sm:text-lg">
-                    No. {FAN.length} · Coming soon
+              <span
+                className={cn(
+                  "absolute inset-0 transition-opacity duration-500",
+                  open
+                    ? "bg-gradient-to-t from-black/85 via-black/25 to-transparent"
+                    : "bg-black/45 group-hover:bg-black/30",
+                )}
+              />
+
+              {/* Closed: the name, sideways on a laptop, across on a phone. */}
+              <span
+                className={cn(
+                  "absolute inset-0 flex items-center gap-3 px-4 text-white transition-opacity duration-300 md:flex-col md:justify-end md:px-0 md:pb-5",
+                  open ? "pointer-events-none opacity-0" : "opacity-100",
+                )}
+              >
+                <span className="text-[11px] font-semibold tabular-nums text-white/70">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="site-display whitespace-nowrap text-base md:rotate-180 md:[writing-mode:vertical-rl]">
+                  {p.soon ? "Coming soon" : p.title}
+                </span>
+              </span>
+
+              {/* Open: everything about it. */}
+              <span
+                className={cn(
+                  "absolute inset-x-0 bottom-0 p-5 text-white transition-all duration-500 sm:p-7",
+                  open
+                    ? "translate-y-0 opacity-100 delay-200"
+                    : "pointer-events-none translate-y-4 opacity-0",
+                )}
+              >
+                <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/75">
+                  <span className="rounded-full bg-white/15 px-2 py-0.5 tabular-nums backdrop-blur">
+                    No. {i + 1}
+                  </span>
+                  {p.group}
+                </span>
+                <span className="site-display mt-2 block text-3xl leading-none sm:text-4xl">
+                  {p.title}
+                </span>
+                <span className="mt-1.5 flex items-center gap-1.5 text-sm text-white/85">
+                  <MapPin className="size-3.5 shrink-0" /> {p.location} · {p.highlight}
+                </span>
+                <span className="mt-3 line-clamp-2 block max-w-md text-sm leading-relaxed text-white/80">
+                  {p.summary}
+                </span>
+                {p.stats.length > 0 && (
+                  <span className="mt-4 flex flex-wrap gap-1.5">
+                    {p.stats.map((s) => (
+                      <span
+                        key={s}
+                        className="rounded-full bg-white/15 px-2.5 py-1 text-xs backdrop-blur"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </span>
+                )}
+                <span className="mt-5 flex items-end justify-between gap-4">
+                  <span className="hidden gap-1.5 sm:flex">
+                    {p.more.map((m) => (
+                      <img
+                        key={m}
+                        src={m}
+                        alt=""
+                        loading="lazy"
+                        className="h-14 w-20 rounded-lg object-cover ring-2 ring-white/70"
+                      />
+                    ))}
+                  </span>
+                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#3c2411]">
+                    {p.soon ? "Build yours" : "View villa"}
+                    {p.soon ? (
+                      <ArrowRight className="size-4" />
+                    ) : (
+                      <ArrowUpRight className="size-4" />
+                    )}
                   </span>
                 </span>
-              )}
-              <span className="absolute bottom-2 left-2 hidden rounded-full bg-card px-2.5 py-1 text-[11px] font-semibold text-foreground shadow-level-1 sm:inline-block">
-                {c.soon ? "Build yours →" : c.title}
               </span>
             </>
           );
-          const cls =
-            "absolute left-1/2 top-4 block aspect-[3/4] w-[86px] origin-bottom overflow-hidden rounded-2xl border-[3px] border-card bg-secondary shadow-level-3 transition-[translate,rotate] duration-500 ease-out hover:z-50 hover:[--lift:1] sm:w-[130px] md:w-[150px] lg:w-[190px] lg:rounded-3xl lg:border-4";
-          const style = {
-            // The coming-soon card sits on top of its neighbour so its words show.
-            zIndex: c.soon ? 25 : 20 - Math.abs(Math.round(k)),
-            translate: `calc(-50% + ${k} * var(--fx) * var(--spread)) calc(${k * k} * var(--fy) * var(--spread) - var(--lift, 0) * 26px)`,
-            rotate: `calc(${k} * var(--fa) * var(--spread) * (1 - var(--lift, 0)))`,
-          } as CSSProperties;
-          return c.soon ? (
+          const cls = cn(
+            "group relative block overflow-hidden rounded-3xl bg-secondary shadow-level-2 outline-none transition-all duration-500 ease-out focus-visible:ring-2 focus-visible:ring-primary",
+            open ? "h-[440px] md:h-auto md:flex-[7]" : "h-14 md:h-auto md:flex-1",
+          );
+          // A tap on a closed panel opens it; only an open panel navigates.
+          const onClick = (e: React.MouseEvent) => {
+            if (!open) {
+              e.preventDefault();
+              setActive(i);
+            }
+          };
+          const handlers = {
+            onMouseEnter: () => setActive(i),
+            onFocus: () => setActive(i),
+            onClick,
+          };
+          return p.soon ? (
             <Link
-              key={c.key}
+              key={p.key}
               to="/inquire"
               search={{ type: "build", step: 2 }}
               className={cls}
-              style={style}
-              aria-label="The next villa is coming — build yours with Marj"
+              {...handlers}
             >
               {body}
             </Link>
           ) : (
             <a
-              key={c.key}
-              href={c.href}
+              key={p.key}
+              href={p.href}
               target="_blank"
               rel="noreferrer"
               className={cls}
-              style={style}
-              aria-label={`${c.title} on malayavillas.com`}
+              {...handlers}
             >
               {body}
             </a>
@@ -308,7 +422,7 @@ function Villas() {
         })}
       </div>
 
-      <div className="mt-2 flex flex-col items-center gap-3 px-4 text-center">
+      <div className="mt-6 flex flex-col items-center gap-3 px-4 text-center">
         <p className="text-sm text-muted-foreground">
           {PORTFOLIO.bedrooms} bedrooms · room for {PORTFOLIO.guests} guests a night · one system
           running all of it
