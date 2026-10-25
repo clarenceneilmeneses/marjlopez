@@ -224,7 +224,7 @@ const FAN: FanCard[] = [
     photo: villaPhoto(v.code, v.cover),
     href: villaUrl(v.code),
   })),
-  { key: "next", title: "Coming soon", photo: villaPhoto("PR-012", 2), href: "", soon: true },
+  { key: "next", title: "Coming soon", photo: "/villas/next.webp", href: "", soon: true },
 ];
 
 function Villas() {
@@ -259,17 +259,12 @@ function Villas() {
                 src={c.photo}
                 alt={c.title}
                 loading="lazy"
-                className={cn(
-                  "size-full object-cover",
-                  c.soon && "scale-110 blur-[3px] brightness-75",
-                )}
+                className={cn("size-full object-cover", c.soon && "object-[46%_62%]")}
               />
               {c.soon && (
-                <span className="absolute inset-0 grid place-items-center p-3 text-center">
-                  <span className="site-display text-[11px] leading-tight text-white sm:text-xl">
-                    No. {FAN.length}
-                    <br />
-                    Coming soon
+                <span className="absolute inset-x-0 top-0 bg-gradient-to-b from-black/65 to-transparent p-2 pb-6 sm:p-3 sm:pb-10">
+                  <span className="site-display block text-[11px] leading-tight text-white sm:text-lg">
+                    No. {FAN.length} · Coming soon
                   </span>
                 </span>
               )}
