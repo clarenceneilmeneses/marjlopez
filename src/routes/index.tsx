@@ -258,7 +258,7 @@ function Villas() {
               />
               {c.soon && (
                 <span className="absolute inset-0 grid place-items-center p-3 text-center">
-                  <span className="site-display text-sm leading-tight text-white sm:text-xl">
+                  <span className="site-display text-[11px] leading-tight text-white sm:text-xl">
                     No. {FAN.length}
                     <br />
                     Coming soon
@@ -273,7 +273,8 @@ function Villas() {
           const cls =
             "absolute left-1/2 top-4 block aspect-[3/4] w-[86px] origin-bottom overflow-hidden rounded-2xl border-[3px] border-card bg-secondary shadow-level-3 transition-[translate,rotate] duration-500 ease-out hover:z-50 hover:[--lift:1] sm:w-[130px] md:w-[150px] lg:w-[190px] lg:rounded-3xl lg:border-4";
           const style = {
-            zIndex: 20 - Math.abs(Math.round(k)),
+            // The coming-soon card sits on top of its neighbour so its words show.
+            zIndex: c.soon ? 25 : 20 - Math.abs(Math.round(k)),
             translate: `calc(-50% + ${k} * var(--fx) * var(--spread)) calc(${k * k} * var(--fy) * var(--spread) - var(--lift, 0) * 26px)`,
             rotate: `calc(${k} * var(--fa) * var(--spread) * (1 - var(--lift, 0)))`,
           } as CSSProperties;
