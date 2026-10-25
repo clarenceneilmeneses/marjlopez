@@ -814,9 +814,13 @@ function Reviews() {
                     &ldquo;{r.text}&rdquo;
                   </blockquote>
                   <figcaption className="mt-4 flex items-center gap-2.5 text-sm">
-                    <span className="grid size-8 place-items-center rounded-full bg-secondary font-semibold text-primary">
-                      {r.name[0]}
-                    </span>
+                    {/* Their own profile photo, copied from Malaya's reviews (public/reviews). */}
+                    <img
+                      src={`/reviews/${r.name.toLowerCase()}.webp`}
+                      alt=""
+                      loading="lazy"
+                      className="size-9 shrink-0 rounded-full bg-secondary object-cover ring-2 ring-card"
+                    />
                     <span>
                       <span className="block font-semibold leading-tight">{r.name}</span>
                       <span className="block text-xs text-muted-foreground">
