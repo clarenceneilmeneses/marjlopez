@@ -248,10 +248,12 @@ function AppShellInner({
   children,
   fullBleed,
   title,
+  toolbar,
 }: {
   children: ReactNode;
   fullBleed: boolean;
   title: string;
+  toolbar?: ReactNode;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -336,14 +338,16 @@ function AppShellInner({
                 <div className="lg:hidden">
                   <AccountMenu align="start" />
                 </div>
-                <p className="hidden min-w-0 flex-1 truncate text-sm font-medium text-foreground lg:block">
-                  {title}
-                </p>
+                <div className="hidden min-w-0 flex-1 items-center gap-4 lg:flex">
+                  <p className="shrink-0 text-sm font-medium text-foreground">{title}</p>
+                  {toolbar && <div className="min-w-0">{toolbar}</div>}
+                </div>
                 <div className="ml-auto flex items-center gap-2.5">
                   <div className={TOP_PILL}>
                     <span className="px-3 text-xs font-medium text-foreground lg:hidden">
                       {title}
                     </span>
+                    <LiveClock className="hidden pl-3.5 pr-1 lg:block" />
                     <NotificationBell />
                   </div>
                   <div className="hidden lg:block">
@@ -371,15 +375,46 @@ function AppShellInner({
   );
 }
 
+/** Manila time and date, ticking — set after mount so the server and browser agree. */
+function LiveClock({ className }: { className?: string }) {
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => {
+    setNow(new Date());
+    const t = window.setInterval(() => setNow(new Date()), 15_000);
+    return () => window.clearInterval(t);
+  }, []);
+  if (!now) return null;
+  const opts = { timeZone: "Asia/Manila" } as const;
+  return (
+    <span className={cn("whitespace-nowrap text-xs leading-tight", className)}>
+      <span className="font-semibold tabular-nums text-foreground">
+        {now.toLocaleTimeString("en-PH", { ...opts, hour: "numeric", minute: "2-digit" })}
+      </span>
+      <span className="text-muted-foreground">
+        {" · "}
+        {now.toLocaleDateString("en-PH", {
+          ...opts,
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+        })}
+      </span>
+    </span>
+  );
+}
+
 /** Staff only, by construction: the gate is inside the shell, so no route can forget it. */
 export function AppShell({
   children,
   fullBleed = false,
   title,
+  toolbar,
 }: {
   children: ReactNode;
   fullBleed?: boolean;
   title: string;
+  /** Page-specific bits for the top bar on a laptop, beside the title. */
+  toolbar?: ReactNode;
 }) {
   const { session, ready, staff, roleReady } = useAuth();
   if (!ready || (session && !roleReady)) {
@@ -391,7 +426,7 @@ export function AppShell({
   }
   if (!session || !staff) return <Navigate to="/admin/login" />;
   return (
-    <AppShellInner fullBleed={fullBleed} title={title}>
+    <AppShellInner fullBleed={fullBleed} title={title} toolbar={toolbar}>
       {children}
     </AppShellInner>
   );

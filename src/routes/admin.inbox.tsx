@@ -268,6 +268,36 @@ function InboxPage() {
     [staffList.data],
   );
 
+  const summaryBadges = (
+    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+      <span className="hidden xl:inline">
+        Sorted: <span className="font-medium text-foreground">hot and waiting first</span>
+      </span>
+      {summary.hotWaiting > 0 && (
+        <Badge variant="outline" className="gap-1 border-destructive/40 text-destructive">
+          <Flame className="size-3" /> {summary.hotWaiting} hot waiting
+        </Badge>
+      )}
+      {summary.unassigned > 0 && (
+        <Badge variant="outline" className="border-warning/50 text-warning">
+          {summary.unassigned} unassigned
+        </Badge>
+      )}
+      {summary.longestWaitHours >= 1 && (
+        <Badge
+          variant="outline"
+          className={
+            summary.longestWaitHours >= 24
+              ? "border-destructive/40 text-destructive"
+              : "text-muted-foreground"
+          }
+        >
+          Longest wait {Math.floor(summary.longestWaitHours)}h
+        </Badge>
+      )}
+    </div>
+  );
+
   const side = selected ? (
     <LeadPanel
       key={selected.conv.id}
@@ -286,7 +316,7 @@ function InboxPage() {
   };
 
   return (
-    <AppShell fullBleed title="Inbox">
+    <AppShell fullBleed title="Inbox" toolbar={summaryBadges}>
       {inbox.isLoading ? (
         <InlineLoading label="Loading conversations…" className="p-4" />
       ) : inbox.error ? (
@@ -298,41 +328,8 @@ function InboxPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-3 lg:h-full lg:min-h-0">
-          <div
-            className={cn(
-              "flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground",
-              threadOnPhone && "hidden lg:flex",
-            )}
-          >
-            <span>
-              Inquiries from the site land here, sorted:{" "}
-              <span className="font-medium text-foreground">hot and waiting first</span>.
-            </span>
-            <span className="ml-auto flex flex-wrap items-center gap-2">
-              {summary.hotWaiting > 0 && (
-                <Badge variant="outline" className="gap-1 border-destructive/40 text-destructive">
-                  <Flame className="size-3" /> {summary.hotWaiting} hot waiting
-                </Badge>
-              )}
-              {summary.unassigned > 0 && (
-                <Badge variant="outline" className="border-warning/50 text-warning">
-                  {summary.unassigned} unassigned
-                </Badge>
-              )}
-              {summary.longestWaitHours >= 1 && (
-                <Badge
-                  variant="outline"
-                  className={
-                    summary.longestWaitHours >= 24
-                      ? "border-destructive/40 text-destructive"
-                      : "text-muted-foreground"
-                  }
-                >
-                  Longest wait {Math.floor(summary.longestWaitHours)}h
-                </Badge>
-              )}
-            </span>
-          </div>
+          {/* On a phone the summary sits above the list; on a laptop it rides in the top bar. */}
+          {!threadOnPhone && <div className="lg:hidden">{summaryBadges}</div>}
 
           <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(300px,360px)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:items-stretch xl:grid-cols-[minmax(300px,380px)_minmax(0,1fr)_minmax(300px,360px)]">
             <ThreadList
