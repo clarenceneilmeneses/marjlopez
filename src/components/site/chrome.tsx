@@ -378,141 +378,122 @@ function PublicBottomNav() {
 }
 
 /**
- * The grounded footer — Malaya's footer draft "05 — Grounded" (Clarence,
- * 2026-10-25: "i meant this kind of footer"): the columns on white, and under
- * them a villa rising out of the page, its sky fading into the white so the
- * links sit on the fade. The copyright sits on the photo's foot, over a soft
- * shade for contrast.
- *
- * The photo is Casa Grey, the draft's own. It needs open sky at the top for
- * the fade to land on; the Team Malaya photo it replaces has faces up there,
- * which the fade would wash out.
+ * The footer opens on Marj and Team Malaya under their sign (Clarence,
+ * 2026-10-25, in place of the giant MARJUN on a brown band). The photo
+ * straddles the page and the white footer, the way the hero's inquiry pill
+ * straddles the hero, and drifts like the other photos. On a phone it crops
+ * to 4:3 from the left, so both people stay in frame and the sign gives way.
  */
 export function PublicFooter() {
   const col = "text-[11px] font-bold uppercase tracking-[0.16em] text-primary";
   const link = "text-sm text-foreground/80 transition-colors hover:text-primary";
   return (
-    <footer className="mt-16 overflow-hidden bg-card">
-      <div className="relative z-10 mx-auto grid max-w-6xl gap-10 px-6 pt-16 sm:px-10 lg:grid-cols-[1.5fr_1fr_1fr_1fr_auto]">
-        <div>
-          <p className="site-display text-3xl text-foreground">
-            Start. Build.
-            <br />
-            Earn.
-          </p>
-          <p className="mt-4 text-sm text-muted-foreground">
-            {BRAND.name} · {FACEBOOK.intro}
-          </p>
-          <a
-            href={`mailto:${FACEBOOK.email}`}
-            className="text-sm text-muted-foreground hover:text-primary"
-          >
-            {FACEBOOK.email}
-          </a>
-          <div className="mt-6">
-            <Link
-              to="/inquire"
-              className="brand-caps inline-flex h-11 items-center rounded-full bg-primary px-6 text-[15px] text-primary-foreground transition hover:bg-primary/90"
-            >
-              Work with me
-            </Link>
-          </div>
-        </div>
-        <FooterCol title="Work with me" titleClass={col}>
-          <Link to="/inquire" search={{ type: "start", step: 2 }} className={link}>
-            Start an Airbnb
-          </Link>
-          <Link to="/inquire" search={{ type: "build", step: 2 }} className={link}>
-            Build my Airbnb
-          </Link>
-          <Link to="/inquire" search={{ type: "system", step: 2 }} className={link}>
-            Booking system
-          </Link>
-          <Link to="/inquire" search={{ type: "other", step: 2 }} className={link}>
-            Partnerships
-          </Link>
-        </FooterCol>
-        <FooterCol title="Explore" titleClass={col}>
-          <Link to="/" hash="villas" className={link}>
-            The villas
-          </Link>
-          <Link to="/" hash="about" className={link}>
-            Meet Marj
-          </Link>
-          <Link to="/" hash="reviews" className={link}>
-            Guest reviews
-          </Link>
-          <a href={MALAYA_SITE} target="_blank" rel="noreferrer" className={link}>
-            Book a stay
-          </a>
-        </FooterCol>
-        <FooterCol title="Help" titleClass={col}>
-          <Link to="/messages" className={link}>
-            My messages
-          </Link>
-          <Link to="/privacy" className={link}>
-            Privacy notice
-          </Link>
-          <Link to="/admin/login" className={link}>
-            Team sign in
-          </Link>
-        </FooterCol>
-        <div>
-          <p className={col}>Social</p>
-          <div className="mt-4 flex gap-2">
-            {LINKS.filter((l) => l.kind === "personal").map((l) => (
-              <a
-                key={l.url}
-                href={l.url}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`${l.name} on ${l.platform}`}
-                className="grid size-10 place-items-center rounded-full bg-secondary text-primary transition hover:bg-primary hover:text-primary-foreground"
-              >
-                <PlatformLogo platform={l.platform as Platform} mono className="size-[18px]" />
-              </a>
-            ))}
-          </div>
-        </div>
-        <div className="flex items-start justify-between gap-4 border-t border-border/70 pt-5 text-xs text-muted-foreground md:hidden">
-          <FooterLegal />
-        </div>
-      </div>
-
-      {/* The villa. Pulled up under the last links so they sit on its faded sky. */}
-      <div className="relative -mt-10 aspect-[4/5] w-full sm:-mt-28 sm:aspect-[16/9] lg:aspect-[2/1]">
-        <img
-          src="/villas/pr-012/0.webp"
-          alt="Casa Grey, one of the Malaya villas"
+    <footer className="mt-10">
+      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-10">
+        <ParallaxImage
+          src="/brand/about-team.webp"
+          alt="Marj Lopez with Team Malaya"
           loading="lazy"
-          className="absolute inset-0 size-full object-cover object-[60%_bottom]"
+          strength={4}
+          frameClassName="aspect-[4/3] rounded-3xl shadow-level-3 sm:aspect-[1672/772]"
+          // The drift's slack crops the sides. Take it from the left on a
+          // laptop, so the TEAM MALAYA sign on the right stays whole.
+          className="object-[25%_center] sm:object-right"
         />
-        <span className="absolute inset-x-0 top-0 h-3/5 bg-gradient-to-b from-card via-card/85 to-transparent" />
-        {/* On a phone the floating nav covers the photo's foot, so the
-            copyright sits on the white above instead (FooterLegal, md:hidden). */}
-        <span className="absolute inset-x-0 bottom-0 hidden h-40 bg-gradient-to-t from-black/50 to-transparent md:block" />
-        <div className="absolute inset-x-0 bottom-0 mx-auto hidden max-w-6xl items-end justify-between px-10 pb-7 text-xs text-white/90 md:flex">
-          <FooterLegal />
+      </div>
+      <div className="-mt-20 bg-card pb-28 pt-20 sm:-mt-32 sm:pt-32 md:pb-0">
+        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 sm:px-10 lg:grid-cols-[1.5fr_1fr_1fr_1fr_auto]">
+          <div>
+            <p className="site-display text-3xl text-foreground">
+              Start. Build.
+              <br />
+              Earn.
+            </p>
+            <p className="mt-4 text-sm text-muted-foreground">
+              {BRAND.name} · {FACEBOOK.intro}
+            </p>
+            <a
+              href={`mailto:${FACEBOOK.email}`}
+              className="text-sm text-muted-foreground hover:text-primary"
+            >
+              {FACEBOOK.email}
+            </a>
+            <div className="mt-6">
+              <Link
+                to="/inquire"
+                className="brand-caps inline-flex h-11 items-center rounded-full bg-primary px-6 text-[15px] text-primary-foreground transition hover:bg-primary/90"
+              >
+                Work with me
+              </Link>
+            </div>
+          </div>
+          <FooterCol title="Work with me" titleClass={col}>
+            <Link to="/inquire" search={{ type: "start", step: 2 }} className={link}>
+              Start an Airbnb
+            </Link>
+            <Link to="/inquire" search={{ type: "build", step: 2 }} className={link}>
+              Build my Airbnb
+            </Link>
+            <Link to="/inquire" search={{ type: "system", step: 2 }} className={link}>
+              Booking system
+            </Link>
+            <Link to="/inquire" search={{ type: "other", step: 2 }} className={link}>
+              Partnerships
+            </Link>
+          </FooterCol>
+          <FooterCol title="Explore" titleClass={col}>
+            <Link to="/" hash="villas" className={link}>
+              The villas
+            </Link>
+            <Link to="/" hash="about" className={link}>
+              Meet Marj
+            </Link>
+            <Link to="/" hash="reviews" className={link}>
+              Guest reviews
+            </Link>
+            <a href={MALAYA_SITE} target="_blank" rel="noreferrer" className={link}>
+              Book a stay
+            </a>
+          </FooterCol>
+          <FooterCol title="Help" titleClass={col}>
+            <Link to="/messages" className={link}>
+              My messages
+            </Link>
+            <Link to="/privacy" className={link}>
+              Privacy notice
+            </Link>
+            <Link to="/admin/login" className={link}>
+              Team sign in
+            </Link>
+          </FooterCol>
+          <div>
+            <p className={col}>Social</p>
+            <div className="mt-4 flex gap-2">
+              {LINKS.filter((l) => l.kind === "personal").map((l) => (
+                <a
+                  key={l.url}
+                  href={l.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`${l.name} on ${l.platform}`}
+                  className="grid size-10 place-items-center rounded-full bg-secondary text-primary transition hover:bg-primary hover:text-primary-foreground"
+                >
+                  <PlatformLogo platform={l.platform as Platform} mono className="size-[18px]" />
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="mx-auto flex max-w-6xl flex-col gap-2 border-t border-border/70 px-6 py-6 text-xs text-primary sm:flex-row sm:items-center sm:justify-between sm:px-10">
+          <p>
+            © {new Date().getFullYear()} {BRAND.name}. All rights reserved.
+          </p>
+          <a href={MALAYA_SITE} target="_blank" rel="noreferrer" className="hover:underline">
+            malayavillas.com
+          </a>
         </div>
       </div>
     </footer>
-  );
-}
-
-/** Copyright on one side; the photo's villa and malayavillas.com on the other. */
-function FooterLegal() {
-  return (
-    <>
-      <p>
-        © {new Date().getFullYear()} {BRAND.name}. All rights reserved.
-      </p>
-      <p className="flex flex-col items-end gap-1">
-        <span className="uppercase tracking-[0.16em] opacity-75">Casa Grey</span>
-        <a href={MALAYA_SITE} target="_blank" rel="noreferrer" className="hover:underline">
-          malayavillas.com
-        </a>
-      </p>
-    </>
   );
 }
 
