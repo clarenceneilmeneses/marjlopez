@@ -21,12 +21,13 @@ import {
   ArrowUpRight,
   BadgeCheck,
   Check,
+  ChevronRight,
   Globe,
   MapPin,
   Play,
   Star,
 } from "@/components/icons";
-import { Fragment, useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
 import { PublicFooter, PublicHeader } from "@/components/site/chrome";
 import { PlatformLogo, type Platform } from "@/components/site/logos";
@@ -262,10 +263,9 @@ const PANELS: Panel[] = [
 ];
 
 /**
- * Two columns on a laptop (Clarence, 2026-10-25): the villas as photo tiles on
- * the left — a game's level select, each its own card, not an icon in a list —
- * and the picked one large on the right. On a phone the preview opens under
- * the tapped tile instead.
+ * Two columns on a laptop (Clarence, 2026-10-25): the villas as a list on the
+ * left — the Inbox's list look — and the picked one large on the right. On a
+ * phone the preview opens under the tapped row instead.
  *
  * Picking a row only picks it. The one way off the page is the preview's own
  * View villa button, so nobody leaves by accident.
@@ -287,62 +287,59 @@ function Villas() {
       </div>
 
       <div className="mx-auto mt-10 grid max-w-6xl gap-5 px-3 sm:px-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.25fr)] lg:items-start">
-        {/* Dense flow: the phone's full-width preview drops below the tapped
-            tile's row and the tile beside it backfills the gap. */}
-        <ul className="grid grid-flow-dense grid-cols-2 gap-2.5">
+        <ul className="flex flex-col gap-1 rounded-3xl bg-card p-2 shadow-level-2">
           {PANELS.map((p, i) => {
             const on = i === active;
             return (
-              <Fragment key={p.key}>
-                <li className={cn(p.soon && "col-span-2")}>
-                  <button
-                    type="button"
-                    onClick={() => setActive(i)}
-                    aria-pressed={on}
-                    className={cn(
-                      "group relative block w-full overflow-hidden rounded-2xl text-left shadow-level-1 transition duration-300",
-                      p.soon ? "aspect-[3/1]" : "aspect-[2/1]",
-                      on
-                        ? "shadow-level-3 ring-2 ring-primary ring-offset-2 ring-offset-background"
-                        : "hover:-translate-y-0.5 hover:shadow-level-2",
-                    )}
-                  >
-                    <img
-                      src={p.photos[0]}
-                      alt=""
-                      loading="lazy"
-                      style={p.coverPosition ? { objectPosition: p.coverPosition } : undefined}
-                      className={cn(
-                        "absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-105",
-                        !on && "brightness-[.8] saturate-[.85] group-hover:brightness-100 group-hover:saturate-100",
-                      )}
-                    />
-                    <span className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-                    <span className="absolute left-2 top-2 rounded-full bg-black/35 px-2 py-0.5 text-[10px] font-semibold tabular-nums text-white backdrop-blur-sm">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    {p.soon && (
-                      <span className="absolute right-2 top-2 rounded-full bg-success px-2 py-0.5 text-[10px] font-semibold text-white">
-                        Acquired
+              <li key={p.key}>
+                <button
+                  type="button"
+                  onClick={() => setActive(i)}
+                  aria-pressed={on}
+                  className={cn(
+                    "flex w-full items-center gap-3 rounded-2xl px-2.5 py-2 text-left transition-colors",
+                    on ? "bg-secondary" : "hover:bg-secondary/60",
+                  )}
+                >
+                  <img
+                    src={p.photos[0]}
+                    alt=""
+                    loading="lazy"
+                    style={p.coverPosition ? { objectPosition: p.coverPosition } : undefined}
+                    className="size-12 shrink-0 rounded-xl object-cover"
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2">
+                      <span className="text-[11px] font-semibold tabular-nums text-muted-foreground">
+                        {String(i + 1).padStart(2, "0")}
                       </span>
-                    )}
-                    <span className="absolute inset-x-3 bottom-2.5">
-                      <span className="site-display block truncate text-base leading-none text-white">
+                      <span className={cn("truncate text-sm", on ? "font-bold" : "font-semibold")}>
                         {p.title}
                       </span>
-                      <span className="mt-1 flex items-center gap-1 truncate text-[11px] text-white/75">
-                        <MapPin className="size-3 shrink-0" /> {p.location}
-                      </span>
+                      {p.soon && (
+                        <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-semibold text-success">
+                          Acquired
+                        </span>
+                      )}
                     </span>
-                  </button>
-                </li>
-                {/* The phone's preview, right under the tile it belongs to. */}
+                    <span className="mt-0.5 flex items-center gap-1 truncate text-xs text-muted-foreground">
+                      <MapPin className="size-3 shrink-0" /> {p.location}
+                    </span>
+                  </span>
+                  <ChevronRight
+                    className={cn(
+                      "size-4 shrink-0 text-muted-foreground transition-transform",
+                      on && "rotate-90 text-primary lg:rotate-0",
+                    )}
+                  />
+                </button>
+                {/* The phone's preview, right under the row it belongs to. */}
                 {on && (
-                  <li className="col-span-2 pb-2 lg:hidden">
+                  <div className="px-1 pb-2 pt-1 lg:hidden">
                     <VillaPreview panel={p} n={i + 1} />
-                  </li>
+                  </div>
                 )}
-              </Fragment>
+              </li>
             );
           })}
         </ul>
