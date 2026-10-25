@@ -16,7 +16,7 @@
  * Every figure's source is in lib/brand.ts.
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ArrowUpRight, BadgeCheck, Check, Globe, Star } from "@/components/icons";
+import { ArrowRight, ArrowUpRight, BadgeCheck, Check, Globe, Play, Star } from "@/components/icons";
 import type { CSSProperties } from "react";
 
 import { PublicFooter, PublicHeader } from "@/components/site/chrome";
@@ -166,7 +166,7 @@ function Hero() {
 
 /** Every audience number, in one quiet row of pills — the admin's chip strip. */
 function Followers() {
-  const pills: { logo?: Platform; big: string; small: string; href: string }[] = [
+  const pills: { logo?: Platform; big: string; small: string; href: string; tv?: boolean }[] = [
     { logo: "facebook", big: FACEBOOK.followers, small: "Facebook", href: FACEBOOK.url },
     { logo: "instagram", big: INSTAGRAM.followers, small: "Instagram", href: INSTAGRAM.url },
     {
@@ -176,6 +176,12 @@ function Followers() {
       href: AIRBNB_HOST.url,
     },
     { big: `${TOTAL_REVIEWS}+`, small: "guest reviews", href: "#reviews" },
+    {
+      big: "As seen on",
+      small: "PTV",
+      href: "https://www.youtube.com/watch?v=Uq1KitcVAwQ",
+      tv: true,
+    },
   ];
   return (
     <div className="mx-auto mt-6 flex max-w-5xl flex-wrap justify-center gap-2 px-1">
@@ -188,6 +194,8 @@ function Followers() {
         >
           {p.logo ? (
             <PlatformLogo platform={p.logo} className="size-[18px]" />
+          ) : p.tv ? (
+            <Play className="size-[18px] fill-[#FF0000] text-[#FF0000]" />
           ) : (
             <Star className="size-[18px] fill-warning text-warning" />
           )}
@@ -327,23 +335,88 @@ function Villas() {
 
 const PITCH = FACEBOOK.pitch.split(" · ");
 
+/** Where he's been featured. Labels are ours, not the outlets' headlines. */
+const FEATURES = [
+  {
+    kind: "video" as const,
+    outlet: "PTV",
+    title: "PTV · Rise and Shine Pilipinas",
+    meta: "Father's Day Special",
+    image: "/brand/ptv-feature.webp",
+    url: "https://www.youtube.com/watch?v=Uq1KitcVAwQ",
+  },
+  {
+    kind: "article" as const,
+    outlet: "Latest Chika",
+    title: "Latest Chika · The Philippine STAR",
+    meta: "Feature · June 24, 2024",
+    image: null,
+    url: "https://latestchika.com/just-in/2024/06/24/107133/single-father-shares-life-with-3-kids-stresses-importance-of-co-parenting/",
+  },
+];
+
 function MeetMarj() {
   const mine = LINKS.filter((l) => l.kind === "personal");
   const more = LINKS.filter((l) => l.kind !== "personal");
   return (
     <section id="about" className="mx-auto max-w-6xl scroll-mt-20 px-4 pt-24 sm:px-8 lg:pt-28">
-      <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)] lg:gap-16">
-        <ParallaxImage
-          src="/brand/about-team.webp"
-          alt="Team Malaya"
-          strength={7}
-          frameClassName="aspect-[4/5] w-full rounded-[2rem] bg-[#2a1d14] shadow-level-3 max-lg:max-h-[460px]"
-          className="object-[34%_center]"
-        />
+      <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)] lg:gap-16">
+        <div className="space-y-3">
+          <ParallaxImage
+            src="/brand/marj-family.webp"
+            alt="Marj with his family"
+            strength={6}
+            frameClassName="aspect-square w-full rounded-[2rem] bg-white shadow-level-3"
+            className="object-center"
+          />
+          {/* As featured on — TV and the press, neutral labels in our own words. */}
+          <div className="grid grid-cols-2 gap-3">
+            {FEATURES.map((f) => (
+              <a
+                key={f.url}
+                href={f.url}
+                target="_blank"
+                rel="noreferrer"
+                className="group overflow-hidden rounded-2xl bg-card shadow-level-2 transition hover:-translate-y-0.5 hover:shadow-level-3"
+              >
+                <span className="relative block aspect-video overflow-hidden bg-secondary">
+                  {f.image ? (
+                    <img
+                      src={f.image}
+                      alt=""
+                      loading="lazy"
+                      className="size-full object-cover transition duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <span className="grid size-full place-items-center bg-[#3a2314] p-3 text-center">
+                      <span className="site-display text-lg leading-tight text-white sm:text-2xl">
+                        {f.outlet}
+                      </span>
+                    </span>
+                  )}
+                  {f.kind === "video" && (
+                    <span className="absolute inset-0 grid place-items-center bg-black/15">
+                      <span className="grid size-11 place-items-center rounded-full bg-white/95 text-[#FF0000] shadow-level-2 transition group-hover:scale-110">
+                        <Play className="size-5 fill-current" />
+                      </span>
+                    </span>
+                  )}
+                </span>
+                <span className="block p-3">
+                  <span className="block text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                    {f.kind === "video" ? "As seen on TV" : "In the press"}
+                  </span>
+                  <span className="mt-0.5 block text-sm font-semibold leading-snug">{f.title}</span>
+                  <span className="block text-xs text-muted-foreground">{f.meta}</span>
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
         <div>
           <Eyebrow>Meet Marj</Eyebrow>
           <h2 className="site-display mt-4 text-4xl leading-none text-brand-heading sm:text-5xl">
-            Single dad of four. Host of {PORTFOLIO.villas} villas.
+            Family first. Host of {PORTFOLIO.villas} villas.
           </h2>
           <p className="mt-5 text-base leading-relaxed text-foreground">
             &ldquo;Growing up without a home, I dreamed of having one.&rdquo; He started out renting
