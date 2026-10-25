@@ -61,6 +61,7 @@ export { default as DatabaseBackup } from "./DatabaseBackup";
 export { default as DoorOpen } from "./DoorOpen";
 export { default as Download } from "./Download04";
 export { default as Flame } from "./Fire";
+export { default as Globe } from "./Globe";
 export { default as Eraser } from "./Eraser";
 export { default as Expand } from "./ArrowExpand01";
 export { default as ExternalLink } from "./ExternalLink";

@@ -27,12 +27,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { BRAND } from "@/lib/brand";
+import { BRAND, INSTAGRAM, LINKS } from "@/lib/brand";
+import { MALAYA_SITE } from "@/lib/villas";
+import { PlatformLogo, type Platform } from "./logos";
 import { initial } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/state/auth";
 import { useMine } from "@/state/data";
 import { SignInDialog } from "./auth-panel";
+
+/** The landing page's sections, for the header and the phone menu. */
+const SECTIONS = [
+  { hash: "about", label: "About" },
+  { hash: "villas", label: "Villas" },
+  { hash: "reviews", label: "Reviews" },
+  { hash: "faq", label: "FAQ" },
+];
 
 export function Wordmark({ size = "header" }: { size?: "header" | "footer" }) {
   const big = size === "header";
@@ -108,28 +118,17 @@ export function PublicHeader() {
             <Wordmark />
           </Link>
 
-          <nav className="brand-caps hidden items-center gap-10 text-[15px] text-primary md:flex">
-            <Link
-              to="/"
-              hash="help"
-              className="underline-offset-8 transition-opacity hover:opacity-70"
-            >
-              What I do
-            </Link>
-            <Link
-              to="/"
-              hash="how"
-              className="underline-offset-8 transition-opacity hover:opacity-70"
-            >
-              How it works
-            </Link>
-            <Link
-              to="/"
-              hash="faq"
-              className="underline-offset-8 transition-opacity hover:opacity-70"
-            >
-              FAQ
-            </Link>
+          <nav className="brand-caps hidden items-center gap-8 text-[15px] text-primary lg:gap-10 md:flex">
+            {SECTIONS.map((sec) => (
+              <Link
+                key={sec.hash}
+                to="/"
+                hash={sec.hash}
+                className="underline-offset-8 transition-opacity hover:opacity-70"
+              >
+                {sec.label}
+              </Link>
+            ))}
           </nav>
 
           <div className="flex items-center gap-3">
@@ -280,8 +279,9 @@ function PublicBottomNav() {
           </div>
           <nav className="flex flex-col gap-1 px-3">
             {[
-              { to: "/" as const, hash: "help", label: "What I do", icon: Home },
-              { to: "/" as const, hash: "how", label: "How it works", icon: CircleHelp },
+              { to: "/" as const, hash: "about", label: "About Marj", icon: User },
+              { to: "/" as const, hash: "villas", label: "The villas", icon: Home },
+              { to: "/" as const, hash: "reviews", label: "Guest reviews", icon: CircleHelp },
               { to: "/" as const, hash: "faq", label: "FAQ", icon: CircleHelp },
               { to: "/privacy" as const, hash: undefined, label: "Privacy", icon: FileText },
             ].map((l) => (
@@ -310,60 +310,149 @@ function PublicBottomNav() {
   );
 }
 
+/**
+ * The hero footer — Malaya's footer draft "01 — Hero": one dark, rounded
+ * photo card at the foot of every page, the wordmark and a last call to act
+ * above the columns, so the page ends on a villa rather than on a list of links.
+ */
 export function PublicFooter() {
+  const col = "text-[11px] font-bold uppercase tracking-[0.16em] text-white/90";
+  const link = "text-sm text-white/75 transition-colors hover:text-white";
   return (
-    <footer className="relative border-t-2 border-primary pb-24 md:pb-0">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 pb-14 pt-14 sm:grid-cols-2 sm:px-8 lg:grid-cols-[1.6fr_1fr_1fr]">
-        <div>
-          <Wordmark size="footer" />
-          <p className="brand-caps mt-4 text-[15px] tracking-[0.14em] text-foreground">
-            Start. Build. Run it right.
+    <footer className="px-3 pb-28 pt-6 sm:px-6 md:pb-6">
+      <div
+        className="relative overflow-hidden rounded-[2rem] bg-[#2a1a0e] bg-cover bg-center text-white shadow-level-3"
+        style={{
+          backgroundImage:
+            "linear-gradient(180deg, rgb(32 20 10 / 0.72) 0%, rgb(32 20 10 / 0.86) 55%, rgb(32 20 10 / 0.96) 100%), url(/villas/pr-casa-martha/4.webp)",
+        }}
+      >
+        <div className="mx-auto max-w-6xl px-6 pb-12 pt-16 text-center sm:px-10 md:pt-20">
+          <span className="inline-block leading-none">
+            <span className="block font-display text-4xl tracking-[0.12em] text-white sm:text-5xl">
+              {BRAND.wordmark}
+            </span>
+            <span className="mt-1.5 block text-[10px] font-medium uppercase tracking-[0.3em] text-white/80">
+              {BRAND.tagline}
+            </span>
+          </span>
+          <h2 className="site-display mx-auto mt-8 max-w-3xl text-4xl leading-[1.05] text-white sm:text-6xl">
+            Your Airbnb starts here.
+          </h2>
+          <p className="mx-auto mt-5 max-w-xl text-[15px] text-white/80 sm:text-base">
+            Start one, build one, or run yours on the system behind Malaya Villas. Tell us what you
+            need — it takes about a minute.
           </p>
-          <p className="mt-3 max-w-sm text-[13px] leading-relaxed text-muted-foreground">
-            {BRAND.description}
-          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              to="/inquire"
+              className="brand-caps inline-flex h-12 items-center rounded-full bg-[#f6efe4] px-7 text-[15px] text-[#3c2411] transition hover:bg-white"
+            >
+              Work with me
+            </Link>
+            <Link
+              to="/"
+              hash="villas"
+              className="brand-caps inline-flex h-12 items-center rounded-full border border-white/50 px-7 text-[15px] text-white transition hover:bg-white/10"
+            >
+              See the villas
+            </Link>
+          </div>
         </div>
-        <div>
-          <p className="brand-caps text-[15px] text-primary">Work with me</p>
-          <ul className="mt-4 space-y-3 text-sm font-medium">
-            <li>
-              <Link to="/inquire" search={{ type: "start" }} className="hover:text-primary">
-                Start an Airbnb
-              </Link>
-            </li>
-            <li>
-              <Link to="/inquire" search={{ type: "build" }} className="hover:text-primary">
-                Build my Airbnb
-              </Link>
-            </li>
-            <li>
-              <Link to="/inquire" search={{ type: "system" }} className="hover:text-primary">
-                Get a booking system
-              </Link>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <p className="brand-caps text-[15px] text-primary">Follow</p>
-          <ul className="mt-4 space-y-3 text-sm font-medium">
-            {BRAND.socials.map((s) => (
-              <li key={s.label}>
-                <a href={s.href} target="_blank" rel="noreferrer" className="hover:text-primary">
-                  {s.label}
+
+        <div className="mx-6 border-t border-white/15 sm:mx-10" />
+
+        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-12 text-left sm:grid-cols-2 sm:px-10 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
+          <div className="space-y-1.5">
+            <p className={col}>{BRAND.name}</p>
+            <p className="text-sm text-white/75">{BRAND.tagline}</p>
+            <p className="text-sm text-white/75">{BRAND.base}</p>
+            <a href={INSTAGRAM.url} target="_blank" rel="noreferrer" className={cn(link, "block")}>
+              @{INSTAGRAM.handle} · {INSTAGRAM.followers} followers
+            </a>
+          </div>
+          <FooterCol title="Work with me" titleClass={col}>
+            <Link to="/inquire" search={{ type: "start", step: 2 }} className={link}>
+              Start an Airbnb
+            </Link>
+            <Link to="/inquire" search={{ type: "build", step: 2 }} className={link}>
+              Build my Airbnb
+            </Link>
+            <Link to="/inquire" search={{ type: "system", step: 2 }} className={link}>
+              Booking system
+            </Link>
+            <Link to="/inquire" search={{ type: "other", step: 2 }} className={link}>
+              Collabs & media
+            </Link>
+          </FooterCol>
+          <FooterCol title="Explore" titleClass={col}>
+            <Link to="/" hash="villas" className={link}>
+              The villas
+            </Link>
+            <Link to="/" hash="about" className={link}>
+              About Marj
+            </Link>
+            <Link to="/" hash="reviews" className={link}>
+              Guest reviews
+            </Link>
+            <Link to="/" hash="faq" className={link}>
+              FAQ
+            </Link>
+          </FooterCol>
+          <FooterCol title="Help" titleClass={col}>
+            <Link to="/messages" className={link}>
+              My messages
+            </Link>
+            <a href={MALAYA_SITE} target="_blank" rel="noreferrer" className={link}>
+              Book a stay
+            </a>
+            <Link to="/privacy" className={link}>
+              Privacy notice
+            </Link>
+          </FooterCol>
+          <div>
+            <p className={col}>Social</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {LINKS.filter((l) => l.kind === "personal" && l.platform !== "web").map((l) => (
+                <a
+                  key={l.url}
+                  href={l.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`${l.name} on ${l.platform}`}
+                  className="grid size-10 place-items-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+                >
+                  <PlatformLogo platform={l.platform as Platform} mono className="size-[18px]" />
                 </a>
-              </li>
-            ))}
-            <li>
-              <Link to="/privacy" className="hover:text-primary">
-                Privacy notice
-              </Link>
-            </li>
-          </ul>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 border-t border-white/15 px-6 py-5 text-xs text-white/70 sm:flex-row sm:items-center sm:justify-between sm:px-10">
+          <p>
+            © {new Date().getFullYear()} {BRAND.name}. All rights reserved.
+          </p>
+          <p>Start. Build. Run it right.</p>
         </div>
       </div>
-      <p className="border-t border-border/50 px-4 py-5 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} {BRAND.name}. All rights reserved.
-      </p>
     </footer>
+  );
+}
+
+function FooterCol({
+  title,
+  titleClass,
+  children,
+}: {
+  title: string;
+  titleClass: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <p className={titleClass}>{title}</p>
+      <div className="mt-4 flex flex-col gap-2.5">{children}</div>
+    </div>
   );
 }
