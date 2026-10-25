@@ -265,10 +265,11 @@ const PANELS: Panel[] = [
 ];
 
 /**
- * Every villa as a tall photo panel. The one you point at (or tap, on a
- * phone) opens up and shows what it is; the rest stay narrow strips with
- * their names. Clicking an open panel goes to the villa on malayavillas.com.
- * A row from `md`, a stack below it.
+ * Every villa as a photo strip, stacked — the same at every width (Clarence,
+ * 2026-10-25: "stack these vertically as well like on the mobile view").
+ * Clicking a strip opens it and shows what it is; clicking an open one goes
+ * to the villa on malayavillas.com. Hover only brightens: opening on hover
+ * would change the list's height under the pointer and make it jump.
  */
 function Villas() {
   const [active, setActive] = useState(0);
@@ -284,7 +285,7 @@ function Villas() {
         </p>
       </div>
 
-      <div className="mx-auto mt-10 flex max-w-[1400px] flex-col gap-2 px-3 sm:px-6 md:h-[520px] md:flex-row">
+      <div className="mx-auto mt-10 flex max-w-5xl flex-col gap-2 px-3 sm:px-6">
         {PANELS.map((p, i) => {
           const open = i === active;
           const body = (
@@ -308,18 +309,21 @@ function Villas() {
                 )}
               />
 
-              {/* Closed: the name, sideways on a laptop, across on a phone. */}
+              {/* Closed: number and name; the location joins them where there's room. */}
               <span
                 className={cn(
-                  "absolute inset-0 flex items-center gap-3 px-4 text-white transition-opacity duration-300 md:flex-col md:justify-end md:px-0 md:pb-5",
+                  "absolute inset-0 flex items-center gap-3 px-5 text-white transition-opacity duration-300 sm:px-7",
                   open ? "pointer-events-none opacity-0" : "opacity-100",
                 )}
               >
                 <span className="text-[11px] font-semibold tabular-nums text-white/70">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <span className="site-display whitespace-nowrap text-base md:rotate-180 md:[writing-mode:vertical-rl]">
+                <span className="site-display whitespace-nowrap text-base sm:text-xl">
                   {p.soon ? "Opening soon" : p.title}
+                </span>
+                <span className="ml-auto hidden items-center gap-1.5 truncate text-sm text-white/85 sm:flex">
+                  <MapPin className="size-3.5 shrink-0" /> {p.location}
                 </span>
               </span>
 
@@ -385,7 +389,7 @@ function Villas() {
           );
           const cls = cn(
             "group relative block overflow-hidden rounded-3xl bg-secondary shadow-level-2 outline-none transition-all duration-500 ease-out focus-visible:ring-2 focus-visible:ring-primary",
-            open ? "h-[440px] md:h-auto md:flex-[7]" : "h-14 md:h-auto md:flex-1",
+            open ? "h-[440px] sm:h-[480px]" : "h-14 sm:h-16",
           );
           // A tap on a closed panel opens it; only an open panel navigates.
           const onClick = (e: React.MouseEvent) => {
@@ -395,7 +399,6 @@ function Villas() {
             }
           };
           const handlers = {
-            onMouseEnter: () => setActive(i),
             onFocus: () => setActive(i),
             onClick,
           };
