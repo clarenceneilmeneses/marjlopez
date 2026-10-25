@@ -1547,7 +1547,7 @@ function StageStepper({ lead }: { lead: Lead }) {
       { onSuccess: () => toast.success(`Stage: ${stageLabel(stage)}`) },
     );
   return (
-    <div className="-mt-1 flex items-center gap-1 overflow-x-auto no-scrollbar">
+    <div className="-mt-1 flex flex-wrap items-center gap-1">
       {PIPELINE.map((st, i) => {
         const done = lead.stage !== "lost" && i <= at;
         const current = st === lead.stage;

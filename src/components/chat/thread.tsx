@@ -314,7 +314,7 @@ function MessageBubble({
           </div>
         </div>
       ) : (
-        (media || message.body.trim() || message.reply_to_id) && (
+        (media || (message.body.trim() && message.kind !== "request") || message.reply_to_id) && (
           <div className={cn("flex max-w-[85%] items-center gap-1", mine && "flex-row-reverse")}>
             <div className={cn("flex min-w-0 flex-col gap-1", mine ? "items-end" : "items-start")}>
               {message.reply_to_id && replyTo !== undefined && (
@@ -343,7 +343,7 @@ function MessageBubble({
                   className={cn(mine ? "rounded-br-sm" : "rounded-bl-sm")}
                 />
               )}
-              {message.body.trim() && (
+              {message.body.trim() && message.kind !== "request" && (
                 <p
                   {...holdProps}
                   className={cn(

@@ -74,8 +74,12 @@ export function ColumnChart({
       </div>
       <div className="ml-7 mt-2 flex gap-[2px] text-[10px] text-muted-foreground">
         {data.map((d, i) => (
-          <span key={d.key} className="flex-1 text-center">
-            {i % tickEvery === 0 || i === data.length - 1 ? d.label : ""}
+          <span key={d.key} className="relative h-3 flex-1">
+            {((i % tickEvery === 0 && i < data.length - 3) || i === data.length - 1) && (
+              <span className="absolute left-1/2 top-0 -translate-x-1/2 whitespace-nowrap">
+                {d.label}
+              </span>
+            )}
           </span>
         ))}
       </div>
