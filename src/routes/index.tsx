@@ -249,11 +249,12 @@ const PANELS: Panel[] = [
   })),
   {
     key: "next",
-    title: "Coming soon",
-    group: `Villa no. ${VILLAS.length + 1}`,
-    location: "Being built now",
-    highlight: "Private pool · Event lawn",
-    summary: "The next Malaya villa is on its way. Want the one after it to be yours?",
+    title: "Opening soon",
+    group: `Villa no. ${VILLAS.length + 1} · Acquired`,
+    location: "San Vicente, Bamban, Tarlac",
+    highlight: "10 minutes from Clark Airport",
+    summary:
+      "Already acquired and opening soon — Malaya's newest, 10 minutes from Clark Airport. Want the next one to be yours?",
     stats: [],
     cover: "/villas/next.webp",
     coverPosition: "46% 62%",
@@ -274,7 +275,7 @@ function Villas() {
   return (
     <section id="villas" className="scroll-mt-20 pt-20 lg:pt-24">
       <div className="mx-auto max-w-3xl px-4 text-center">
-        <Eyebrow>Cavite | Tagaytay</Eyebrow>
+        <Eyebrow>Cavite | Tagaytay | Tarlac</Eyebrow>
         <h2 className="site-display mt-4 text-4xl leading-none text-brand-heading sm:text-6xl">
           {PORTFOLIO.villas} villas. One more coming.
         </h2>
@@ -318,7 +319,7 @@ function Villas() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="site-display whitespace-nowrap text-base md:rotate-180 md:[writing-mode:vertical-rl]">
-                  {p.soon ? "Coming soon" : p.title}
+                  {p.soon ? "Opening soon" : p.title}
                 </span>
               </span>
 
