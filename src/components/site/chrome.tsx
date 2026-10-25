@@ -327,10 +327,10 @@ export function PublicFooter() {
         aria-hidden
       >
         <p
-          className="absolute inset-x-0 bottom-0 select-none text-center font-display leading-[0.78] text-white"
+          className="site-display absolute inset-x-0 bottom-0 select-none text-center leading-[0.78] text-white"
           style={{
             fontSize: "min(25vw, 330px)",
-            letterSpacing: "0.02em",
+            letterSpacing: "0.03em",
             translate: "0 calc(30% - var(--parallax, 0) * 8%)",
           }}
         >

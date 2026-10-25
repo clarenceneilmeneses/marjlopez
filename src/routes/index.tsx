@@ -238,7 +238,7 @@ function Villas() {
 
       <div
         ref={ref}
-        className="relative mx-auto mt-10 h-[210px] max-w-[1400px] [--fx:23px] sm:h-[290px] sm:[--fx:52px] md:h-[320px] md:[--fx:64px] lg:h-[400px] lg:[--fx:104px]"
+        className="relative mx-auto mt-10 h-[200px] max-w-[1400px] [--fa:4deg] [--fx:20px] [--fy:2.2px] sm:h-[270px] sm:[--fx:40px] sm:[--fy:3px] md:h-[300px] md:[--fx:52px] lg:h-[380px] lg:[--fa:4.5deg] lg:[--fx:84px] lg:[--fy:4px]"
         style={
           { "--spread": "clamp(0.22, calc(1.3 + var(--parallax, 0) * 1.1), 1)" } as CSSProperties
         }
@@ -271,11 +271,11 @@ function Villas() {
             </>
           );
           const cls =
-            "absolute left-1/2 top-4 block aspect-[3/4] w-[96px] origin-bottom overflow-hidden rounded-2xl border-[3px] border-card bg-secondary shadow-level-3 transition-[translate,rotate] duration-500 ease-out hover:z-50 hover:[--lift:1] sm:w-[140px] md:w-[160px] lg:w-[200px] lg:rounded-3xl lg:border-4";
+            "absolute left-1/2 top-4 block aspect-[3/4] w-[86px] origin-bottom overflow-hidden rounded-2xl border-[3px] border-card bg-secondary shadow-level-3 transition-[translate,rotate] duration-500 ease-out hover:z-50 hover:[--lift:1] sm:w-[130px] md:w-[150px] lg:w-[190px] lg:rounded-3xl lg:border-4";
           const style = {
             zIndex: 20 - Math.abs(Math.round(k)),
-            translate: `calc(-50% + ${k} * var(--fx) * var(--spread)) calc(${k * k} * 6px * var(--spread) - var(--lift, 0) * 26px)`,
-            rotate: `calc(${k} * 5.5deg * var(--spread) * (1 - var(--lift, 0)))`,
+            translate: `calc(-50% + ${k} * var(--fx) * var(--spread)) calc(${k * k} * var(--fy) * var(--spread) - var(--lift, 0) * 26px)`,
+            rotate: `calc(${k} * var(--fa) * var(--spread) * (1 - var(--lift, 0)))`,
           } as CSSProperties;
           return c.soon ? (
             <Link
@@ -333,11 +333,11 @@ function MeetMarj() {
     <section id="about" className="mx-auto max-w-6xl scroll-mt-20 px-4 pt-24 sm:px-8 lg:pt-28">
       <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)] lg:gap-16">
         <ParallaxImage
-          src="/brand/marj.webp"
-          alt="Marj Lopez"
+          src="/brand/about-team.webp"
+          alt="Team Malaya"
           strength={7}
-          frameClassName="aspect-[4/5] w-full rounded-[2rem] bg-[#151314] shadow-level-3 max-lg:max-h-[460px]"
-          className="object-[58%_center]"
+          frameClassName="aspect-[4/5] w-full rounded-[2rem] bg-[#2a1d14] shadow-level-3 max-lg:max-h-[460px]"
+          className="object-[34%_center]"
         />
         <div>
           <Eyebrow>Meet Marj</Eyebrow>
