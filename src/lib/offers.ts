@@ -78,7 +78,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
     name: "Property management",
     headline: ["Your property, run", "like a Malaya villa"],
     sub: "You own it. Marj's team lists it, prices it, talks to every guest, and sends the cleaners. You get a monthly report and your payout.",
-    hero: { src: "/brand/about-hero.webp", position: "40% center" },
+    hero: { src: "/malaya/villa-exterior.webp", position: "center 40%" },
     cta: "Apply for management",
     facts: [
       "Listing, guests, cleaning, payouts",
@@ -273,7 +273,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
     name: "Invest with Marj",
     headline: ["Own part of the", "next Malaya villa"],
     sub: "Put capital into a villa Malaya builds and runs, or build on land you already own with Marj's team doing the work. You see every number before you commit.",
-    hero: { src: "/brand/about-tagaytay-aerial.webp", position: "center 60%" },
+    hero: { src: "/malaya/villa-aerial.webp", position: "center" },
     cta: "Talk to Marj about investing",
     facts: ["Villas Malaya builds and runs", "Every deal in writing", "You see the numbers first"],
     why: {
@@ -368,7 +368,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
     name: "System for your resort",
     headline: ["The system that", "runs Malaya Villas"],
     sub: "A website guests book on, one inbox for every message, a calendar that doesn't double-book, and payments and reports — built for resorts and villas, used every day by Malaya.",
-    hero: { src: "/villas/pr-hidden/0.webp", position: "center" },
+    hero: { src: "/system/inbox.webp" },
     cta: "Get a demo",
     facts: [
       "Website + inbox + bookings + payments",

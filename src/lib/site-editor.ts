@@ -291,6 +291,18 @@ const OFFER: Section[] = [
   },
 ];
 
+/** The system page shows one photo in "Why" (the team photo is already in the footer). */
+const SYSTEM_OFFER: Section[] = OFFER.map((sec) =>
+  sec.key === "why"
+    ? {
+        ...sec,
+        fields: sec.fields
+          .filter((f) => f.key !== "before")
+          .map((f) => (f.key === "after" ? { ...f, label: "Photo" } : f)),
+      }
+    : sec,
+);
+
 export const EDITABLE_PAGES: EditablePage[] = [
   { key: "landing", label: "Landing page", path: "/", base: LANDING_DEFAULT, sections: LANDING },
   ...OFFER_ORDER.map((slug) => ({
@@ -298,7 +310,7 @@ export const EDITABLE_PAGES: EditablePage[] = [
     label: OFFERS[slug].name,
     path: `/${slug}` as EditablePage["path"],
     base: offerDefault(slug),
-    sections: OFFER,
+    sections: slug === "system" ? SYSTEM_OFFER : OFFER,
   })),
 ];
 

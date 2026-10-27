@@ -31,7 +31,6 @@ import {
 import { useState, type CSSProperties } from "react";
 
 import { PublicFooter, PublicHeader } from "@/components/site/chrome";
-import { GlideRow } from "@/components/site/glide";
 import { PlatformLogo, type Platform } from "@/components/site/logos";
 import { ParallaxImage } from "@/components/site/parallax";
 import {
@@ -140,45 +139,42 @@ function Hero({ c }: C) {
           </div>
         </div>
 
-        {/* The inquiry starter — overlaps the frame's edge, like Malaya's search
-            pill, and behaves like it: one highlight glides between the
-            choices, no hairlines between them (Clarence, 2026-10-25). Each
-            choice opens that offer's own page. */}
-        <div className="relative z-10 mx-auto -mt-8 w-[calc(100%-1.5rem)] max-w-4xl lg:-mt-9">
-          <div className="flex flex-col gap-1 rounded-3xl bg-card p-2 shadow-level-3 sm:flex-row sm:items-center sm:rounded-full">
-            <GlideRow
-              className="flex flex-1 flex-col gap-1 sm:flex-row sm:items-center"
-              highlightClassName="bg-secondary rounded-2xl sm:rounded-full"
-            >
-              {STARTERS.map((slug) => {
-                const Icon = TYPES[slug].icon;
-                const s = c.hero.starters[slug];
-                return (
+        {/* The four offers as four real buttons, on a white tray that overlaps
+            the frame's edge (Clarence, 2026-10-28: drop the Inquire button so
+            nobody skips the offer pages, and make every choice look tappable).
+            Each opens that offer's own page; the form is one tap further. */}
+        <nav
+          aria-label="Ways to work with Marj"
+          className="relative z-10 mx-auto -mt-10 w-[calc(100%-1.5rem)] max-w-5xl rounded-[1.75rem] bg-card p-2 shadow-level-3 lg:-mt-11"
+        >
+          <ul className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+            {STARTERS.map((slug) => {
+              const Icon = TYPES[slug].icon;
+              const s = c.hero.starters[slug];
+              return (
+                <li key={slug}>
                   <Link
-                    key={slug}
                     to={`/${slug}`}
-                    data-glide
-                    className="relative flex flex-1 items-center gap-3 rounded-2xl px-4 py-2.5 sm:rounded-full"
+                    className="group flex h-full items-center gap-3 rounded-[1.25rem] bg-secondary/70 px-3 py-3 transition duration-200 hover:-translate-y-0.5 hover:bg-primary hover:shadow-level-2 sm:px-4"
                   >
-                    <Icon className="size-5 shrink-0 text-primary" />
-                    <span className="leading-tight">
-                      <span className="block text-[11px] font-bold uppercase tracking-[0.12em] text-foreground">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-full bg-card text-primary shadow-level-1 sm:size-10 transition group-hover:bg-white/15 group-hover:text-white group-hover:shadow-none">
+                      <Icon className="size-5" />
+                    </span>
+                    <span className="min-w-0 flex-1 leading-tight">
+                      <span className="block text-[11px] font-bold uppercase tracking-[0.12em] text-foreground transition group-hover:text-white">
                         {s.label}
                       </span>
-                      <span className="block text-sm text-muted-foreground">{s.sub}</span>
+                      <span className="block text-[13px] text-muted-foreground transition group-hover:text-white/80 sm:text-sm">
+                        {s.sub}
+                      </span>
                     </span>
+                    <ArrowRight className="hidden size-4 shrink-0 text-primary transition group-hover:translate-x-0.5 group-hover:text-white sm:block" />
                   </Link>
-                );
-              })}
-            </GlideRow>
-            <Link
-              to="/inquire"
-              className="flex h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-[15px] font-semibold text-primary-foreground transition hover:bg-primary/90 sm:rounded-full"
-            >
-              Inquire <ArrowRight className="size-4" />
-            </Link>
-          </div>
-        </div>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
       </div>
 
       <Followers c={c} />
