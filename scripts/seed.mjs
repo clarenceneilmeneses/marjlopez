@@ -105,12 +105,14 @@ const STAFF = { marj: [marj, "Marj Lopez"], bea: [bea, "Bea Santos"], paolo: [pa
 // ---------------------------------------------------------- quick replies
 console.log("Quick replies…");
 const AUTO = {
-  start:
-    "Salamat, {first_name}! 🙌 We got your request about starting an Airbnb business. Someone from the team will reply here within a day.\n\nWhile waiting: list down the areas you're eyeing and how much you're ready to put in — we'll give you real numbers from Malaya's own villas.",
-  build:
-    "Salamat, {first_name}! 🏗️ We got your request about building your own Airbnb. The team will reply here within a day.\n\nIf you have them, send photos of the lot (or the house you want to convert) and its location pin — it makes the first call much more useful.",
+  management:
+    "Salamat, {first_name}! We got your request about managing your property. The team will reply here within a day.\n\nTo get ahead: send a few photos of the place and its location pin, and tell us if it's on Airbnb already — it makes the walkthrough much quicker.",
+  seminar:
+    "Salamat, {first_name}! You're on the list for the seminar. The team will send the next batch's date, venue and fee here within a day.\n\nWhile waiting: write down the areas you're eyeing and how much you're ready to put in — bring them, the day is built around your numbers.",
+  invest:
+    "Salamat, {first_name}! We got your message about investing. Marj's team will reply here within a day to set a call with him.\n\nNothing is committed — the call is to walk you through current projects and their numbers.",
   system:
-    "Salamat, {first_name}! 💻 We got your request about a booking system. The team will reply here within a day.\n\nA quick question to get ahead: what do you use today for bookings and payments — Airbnb only, a spreadsheet, GCash?",
+    "Salamat, {first_name}! We got your request about a system for your resort. The team will reply here within a day to set a demo.\n\nA quick question to get ahead: what do you use today for bookings and payments — Airbnb only, a spreadsheet, GCash?",
   other:
     "Salamat, {first_name}! We got your message and the team will get back to you here within a day.",
 };
@@ -338,11 +340,11 @@ await person({
   clientSeen: false,
   leads: [
     {
-      type: "build",
+      type: "invest",
       at: 74,
       stage: "talking",
-      note: "Gusto ko po sana ng 2-bedroom villa with pool, parang Malaya. Pwede po ba makita yung costing?",
-      answers: { lot: "own", location: "cavite-tagaytay", kind: "villa", budget: "5-10m", timeline: "3-6m", lot_size: "600 sqm" },
+      note: "May lote po ako sa Tagaytay, 600 sqm. Gusto ko po sana ng 2-bedroom villa with pool, parang Malaya, kayo na po mag-run. Pwede po ba makita yung costing?",
+      answers: { amount: "3-10m", interest: "my-land", properties: "1", location: "cavite-tagaytay", ready: "3-6m" },
     },
   ],
   msgs: [
@@ -363,10 +365,10 @@ await person({
   source: "facebook",
   leads: [
     {
-      type: "start",
+      type: "management",
       at: 9,
-      note: "OFW po ako, uuwi na this December. Gusto ko na po mag-start agad.",
-      answers: { stage_now: "has-property", location: "batangas", capital: "300k-1m", start_when: "asap", help_format: "one-on-one" },
+      note: "OFW po ako, uuwi na this December. May 2 units po ako sa Batangas, gusto ko na po ipa-manage agad.",
+      answers: { properties: "2-3", status: "ready", location: "batangas", run_by: "nobody", ready: "asap", property_note: "2 condo units, newly turned over" },
     },
   ],
   msgs: [
@@ -388,7 +390,7 @@ await person({
       type: "system",
       at: 50,
       stage: "call_booked",
-      answers: { units: "6-15", channels: ["airbnb", "booking", "social"], pains: ["messages", "double-bookings", "payments"], when: "1-3m", website: "https://facebook.com/staycationsbyjessa" },
+      answers: { kind: "villas", units: "6-15", channels: ["airbnb", "booking", "social"], pains: ["messages", "double-bookings", "payments"], ready: "1-3m", website: "https://facebook.com/staycationsbyjessa" },
     },
   ],
   msgs: [
@@ -410,16 +412,16 @@ await person({
   assigned: "bea",
   leads: [
     {
-      type: "start",
+      type: "seminar",
       at: 30,
       stage: "talking",
-      answers: { stage_now: "exploring", location: "metro-manila", capital: "lt100k", start_when: "research", help_format: "course" },
+      answers: { stage_now: "exploring", properties: "0", format: "online", capital: "lt100k", ready: "exploring" },
     },
   ],
   msgs: [
     [30, "request"],
     [30, "auto"],
-    [27, "bea", "Hi Mark! Bea from Marj's team. Depende sa setup:\n\n• Rental arbitrage: around ₱150k–₱300k for deposit, furnishing and the first months.\n• Your own property: ₱300k–₱1M.\n\nIf you're still researching, a course might be the best start — want me to let you know when the next batch opens?"],
+    [27, "bea", "Hi Mark! Bea from Marj's team. Depende sa setup:\n\n• Rental arbitrage: around ₱150k–₱300k for deposit, furnishing and the first months.\n• Your own property: ₱300k–₱1M.\n\nIf you're still researching, the seminar is the best start — want me to let you know when the next batch opens?"],
     [25, "client", "Ay ganun po pala. Sige po, pa-notify na lang po. Salamat!"],
   ],
 });
@@ -431,9 +433,9 @@ await person({
   source: "instagram",
   leads: [
     {
-      type: "build",
+      type: "invest",
       at: 27,
-      answers: { lot: "buying", location: "cebu", kind: "cabin", budget: "3-5m", timeline: "6-12m" },
+      answers: { amount: "1-3m", interest: "co-own", properties: "0", location: "cebu", ready: "3-6m" },
     },
   ],
   msgs: [
@@ -471,16 +473,16 @@ await person({
   assigned: "paolo",
   leads: [
     {
-      type: "start",
+      type: "seminar",
       at: 900,
       stage: "won",
-      answers: { stage_now: "has-property", location: "laguna", capital: "300k-1m", start_when: "1-3m", help_format: "one-on-one" },
+      answers: { stage_now: "has-property", properties: "1", format: "in-person", capital: "300k-1m", ready: "1-3m" },
     },
     {
       type: "system",
       at: 80,
       stage: "proposal_sent",
-      answers: { units: "2-5", channels: ["airbnb", "social"], pains: ["messages", "payments", "finance"], when: "asap" },
+      answers: { kind: "villas", units: "2-5", channels: ["airbnb", "social"], pains: ["messages", "payments", "finance"], ready: "asap" },
     },
   ],
   msgs: [
@@ -504,17 +506,17 @@ await person({
   assigned: "bea",
   leads: [
     {
-      type: "start",
+      type: "seminar",
       at: 220,
       stage: "lost",
       lostReason: "Budget",
-      answers: { stage_now: "has-property", location: "laguna", capital: "100-300k", start_when: "1-3m", help_format: "workshop" },
+      answers: { stage_now: "has-property", properties: "1", format: "in-person", capital: "100-300k", ready: "1-3m" },
     },
   ],
   msgs: [
     [220, "request"],
     [220, "auto"],
-    [216, "bea", "Hi Daniel! For your Laguna unit, the 1-on-1 coaching starts at ₱15,000. Would that work for you?"],
+    [216, "bea", "Hi Daniel! The next seminar batch is ₱15,000, in Tagaytay. Would that work for you?"],
     [200, "client", "Medyo mahal pa po for me ngayon. Babalik na lang po ako next year. Thank you po!"],
     [199, "bea", "No worries, Daniel! We'll be here 🙏"],
   ],
@@ -529,11 +531,11 @@ await person({
   starred: true,
   leads: [
     {
-      type: "build",
+      type: "invest",
       at: 400,
       stage: "won",
-      note: "Nag-stay kami sa Malaya last summer, gusto namin ng ganun sa lote namin sa Nasugbu.",
-      answers: { lot: "own", location: "batangas", kind: "villa", budget: "10m+", timeline: "3m", lot_size: "1,200 sqm" },
+      note: "Nag-stay kami sa Malaya last summer, gusto namin ng ganun sa lote namin sa Nasugbu (1,200 sqm).",
+      answers: { amount: "10m+", interest: "my-land", properties: "2-3", location: "batangas", ready: "asap" },
     },
   ],
   msgs: [
@@ -553,9 +555,9 @@ await person({
   source: "threads",
   leads: [
     {
-      type: "start",
+      type: "seminar",
       at: 0.8,
-      answers: { stage_now: "arbitrage", location: "metro-manila", capital: "100-300k", start_when: "asap", help_format: "one-on-one" },
+      answers: { stage_now: "arbitrage", properties: "0", format: "either", capital: "100-300k", ready: "asap" },
     },
   ],
   msgs: [
@@ -575,7 +577,7 @@ await person({
       type: "system",
       at: 60,
       stage: "talking",
-      answers: { units: "1", channels: ["social"], pains: ["website", "messages"], when: "looking" },
+      answers: { kind: "resort", units: "1", channels: ["social"], pains: ["website", "messages"], ready: "exploring" },
     },
   ],
   msgs: [
@@ -585,6 +587,26 @@ await person({
     [20, "client", "Sige po, pa-send po. Thanks!"],
     [19, "bea", "Sent! Check your email 😊 Tell me which one you like."],
   ],
+});
+
+await person({
+  email: "tess.ramirez@demo.test",
+  name: "Tess Ramirez",
+  mobile: "0917 604 2219",
+  source: "facebook",
+  leads: [
+    {
+      type: "management",
+      at: 3,
+      note: "5 condo units po sa Tagaytay, naka-Airbnb na pero ako lang nagha-handle. Hirap na po.",
+      answers: { properties: "4-10", status: "running", location: "cavite-tagaytay", run_by: "self", ready: "1-3m", property_note: "5 condo units near Sky Ranch" },
+    },
+  ],
+  msgs: [
+    [3, "request"],
+    [3, "auto"],
+  ],
+  waitingSince: ago(3),
 });
 
 console.log("\nDone. Every demo account's password is `password`:");

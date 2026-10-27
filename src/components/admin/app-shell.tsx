@@ -14,6 +14,7 @@ import {
   MoreHorizontal,
   PanelLeftClose,
   PanelLeftOpen,
+  UserRound,
   Users,
   type LucideIcon,
 } from "@/components/icons";
@@ -53,12 +54,27 @@ const SIDEBAR_KEY = "marj:sidebar-collapsed";
 const TOP_PILL =
   "flex items-center gap-0.5 rounded-full border border-border/70 bg-card p-0.5 shadow-level-2";
 
-type NavTo = "/admin" | "/admin/inbox" | "/admin/quick-replies" | "/admin/team";
+type NavTo = "/admin" | "/admin/inbox" | "/admin/clients" | "/admin/quick-replies" | "/admin/team";
 
-const NAV: { to: NavTo; label: string; short: string; icon: LucideIcon; exact?: boolean }[] = [
+/** `pill: false` keeps a page out of the phone's nav pill; it's under More there. */
+const NAV: {
+  to: NavTo;
+  label: string;
+  short: string;
+  icon: LucideIcon;
+  exact?: boolean;
+  pill?: false;
+}[] = [
   { to: "/admin", label: "Dashboard", short: "Home", icon: LayoutDashboard, exact: true },
   { to: "/admin/inbox", label: "Inbox", short: "Inbox", icon: MessagesSquare },
-  { to: "/admin/quick-replies", label: "Quick replies", short: "Replies", icon: MessageSquareText },
+  { to: "/admin/clients", label: "Clients", short: "Clients", icon: UserRound },
+  {
+    to: "/admin/quick-replies",
+    label: "Quick replies",
+    short: "Replies",
+    icon: MessageSquareText,
+    pill: false,
+  },
   { to: "/admin/team", label: "Team", short: "Team", icon: Users },
 ];
 
@@ -218,7 +234,7 @@ function MobileNavPill({ onMore }: { onMore: () => void }) {
   return (
     <div aria-hidden={hidden || undefined} className={cn(navPillDock(hidden), "lg:hidden")}>
       <nav aria-label="Main sections" className={NAV_PILL}>
-        {NAV.map((n) => {
+        {NAV.filter((n) => n.pill !== false).map((n) => {
           const Icon = n.icon;
           const active = isActive(n);
           return (

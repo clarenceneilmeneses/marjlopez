@@ -3,6 +3,7 @@
  * Built from data the Inbox already loads; nothing extra is stored.
  */
 import { leadSummary } from "./inquiry";
+import { isHot } from "./score";
 import type { LeadType } from "./types";
 import type { InboxData } from "@/state/data";
 
@@ -34,7 +35,7 @@ export function adminEvents(data: InboxData, limit = 40): AdminEvent[] {
       name: nameOf(l.conversation_id),
       text: leadSummary(l.type, l.answers),
       conversationId: l.conversation_id,
-      hot: l.hot,
+      hot: isHot(l),
       type: l.type,
     });
   }

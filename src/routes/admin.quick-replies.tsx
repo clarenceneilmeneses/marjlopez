@@ -11,6 +11,7 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/admin/app-shell";
 import { Empty, PageHeader, Panel, Stat, TODAY_LINE } from "@/components/admin/page";
+import { PaginationBar, usePagination } from "@/components/admin/paginated";
 import { InlineLoading } from "@/components/loading";
 import {
   AlertDialog,
@@ -66,6 +67,7 @@ function QuickRepliesPage() {
   const shown = saved.filter((r) =>
     `${r.title} ${r.body}`.toLowerCase().includes(q.trim().toLowerCase()),
   );
+  const paged = usePagination(shown, { resetKey: q });
 
   return (
     <AppShell title="Quick replies">
@@ -170,7 +172,7 @@ function QuickRepliesPage() {
                 <Empty>{saved.length ? "No reply matches that." : "No saved replies yet."}</Empty>
               ) : (
                 <ul className="-mx-2 space-y-0.5">
-                  {shown.map((r) => (
+                  {paged.page.map((r) => (
                     <li
                       key={r.id}
                       className="group flex items-start gap-2 rounded-xl px-2 py-2.5 transition-colors hover:bg-secondary"
@@ -207,6 +209,7 @@ function QuickRepliesPage() {
                   ))}
                 </ul>
               )}
+              <PaginationBar pagination={paged} noun="replies" className="mt-3" />
             </Panel>
           </div>
         </>

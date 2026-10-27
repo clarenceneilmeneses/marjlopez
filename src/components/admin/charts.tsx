@@ -124,3 +124,71 @@ export function BarList({ rows, unit = "" }: { rows: BarRow[]; unit?: string }) 
     </ul>
   );
 }
+
+/**
+ * How many made it to each step, as one-hue bars that narrow down the page.
+ * Each row says what share of the first step got there, and the small figure
+ * between rows is how many of the step above moved on to this one.
+ */
+export function Funnel({ steps }: { steps: { key: string; label: string; value: number }[] }) {
+  const first = Math.max(1, steps[0]?.value ?? 0);
+  return (
+    <ol className="space-y-1">
+      {steps.map((s, i) => {
+        const prev = steps[i - 1];
+        const share = s.value / first;
+        const last = i === steps.length - 1;
+        return (
+          <li key={s.key}>
+            {prev && (
+              <p className="py-0.5 pl-1 text-[11px] tabular-nums text-muted-foreground">
+                ↓ {prev.value ? Math.round((s.value / prev.value) * 100) : 0}% moved on
+              </p>
+            )}
+            <div
+              className="group grid grid-cols-[8.5rem_minmax(0,1fr)_4.5rem] items-center gap-3"
+              title={`${s.label}: ${s.value} (${Math.round(share * 100)}% of inquiries)`}
+            >
+              <span
+                className={cn("truncate text-sm", last ? "font-semibold" : "text-foreground/85")}
+              >
+                {s.label}
+              </span>
+              <span className="h-7 overflow-hidden rounded-lg bg-secondary">
+                <span
+                  className={cn(
+                    "block h-full rounded-lg transition-[width] duration-700",
+                    last ? "bg-primary" : "bg-primary/70 group-hover:bg-primary/85",
+                  )}
+                  style={{ width: `${Math.max(share * 100, s.value ? 2 : 0)}%` }}
+                />
+              </span>
+              <span className="text-right text-sm tabular-nums">
+                <span className="font-semibold">{s.value}</span>{" "}
+                <span className="text-xs text-muted-foreground">{Math.round(share * 100)}%</span>
+              </span>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+/** Won against lost, as one split bar — the close rate at a glance. */
+export function SplitBar({ won, lost }: { won: number; lost: number }) {
+  const total = won + lost;
+  return (
+    <div className="flex h-3 overflow-hidden rounded-full bg-secondary">
+      {total > 0 && (
+        <>
+          <span className="h-full bg-success" style={{ width: `${(won / total) * 100}%` }} />
+          <span
+            className="h-full bg-muted-foreground/40"
+            style={{ width: `${(lost / total) * 100}%` }}
+          />
+        </>
+      )}
+    </div>
+  );
+}

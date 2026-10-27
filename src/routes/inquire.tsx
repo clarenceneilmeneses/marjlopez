@@ -343,6 +343,9 @@ function InquirePage() {
                         aria-pressed={on}
                         className={cn(
                           "relative flex flex-col items-start gap-3 rounded-2xl bg-card p-5 text-left shadow-level-1 transition hover:shadow-level-2",
+                          // The four offers pair up; "Something else" is the quiet fifth, full width.
+                          t === "other" &&
+                            "sm:col-span-2 sm:flex-row sm:items-center sm:gap-4 sm:py-4",
                           on && "ring-2 ring-primary",
                         )}
                       >

@@ -45,13 +45,16 @@ const LAST = ["Reyes", "Santos", "Cruz", "Bautista", "Garcia", "Mendoza", "Torre
 const SOURCES = ["facebook", "facebook", "facebook", "instagram", "instagram", "tiktok", "tiktok", "threads", "referral", "youtube", "malaya-guest"];
 const STAGES = ["talking", "talking", "talking", "call_booked", "proposal_sent", "proposal_sent", "won", "won", "won", "lost", "lost", "lost"];
 const LOCS = ["cavite-tagaytay", "batangas", "metro-manila", "laguna", "pampanga", "cebu", "bataan-zambales"];
+const PROPS = ["0", "1", "1", "2-3", "2-3", "4-10", "11+"];
+const READY = ["asap", "1-3m", "1-3m", "3-6m", "exploring"];
 const ANSWERS = {
-  start: () => ({ stage_now: pick(["exploring", "has-property", "hosting", "arbitrage"]), location: pick(LOCS), capital: pick(["lt100k", "100-300k", "300k-1m", "1m+"]), start_when: pick(["asap", "1-3m", "3-6m", "research"]), help_format: pick(["one-on-one", "workshop", "course"]) }),
-  build: () => ({ lot: pick(["own", "buying", "find", "convert"]), location: pick(LOCS), kind: pick(["villa", "cabin", "glamping"]), budget: pick(["1-3m", "3-5m", "5-10m", "10m+"]), timeline: pick(["3m", "3-6m", "6-12m", "planning"]) }),
-  system: () => ({ units: pick(["1", "2-5", "6-15"]), channels: ["airbnb", pick(["booking", "social", "website"])], pains: [pick(["messages", "double-bookings", "payments", "finance"])], when: pick(["asap", "1-3m", "looking"]) }),
+  management: () => ({ properties: pick(PROPS.slice(1)), status: pick(["running", "ready", "building"]), location: pick(LOCS), run_by: pick(["self", "family", "manager", "nobody"]), ready: pick(READY) }),
+  seminar: () => ({ stage_now: pick(["exploring", "has-property", "hosting", "arbitrage"]), properties: pick(PROPS), format: pick(["in-person", "online", "either"]), capital: pick(["lt100k", "100-300k", "300k-1m", "1m+"]), ready: pick(READY) }),
+  invest: () => ({ amount: pick(["500k-1m", "1-3m", "3-10m", "10m+", "discuss"]), interest: pick(["co-own", "next-villa", "my-land", "open"]), properties: pick(PROPS), location: pick(LOCS), ready: pick(READY) }),
+  system: () => ({ kind: pick(["resort", "villas", "hotel", "glamping"]), units: pick(["1", "2-5", "6-15", "16+"]), channels: ["airbnb", pick(["booking", "social", "website"])], pains: [pick(["messages", "double-bookings", "payments", "finance"])], ready: pick(READY) }),
   other: () => ({ topic: pick(["collab", "partnership", "media"]), details: "Hello po! Gusto ko po sanang mag-collab." }),
 };
-const TYPES = ["start", "start", "start", "start", "build", "build", "build", "system", "system", "other"];
+const TYPES = ["management", "management", "management", "seminar", "seminar", "seminar", "invest", "invest", "system", "system", "other"];
 const STAFF = await must(db.from("staff").select("user_id,name"), "staff");
 
 const users = [];

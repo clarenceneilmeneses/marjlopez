@@ -7,11 +7,18 @@
  * controls sit under it, Next is the only way on. Taps, not typing — cards
  * and dropdowns — so it is quick from a phone after tapping a link in bio.
  *
- * The values are short stable keys; `supabase/schema.sql` reads some of them
- * (`capital`, `start_when`, `budget`, `lot`, `timeline`, `units`, `when`) to
- * decide Hot, so rename a value there too or Hot quietly stops firing.
+ * The values are short stable keys; `lib/score.ts` reads some of them
+ * (`properties`, `units`, `amount`, `ready`) to rank who to answer first, so
+ * rename a value there too or the ranking quietly drops it.
  */
-import { Building2, Home, LayoutDashboard, Mail, type LucideIcon } from "@/components/icons";
+import {
+  KeyRound,
+  LayoutDashboard,
+  Mail,
+  TrendingUp,
+  Users,
+  type LucideIcon,
+} from "@/components/icons";
 import type { Mark } from "@/components/site/logos";
 import type { LeadStage, LeadType } from "./types";
 
@@ -71,28 +78,39 @@ export const SOURCES: Option[] = [
   { value: "other", label: "Somewhere else" },
 ];
 
+/**
+ * The four offers, in the boss's order of priority (2026-10-28): property
+ * management, the seminar, investing, and a system for their resort. Each has
+ * its own page (lib/offers.ts) and its own questions below.
+ */
 export const TYPES: Record<
   LeadType,
   { label: string; short: string; blurb: string; icon: LucideIcon; marks?: Mark[] }
 > = {
-  start: {
-    label: "Start an Airbnb business",
-    short: "Start",
-    blurb: "Coaching on where to begin — the numbers, the location, the first listing.",
-    icon: Home,
+  management: {
+    label: "Manage my property",
+    short: "Management",
+    blurb: "Marj's team runs your rental — listing, guests, cleaning, payouts.",
+    icon: KeyRound,
     marks: ["airbnb"],
   },
-  build: {
-    label: "Build my own Airbnb",
-    short: "Build",
-    blurb: "Design and construction of a rental that books — villa, cabin or glamping.",
-    icon: Building2,
-    marks: ["airbnb"],
+  seminar: {
+    label: "Join the seminar",
+    short: "Seminar",
+    blurb: "A day with Marj on starting and running an Airbnb that earns.",
+    icon: Users,
+  },
+  invest: {
+    label: "Invest with Marj",
+    short: "Investor",
+    blurb: "Put capital into a villa Malaya builds and runs.",
+    icon: TrendingUp,
+    marks: ["malaya"],
   },
   system: {
-    label: "Get a booking system",
+    label: "A system for my resort",
     short: "System",
-    blurb: "A website, inbox and back office like the one that runs Malaya Villas.",
+    blurb: "Website, inbox, bookings and payments — the one that runs Malaya Villas.",
     icon: LayoutDashboard,
     marks: ["malaya"],
   },
@@ -104,13 +122,89 @@ export const TYPES: Record<
   },
 };
 
-export const TYPE_ORDER: LeadType[] = ["start", "build", "system", "other"];
+export const TYPE_ORDER: LeadType[] = ["management", "seminar", "invest", "system", "other"];
+
+/**
+ * How many properties, and how soon — asked the same way on every offer so
+ * the Inbox can rank everyone on one scale (lib/score.ts reads these keys).
+ */
+export const PROPERTIES: Option[] = [
+  { value: "0", label: "None yet" },
+  { value: "1", label: "1 property" },
+  { value: "2-3", label: "2 – 3" },
+  { value: "4-10", label: "4 – 10" },
+  { value: "11+", label: "11 or more" },
+];
+
+export const READY: Option[] = [
+  { value: "asap", label: "Ready now", hint: "This month" },
+  { value: "1-3m", label: "In 1 – 3 months" },
+  { value: "3-6m", label: "In 3 – 6 months" },
+  { value: "exploring", label: "Just exploring" },
+];
 
 export const SCREENS: Record<LeadType, Screen[]> = {
-  start: [
+  management: [
+    {
+      title: "Tell us about your property",
+      lead: "So we know what we'd be taking care of.",
+      short: "Your property",
+      questions: [
+        {
+          key: "properties",
+          label: "How many properties would we manage?",
+          control: "cards",
+          options: PROPERTIES.filter((o) => o.value !== "0"),
+        },
+        {
+          key: "status",
+          label: "Where is it at?",
+          control: "cards",
+          options: [
+            { value: "running", label: "Already renting out", hint: "Airbnb or direct" },
+            { value: "ready", label: "Ready, not listed yet" },
+            { value: "building", label: "Still being built", hint: "Or renovated" },
+          ],
+        },
+      ],
+    },
+    {
+      title: "Where is it, and who runs it now?",
+      short: "Location",
+      questions: [
+        { key: "location", label: "Where is it?", control: "select", options: LOCATIONS },
+        {
+          key: "run_by",
+          label: "Who runs it today?",
+          control: "cards",
+          options: [
+            { value: "self", label: "I do it myself" },
+            { value: "family", label: "Family or a caretaker" },
+            { value: "manager", label: "Another manager" },
+            { value: "nobody", label: "Nobody yet" },
+          ],
+        },
+      ],
+    },
+    {
+      title: "When would you hand it over?",
+      short: "Timing",
+      questions: [
+        { key: "ready", label: "When would you hand it over?", control: "cards", options: READY },
+        {
+          key: "property_note",
+          label: "What is it?",
+          control: "text",
+          optional: true,
+          placeholder: "e.g. 2-bedroom villa with a pool",
+        },
+      ],
+    },
+  ],
+  seminar: [
     {
       title: "Where are you right now?",
-      lead: "So we know where to start the conversation.",
+      lead: "So the seminar meets you where you are.",
       short: "Where you are",
       questions: [
         {
@@ -124,22 +218,31 @@ export const SCREENS: Record<LeadType, Screen[]> = {
             { value: "arbitrage", label: "No property", hint: "Interested in rental arbitrage" },
           ],
         },
+        {
+          key: "properties",
+          label: "How many properties do you have?",
+          control: "cards",
+          options: PROPERTIES,
+        },
       ],
     },
     {
-      title: "Where, and how much?",
-      lead: "A rough idea is fine. It helps us give you real numbers.",
-      short: "Location and capital",
+      title: "How would you like to join?",
+      short: "Joining",
       questions: [
         {
-          key: "location",
-          label: "Where do you want to operate?",
-          control: "select",
-          options: LOCATIONS,
+          key: "format",
+          label: "In person or online?",
+          control: "cards",
+          options: [
+            { value: "in-person", label: "In person", hint: "Tagaytay" },
+            { value: "online", label: "Online" },
+            { value: "either", label: "Either is fine" },
+          ],
         },
         {
           key: "capital",
-          label: "How much capital is ready?",
+          label: "How much capital is ready to start?",
           control: "select",
           options: [
             { value: "lt100k", label: "Under ₱100k" },
@@ -152,122 +255,89 @@ export const SCREENS: Record<LeadType, Screen[]> = {
       ],
     },
     {
-      title: "When, and how would you like help?",
+      title: "When do you want to start?",
       short: "Timing",
       questions: [
+        { key: "ready", label: "When do you want to start?", control: "cards", options: READY },
+      ],
+    },
+  ],
+  invest: [
+    {
+      title: "How much are you looking to put in?",
+      lead: "A range is fine. Nothing is committed here.",
+      short: "The amount",
+      questions: [
         {
-          key: "start_when",
-          label: "When do you want to start?",
-          control: "cards",
+          key: "amount",
+          label: "How much would you invest?",
+          control: "select",
           options: [
-            { value: "asap", label: "As soon as possible" },
-            { value: "1-3m", label: "In 1 – 3 months" },
-            { value: "3-6m", label: "In 3 – 6 months" },
-            { value: "research", label: "Just researching" },
+            { value: "500k-1m", label: "₱500k – ₱1M" },
+            { value: "1-3m", label: "₱1M – ₱3M" },
+            { value: "3-10m", label: "₱3M – ₱10M" },
+            { value: "10m+", label: "₱10M and up" },
+            { value: "discuss", label: "I'd rather discuss on a call" },
           ],
         },
         {
-          key: "help_format",
-          label: "How would you like help?",
+          key: "interest",
+          label: "What interests you?",
           control: "cards",
           options: [
-            { value: "one-on-one", label: "1-on-1 call" },
-            { value: "workshop", label: "Group workshop" },
-            { value: "course", label: "A course" },
-            { value: "not-sure", label: "Not sure" },
+            { value: "co-own", label: "Co-own a villa", hint: "With Malaya running it" },
+            { value: "next-villa", label: "Fund the next Malaya villa" },
+            { value: "my-land", label: "Build on my own land", hint: "Marj builds and runs it" },
+            { value: "open", label: "Open to suggestions" },
           ],
         },
       ],
     },
-  ],
-  build: [
     {
-      title: "Do you have a lot?",
-      lead: "Where the build would go.",
-      short: "The lot",
+      title: "Do you own property already?",
+      short: "Property",
       questions: [
         {
-          key: "lot",
-          label: "Do you have a lot?",
+          key: "properties",
+          label: "How many properties do you own?",
           control: "cards",
-          options: [
-            { value: "own", label: "Yes, I own one" },
-            { value: "buying", label: "I'm buying one" },
-            { value: "find", label: "Help me find one" },
-            { value: "convert", label: "I have a house to convert" },
-          ],
+          options: PROPERTIES,
         },
         {
           key: "location",
-          label: "Where is it, or where do you want it?",
+          label: "Any place you prefer?",
           control: "select",
           options: LOCATIONS,
         },
       ],
     },
     {
-      title: "What do you have in mind?",
-      short: "The build",
-      questions: [
-        {
-          key: "kind",
-          label: "What do you want to build?",
-          control: "cards",
-          options: [
-            { value: "villa", label: "Private villa" },
-            { value: "cabin", label: "Cabin or A-frame" },
-            { value: "glamping", label: "Glamping" },
-            { value: "condo", label: "Condo unit fit-out" },
-            { value: "not-sure", label: "Not sure yet" },
-          ],
-        },
-        {
-          key: "budget",
-          label: "Budget",
-          control: "select",
-          options: [
-            { value: "1-3m", label: "₱1M – ₱3M" },
-            { value: "3-5m", label: "₱3M – ₱5M" },
-            { value: "5-10m", label: "₱5M – ₱10M" },
-            { value: "10m+", label: "₱10M and up" },
-            { value: "unsure", label: "Not sure yet" },
-          ],
-        },
-      ],
-    },
-    {
-      title: "When would you build?",
+      title: "When are the funds ready?",
       short: "Timing",
       questions: [
-        {
-          key: "timeline",
-          label: "Timeline",
-          control: "cards",
-          options: [
-            { value: "3m", label: "Within 3 months" },
-            { value: "3-6m", label: "In 3 – 6 months" },
-            { value: "6-12m", label: "In 6 – 12 months" },
-            { value: "planning", label: "Just planning" },
-          ],
-        },
-        {
-          key: "lot_size",
-          label: "Lot size",
-          control: "text",
-          optional: true,
-          placeholder: "e.g. 500 sqm",
-        },
+        { key: "ready", label: "When are the funds ready?", control: "cards", options: READY },
       ],
     },
   ],
   system: [
     {
-      title: "Tell us about your rentals",
-      short: "Your rentals",
+      title: "Tell us about your resort",
+      short: "Your resort",
       questions: [
         {
+          key: "kind",
+          label: "What do you run?",
+          control: "cards",
+          options: [
+            { value: "resort", label: "A resort" },
+            { value: "villas", label: "Villas or staycations" },
+            { value: "hotel", label: "A hotel or inn" },
+            { value: "glamping", label: "Glamping or a campsite" },
+          ],
+        },
+        {
           key: "units",
-          label: "How many units do you run?",
+          label: "How many rooms or units?",
           control: "cards",
           options: [
             { value: "1", label: "1" },
@@ -277,6 +347,13 @@ export const SCREENS: Record<LeadType, Screen[]> = {
             { value: "none", label: "Not operating yet" },
           ],
         },
+      ],
+    },
+    {
+      title: "Where are you listed, and what hurts?",
+      lead: "Pick as many as you like.",
+      short: "Today",
+      questions: [
         {
           key: "channels",
           label: "Where are you listed?",
@@ -290,13 +367,6 @@ export const SCREENS: Record<LeadType, Screen[]> = {
             { value: "none", label: "None yet" },
           ],
         },
-      ],
-    },
-    {
-      title: "What's the biggest headache?",
-      lead: "Pick as many as you like.",
-      short: "Headaches",
-      questions: [
         {
           key: "pains",
           label: "What's the biggest headache?",
@@ -316,16 +386,7 @@ export const SCREENS: Record<LeadType, Screen[]> = {
       title: "When do you need it?",
       short: "Timing",
       questions: [
-        {
-          key: "when",
-          label: "When do you need it?",
-          control: "cards",
-          options: [
-            { value: "asap", label: "As soon as possible" },
-            { value: "1-3m", label: "In 1 – 3 months" },
-            { value: "looking", label: "Just looking" },
-          ],
-        },
+        { key: "ready", label: "When do you need it?", control: "cards", options: READY },
         {
           key: "website",
           label: "Your current website or page",
@@ -394,26 +455,27 @@ export function optionLabel(options: Option[], value: unknown): string | null {
   return options.find((o) => o.value === value)?.label ?? value;
 }
 
-/** "Build · Tagaytay · ₱5M – ₱10M" — the status line in a list row. */
+/** "Management · Tagaytay · 2 – 3 properties" — the status line in a list row. */
 export function leadSummary(type: LeadType, answers: Record<string, unknown>): string {
   const parts: string[] = [TYPES[type].short];
   const loc = optionLabel(LOCATIONS, answers["location"]);
   if (loc && answers["location"] !== "not-sure") parts.push(loc);
   const qs = questionsFor(type);
-  const money = qs.find((q) => q.key === "budget" || q.key === "capital");
-  if (money) {
-    const v = answers[money.key];
-    if (typeof v === "string" && v !== "na" && v !== "unsure") parts.push(answerLabel(money, v));
-  }
+  const pick = (key: string, skip: string[] = []) => {
+    const q = qs.find((x) => x.key === key);
+    const v = answers[key];
+    if (q && typeof v === "string" && v && !skip.includes(v)) parts.push(answerLabel(q, v));
+  };
+  if (type === "invest") pick("amount", ["discuss"]);
   if (type === "system") {
-    const units = qs.find((q) => q.key === "units");
-    if (units && typeof answers["units"] === "string" && answers["units"] !== "none")
-      parts.push(`${answerLabel(units, answers["units"])} units`);
+    const units = optionLabel(qs.find((q) => q.key === "units")?.options ?? [], answers["units"]);
+    if (units && answers["units"] !== "none") parts.push(`${units} units`);
+  } else if (type !== "other") {
+    const n = answers["properties"];
+    if (typeof n === "string" && n !== "0")
+      parts.push(n === "1" ? "1 property" : `${optionLabel(PROPERTIES, n)} properties`);
   }
-  if (type === "other") {
-    const topic = qs.find((q) => q.key === "topic");
-    if (topic) parts.push(answerLabel(topic, answers["topic"]));
-  }
+  if (type === "other") pick("topic");
   return parts.join(" · ");
 }
 

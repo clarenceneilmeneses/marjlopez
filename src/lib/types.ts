@@ -1,6 +1,6 @@
 /** Rows as the database returns them — supabase/schema.sql is the source. */
 
-export type LeadType = "start" | "build" | "system" | "other";
+export type LeadType = "management" | "seminar" | "invest" | "system" | "other";
 export type LeadStage = "new" | "talking" | "call_booked" | "proposal_sent" | "won" | "lost";
 
 export interface Profile {

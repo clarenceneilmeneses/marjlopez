@@ -9,6 +9,7 @@
  *                               · calls coming up
  *   charts                     inquiries over 30 days · pipeline · sources
  *                               · what they want
+ *   deals                      how far inquiries get · close rate · why lost
  *   recent                     latest inquiries · upcoming calls
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -28,12 +29,13 @@ import { useMemo, type ReactNode } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/admin/app-shell";
-import { BarList, ColumnChart, type Column } from "@/components/admin/charts";
+import { BarList, ColumnChart, Funnel, SplitBar, type Column } from "@/components/admin/charts";
 import { Empty, Panel, Stat } from "@/components/admin/page";
 import { meetingModeLabel } from "@/components/chat/thread";
 import { InlineLoading } from "@/components/loading";
 import { PlatformLogo, type Platform } from "@/components/site/logos";
 import { Card, CardContent } from "@/components/ui/card";
+import { dealStats, pct } from "@/lib/deals";
 import { ago, firstName } from "@/lib/format";
 import {
   leadSummary,
@@ -44,6 +46,7 @@ import {
   TYPE_ORDER,
   TYPES,
 } from "@/lib/inquiry";
+import { isHot } from "@/lib/score";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/state/auth";
 import { useInbox, useLiveUpdates, type InboxData } from "@/state/data";
@@ -95,7 +98,7 @@ function useStats(data: InboxData | undefined) {
       .map((c) => ({ c, lead: c.current_lead_id ? currentLead.get(c.current_lead_id) : undefined }))
       .filter(({ c, lead }) => f.passes(lead?.type, c.assigned_to))
       .sort((a, b) => {
-        const hot = Number(Boolean(b.lead?.hot)) - Number(Boolean(a.lead?.hot));
+        const hot = Number(isHot(b.lead)) - Number(isHot(a.lead));
         return hot || Date.parse(a.c.waiting_since!) - Date.parse(b.c.waiting_since!);
       });
 
@@ -168,7 +171,7 @@ function useStats(data: InboxData | undefined) {
       count: inRange.length,
       before,
       waiting,
-      hotWaiting: waiting.filter((w) => w.lead?.hot).length,
+      hotWaiting: waiting.filter((w) => isHot(w.lead)).length,
       median,
       replies: replyHours.length,
       upcoming,
@@ -187,6 +190,7 @@ function useStats(data: InboxData | undefined) {
         .sort((a, b) => b[1] - a[1])
         .map(([k, v]) => ({ key: k, value: v })),
       types: TYPE_ORDER.map((t) => ({ key: t, value: byType.get(t) ?? 0 })),
+      deals: dealStats(inRange, data.meetings, data.messages),
     };
   }, [data, f]);
 }
@@ -324,7 +328,9 @@ function Dashboard() {
                         <span className="min-w-0 flex-1">
                           <span className="flex items-center gap-1.5 text-sm font-semibold">
                             <span className="truncate">{c.profile?.full_name}</span>
-                            {lead?.hot && <Flame className="size-3.5 shrink-0 text-destructive" />}
+                            {isHot(lead) && (
+                              <Flame className="size-3.5 shrink-0 text-destructive" />
+                            )}
                           </span>
                           <span className="block truncate text-xs text-muted-foreground">
                             {lead ? leadSummary(lead.type, lead.answers) : "—"}
@@ -382,6 +388,52 @@ function Dashboard() {
             </Panel>
           </div>
 
+          {/* Deals: how far inquiries get, and how many close */}
+          <div className="mt-3 grid gap-3 lg:grid-cols-3">
+            <Panel
+              className="lg:col-span-2"
+              title="How far inquiries get"
+              aside={`${s.deals.total} inquiries · ${f.range.label}`}
+            >
+              {s.deals.total === 0 ? (
+                <Empty>No inquiries in this range.</Empty>
+              ) : (
+                <Funnel steps={s.deals.funnel} />
+              )}
+            </Panel>
+            <Panel title="Close rate" aside="Won out of decided">
+              <p className="font-display text-5xl font-semibold tabular-nums tracking-tight">
+                {pct(s.deals.closeRate)}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {s.deals.won} won · {s.deals.lost} lost · {s.deals.open} still open
+              </p>
+              <SplitBar won={s.deals.won} lost={s.deals.lost} />
+              <p className="mt-2 flex gap-4 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <span className="size-2 rounded-full bg-success" /> Won
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="size-2 rounded-full bg-muted-foreground/40" /> Lost
+                </span>
+                <span className="ml-auto">{pct(s.deals.winRate)} of all inquiries</span>
+              </p>
+              <p className="mb-2.5 mt-5 text-sm font-semibold">Why deals were lost</p>
+              {s.deals.lostReasons.length === 0 ? (
+                <Empty>Nothing lost in this range.</Empty>
+              ) : (
+                <BarList
+                  rows={s.deals.lostReasons.map((r) => ({
+                    key: r.key,
+                    label: r.key,
+                    value: r.value,
+                    muted: true,
+                  }))}
+                />
+              )}
+            </Panel>
+          </div>
+
           {/* Recent */}
           <div className="mt-3 grid gap-3 lg:grid-cols-3">
             <Panel
@@ -412,7 +464,7 @@ function Dashboard() {
                             <span className="truncate font-semibold">
                               {c?.profile?.full_name ?? "—"}
                             </span>
-                            {l.hot && <Flame className="size-3.5 shrink-0 text-destructive" />}
+                            {isHot(l) && <Flame className="size-3.5 shrink-0 text-destructive" />}
                           </span>
                           <span className="block truncate text-xs text-muted-foreground">
                             {leadSummary(l.type, l.answers)}

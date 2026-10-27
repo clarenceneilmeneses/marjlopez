@@ -11,9 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as InquireRouteImport } from './routes/inquire'
+import { Route as InvestRouteImport } from './routes/invest'
+import { Route as ManagementRouteImport } from './routes/management'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as SeminarRouteImport } from './routes/seminar'
+import { Route as SystemRouteImport } from './routes/system'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminClientsRouteImport } from './routes/admin.clients'
 import { Route as AdminInboxRouteImport } from './routes/admin.inbox'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminQuickRepliesRouteImport } from './routes/admin.quick-replies'
@@ -29,6 +34,16 @@ const InquireRoute = InquireRouteImport.update({
   path: '/inquire',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InvestRoute = InvestRouteImport.update({
+  id: '/invest',
+  path: '/invest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagementRoute = ManagementRouteImport.update({
+  id: '/management',
+  path: '/management',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MessagesRoute = MessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
@@ -39,9 +54,24 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SeminarRoute = SeminarRouteImport.update({
+  id: '/seminar',
+  path: '/seminar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SystemRoute = SystemRouteImport.update({
+  id: '/system',
+  path: '/system',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminClientsRoute = AdminClientsRouteImport.update({
+  id: '/admin/clients',
+  path: '/admin/clients',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminInboxRoute = AdminInboxRouteImport.update({
@@ -68,8 +98,13 @@ const AdminTeamRoute = AdminTeamRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/inquire': typeof InquireRoute
+  '/invest': typeof InvestRoute
+  '/management': typeof ManagementRoute
   '/messages': typeof MessagesRoute
   '/privacy': typeof PrivacyRoute
+  '/seminar': typeof SeminarRoute
+  '/system': typeof SystemRoute
+  '/admin/clients': typeof AdminClientsRoute
   '/admin/inbox': typeof AdminInboxRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/quick-replies': typeof AdminQuickRepliesRoute
@@ -79,8 +114,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/inquire': typeof InquireRoute
+  '/invest': typeof InvestRoute
+  '/management': typeof ManagementRoute
   '/messages': typeof MessagesRoute
   '/privacy': typeof PrivacyRoute
+  '/seminar': typeof SeminarRoute
+  '/system': typeof SystemRoute
+  '/admin/clients': typeof AdminClientsRoute
   '/admin/inbox': typeof AdminInboxRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/quick-replies': typeof AdminQuickRepliesRoute
@@ -91,8 +131,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/inquire': typeof InquireRoute
+  '/invest': typeof InvestRoute
+  '/management': typeof ManagementRoute
   '/messages': typeof MessagesRoute
   '/privacy': typeof PrivacyRoute
+  '/seminar': typeof SeminarRoute
+  '/system': typeof SystemRoute
+  '/admin/clients': typeof AdminClientsRoute
   '/admin/inbox': typeof AdminInboxRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/quick-replies': typeof AdminQuickRepliesRoute
@@ -104,8 +149,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/inquire'
+    | '/invest'
+    | '/management'
     | '/messages'
     | '/privacy'
+    | '/seminar'
+    | '/system'
+    | '/admin/clients'
     | '/admin/inbox'
     | '/admin/login'
     | '/admin/quick-replies'
@@ -115,8 +165,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/inquire'
+    | '/invest'
+    | '/management'
     | '/messages'
     | '/privacy'
+    | '/seminar'
+    | '/system'
+    | '/admin/clients'
     | '/admin/inbox'
     | '/admin/login'
     | '/admin/quick-replies'
@@ -126,8 +181,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/inquire'
+    | '/invest'
+    | '/management'
     | '/messages'
     | '/privacy'
+    | '/seminar'
+    | '/system'
+    | '/admin/clients'
     | '/admin/inbox'
     | '/admin/login'
     | '/admin/quick-replies'
@@ -138,8 +198,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   InquireRoute: typeof InquireRoute
+  InvestRoute: typeof InvestRoute
+  ManagementRoute: typeof ManagementRoute
   MessagesRoute: typeof MessagesRoute
   PrivacyRoute: typeof PrivacyRoute
+  SeminarRoute: typeof SeminarRoute
+  SystemRoute: typeof SystemRoute
+  AdminClientsRoute: typeof AdminClientsRoute
   AdminInboxRoute: typeof AdminInboxRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminQuickRepliesRoute: typeof AdminQuickRepliesRoute
@@ -163,6 +228,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InquireRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/invest': {
+      id: '/invest'
+      path: '/invest'
+      fullPath: '/invest'
+      preLoaderRoute: typeof InvestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/management': {
+      id: '/management'
+      path: '/management'
+      fullPath: '/management'
+      preLoaderRoute: typeof ManagementRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/messages': {
       id: '/messages'
       path: '/messages'
@@ -177,11 +256,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seminar': {
+      id: '/seminar'
+      path: '/seminar'
+      fullPath: '/seminar'
+      preLoaderRoute: typeof SeminarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/system': {
+      id: '/system'
+      path: '/system'
+      fullPath: '/system'
+      preLoaderRoute: typeof SystemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/': {
       id: '/admin/'
       path: '/admin'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/clients': {
+      id: '/admin/clients'
+      path: '/admin/clients'
+      fullPath: '/admin/clients'
+      preLoaderRoute: typeof AdminClientsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/inbox': {
@@ -218,8 +318,13 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   InquireRoute: InquireRoute,
+  InvestRoute: InvestRoute,
+  ManagementRoute: ManagementRoute,
   MessagesRoute: MessagesRoute,
   PrivacyRoute: PrivacyRoute,
+  SeminarRoute: SeminarRoute,
+  SystemRoute: SystemRoute,
+  AdminClientsRoute: AdminClientsRoute,
   AdminInboxRoute: AdminInboxRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminQuickRepliesRoute: AdminQuickRepliesRoute,

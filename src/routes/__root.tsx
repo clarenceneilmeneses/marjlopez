@@ -12,6 +12,7 @@ import {
 import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { NewPasswordDialog } from "@/components/site/auth-panel";
 import { Toaster } from "@/components/ui/sonner";
 import { TopProgress } from "@/components/top-progress";
 import { AuthProvider } from "@/state/auth";
@@ -132,6 +133,7 @@ function RootComponent() {
           <TopProgress />
           <Outlet />
           <Toaster />
+          <NewPasswordDialog />
         </FiltersProvider>
       </AuthProvider>
     </QueryClientProvider>

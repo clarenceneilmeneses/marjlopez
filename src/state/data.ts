@@ -25,6 +25,17 @@ import type {
 } from "@/lib/types";
 import { useAuth } from "./auth";
 
+/**
+ * Requests sent before the four offers (2026-10-28) said "start" or "build".
+ * Until supabase/migrations/2026-10-28-four-offers.sql has run, read them as
+ * their nearest offer so nothing downstream meets a type it doesn't know.
+ */
+const LEGACY_TYPE: Record<string, Lead["type"]> = { start: "seminar", build: "invest" };
+function currentType(l: Lead): Lead {
+  const t = LEGACY_TYPE[l.type as string];
+  return t ? { ...l, type: t } : l;
+}
+
 // ------------------------------------------------------------------- live
 
 export function useLiveUpdates(enabled: boolean) {
@@ -89,7 +100,7 @@ export function useInbox(enabled: boolean) {
       }
       return {
         conversations: convs.data as ConversationWithPerson[],
-        leads: leads.data as Lead[],
+        leads: (leads.data as Lead[]).map(currentType),
         last,
         messages: msgs.data as Message[],
         meetings: meetings.data as Meeting[],
@@ -210,7 +221,7 @@ export function useMine(enabled: boolean) {
       if (leads.error) throw leads.error;
       return {
         conversation: (conv.data as Conversation | null) ?? null,
-        leads: leads.data as Lead[],
+        leads: (leads.data as Lead[]).map(currentType),
       };
     },
   });

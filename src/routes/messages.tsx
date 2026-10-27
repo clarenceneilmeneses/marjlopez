@@ -71,11 +71,11 @@ function MessagesPage() {
     return (
       <Frame>
         <div className="mx-auto max-w-sm px-4 py-12">
-          <h1 className="brand-caps text-2xl text-primary">Your messages</h1>
+          <h1 className="site-display text-3xl text-brand-heading">Your messages</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Sign in to see your conversation with {BRAND.team}.
           </p>
-          <AuthPanel className="mt-6" defaultMode="signin" />
+          <AuthPanel className="mt-6 rounded-3xl bg-card p-5 shadow-level-1" defaultMode="signin" />
           <p className="mt-6 text-sm text-muted-foreground">
             New here?{" "}
             <Link to="/inquire" className="font-semibold text-primary underline underline-offset-2">
@@ -234,7 +234,7 @@ function Inbox({
         <p className="brand-caps text-xl text-primary">Your requests</p>
         <Button asChild size="sm" variant="outline" className="rounded-full">
           <Link to="/inquire">
-            <Plus className="size-4" /> New
+            <Plus className="size-4" /> New request
           </Link>
         </Button>
       </div>

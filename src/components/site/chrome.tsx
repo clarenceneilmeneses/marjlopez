@@ -38,6 +38,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/state/auth";
 import { useMine } from "@/state/data";
 import { SignInDialog } from "./auth-panel";
+import { ClientBell } from "./client-bell";
 
 /** The landing page's sections, for the header and the phone menu. */
 const SECTIONS = [
@@ -71,6 +72,18 @@ export function Wordmark({ size = "header" }: { size?: "header" | "footer" }) {
       </span>
     </span>
   );
+}
+
+/**
+ * A client who already has a conversation. Their next step is the chat, so the
+ * site stops offering "Work with me" as if they were new (Clarence, 2026-10-26:
+ * "why is there a dupe work with me cta when u alr booked and alr have a
+ * convo?"). Another request is still one tap away: New request on Messages.
+ */
+export function useHasConversation(): boolean {
+  const { session, staff } = useAuth();
+  const mine = useMine(Boolean(session) && !staff);
+  return Boolean(mine.data?.conversation);
 }
 
 /** Whether the team has written since the client last looked. */
@@ -144,16 +157,20 @@ function useActiveSection(enabled: boolean): string | undefined {
  * the admin nav topbar principles on the landing page nav as well. we'll make
  * it pill too"): the section links in one white pill with the inquiry pill's
  * glide, resting on the section in view; Sign in and Work with me in a second
- * pill on the right; the avatar a separate circle, as on the admin.
+ * pill on the right; the avatar a separate circle, as on the admin. A client
+ * with a conversation gets Messages there instead, and nothing on Messages,
+ * plus their bell beside the avatar.
  */
 export function PublicHeader() {
   const { session, staff, signOut } = useAuth();
   const [signInOpen, setSignInOpen] = useState(false);
   const unread = useClientUnread();
+  const talking = useHasConversation();
   const hidden = useHideOnScroll();
   const signedIn = Boolean(session);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const active = useActiveSection(pathname === "/");
+  const onMessages = pathname.startsWith("/messages");
 
   return (
     <>
@@ -187,36 +204,42 @@ export function PublicHeader() {
           </nav>
 
           <div className="flex shrink-0 items-center gap-2.5">
-            {/* On a phone only a client's Messages button is in it. */}
-            <div className={cn(TOP_PILL, !(signedIn && !staff) && "max-md:hidden")}>
-              {signedIn && !staff && (
+            {talking ? (
+              // A phone has Messages in its nav pill already.
+              !onMessages && (
+                <div className={cn(TOP_PILL, "max-md:hidden")}>
+                  <Link
+                    to="/messages"
+                    className="relative inline-flex h-9 items-center gap-2 rounded-full bg-primary pl-4 pr-5 text-sm text-primary-foreground transition hover:bg-primary/90"
+                  >
+                    <MessageCircle className="size-[18px]" />
+                    <span className="brand-caps">Messages</span>
+                    {unread && (
+                      <span className="absolute right-1 top-1 size-2 rounded-full bg-destructive ring-2 ring-card" />
+                    )}
+                  </Link>
+                </div>
+              )
+            ) : (
+              <div className={cn(TOP_PILL, "max-md:hidden")}>
+                {!signedIn && (
+                  <button
+                    type="button"
+                    onClick={() => setSignInOpen(true)}
+                    className="h-9 rounded-full px-4 text-sm text-foreground/75 transition-colors hover:bg-secondary hover:text-foreground"
+                  >
+                    Sign in
+                  </button>
+                )}
                 <Link
-                  to="/messages"
-                  className="relative grid size-9 place-items-center rounded-full text-foreground/75 transition-colors hover:bg-secondary hover:text-primary"
-                  aria-label="Messages"
+                  to="/inquire"
+                  className="brand-caps inline-flex h-9 items-center rounded-full bg-primary px-5 text-sm text-primary-foreground transition hover:bg-primary/90"
                 >
-                  <MessageCircle className="size-[18px]" />
-                  {unread && (
-                    <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-destructive ring-2 ring-card" />
-                  )}
+                  Work with me
                 </Link>
-              )}
-              {!signedIn && (
-                <button
-                  type="button"
-                  onClick={() => setSignInOpen(true)}
-                  className="h-9 rounded-full px-4 text-sm text-foreground/75 transition-colors hover:bg-secondary hover:text-foreground"
-                >
-                  Sign in
-                </button>
-              )}
-              <Link
-                to="/inquire"
-                className="brand-caps hidden h-9 items-center rounded-full bg-primary px-5 text-sm text-primary-foreground transition hover:bg-primary/90 md:inline-flex"
-              >
-                Work with me
-              </Link>
-            </div>
+              </div>
+            )}
+            <ClientBell />
             {signedIn ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -271,9 +294,9 @@ function PublicBottomNav() {
   const typing = useTyping();
   const scrolledAway = useHideOnScroll();
   const unread = useClientUnread();
+  const talking = useHasConversation();
   const [moreOpen, setMoreOpen] = useState(false);
   const hidden = typing || scrolledAway;
-  const client = Boolean(session) && !staff;
 
   const tabs: {
     to: "/" | "/inquire" | "/messages";
@@ -284,23 +307,22 @@ function PublicBottomNav() {
     badge?: number;
   }[] = [
     { to: "/", label: "Home", icon: Home, active: pathname === "/" },
-    {
-      to: "/inquire",
-      label: "Inquire",
-      icon: Send,
-      active: pathname.startsWith("/inquire"),
-    },
-    ...(client
-      ? [
-          {
-            to: "/messages" as const,
-            label: "Messages",
-            icon: MessageCircle,
-            active: pathname.startsWith("/messages"),
-            badge: unread ? 1 : 0,
-          },
-        ]
-      : []),
+    // Inquire or Messages, never both: a client in a conversation starts
+    // another request from New request on their Messages.
+    talking
+      ? {
+          to: "/messages",
+          label: "Messages",
+          icon: MessageCircle,
+          active: pathname.startsWith("/messages"),
+          badge: unread ? 1 : 0,
+        }
+      : {
+          to: "/inquire",
+          label: "Inquire",
+          icon: Send,
+          active: pathname.startsWith("/inquire"),
+        },
     // Clarence, 2026-10-25: one more tab before More. The villas are the
     // proof the whole page leans on, so they get the slot (and leave More).
     { to: "/", hash: "villas", label: "Villas", icon: Building2, active: false },
@@ -387,6 +409,7 @@ function PublicBottomNav() {
 export function PublicFooter() {
   const col = "text-[11px] font-bold uppercase tracking-[0.16em] text-primary";
   const link = "text-sm text-foreground/80 transition-colors hover:text-primary";
+  const talking = useHasConversation();
   return (
     <footer className="mt-10">
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-10">
@@ -420,22 +443,25 @@ export function PublicFooter() {
             </a>
             <div className="mt-6">
               <Link
-                to="/inquire"
+                to={talking ? "/messages" : "/inquire"}
                 className="brand-caps inline-flex h-11 items-center rounded-full bg-primary px-6 text-[15px] text-primary-foreground transition hover:bg-primary/90"
               >
-                Work with me
+                {talking ? "My messages" : "Work with me"}
               </Link>
             </div>
           </div>
           <FooterCol title="Work with me" titleClass={col}>
-            <Link to="/inquire" search={{ type: "start", step: 2 }} className={link}>
-              Start an Airbnb
+            <Link to="/management" className={link}>
+              Property management
             </Link>
-            <Link to="/inquire" search={{ type: "build", step: 2 }} className={link}>
-              Build my Airbnb
+            <Link to="/seminar" className={link}>
+              Seminar
             </Link>
-            <Link to="/inquire" search={{ type: "system", step: 2 }} className={link}>
-              Booking system
+            <Link to="/invest" className={link}>
+              Invest with Marj
+            </Link>
+            <Link to="/system" className={link}>
+              System for your resort
             </Link>
             <Link to="/inquire" search={{ type: "other", step: 2 }} className={link}>
               Partnerships

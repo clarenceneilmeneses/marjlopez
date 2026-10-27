@@ -6,9 +6,10 @@
  * on its own on a laptop; on a phone, the list OR the thread, with a back
  * arrow, and the panel folded under the chat — exactly as Malaya does it.
  *
- * "ALL SORTED OUT" (PRD §9.2): the list puts what is waiting on us first —
- * hot and unanswered, then unanswered by how long, then everything else by
- * latest activity. Filters by type, stage, Unread, Hot, Mine, Unassigned.
+ * "ALL SORTED OUT": best clients first (the boss, 2026-10-28) — Top, then
+ * Good, then the rest, by the fit score in lib/score.ts; inside each, whoever
+ * is waiting on us comes first, longest wait on top. Filters by type, stage,
+ * Unread, Hot (= Top client), Mine, Unassigned.
  */
 import { createFileRoute } from "@tanstack/react-router";
 import {
@@ -36,6 +37,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/admin/app-shell";
+import { PaginationBar, usePagination } from "@/components/admin/paginated";
 import { Composer } from "@/components/chat/composer";
 import { groupReactions, MessageThread, type MessageActions } from "@/components/chat/thread";
 import { InlineLoading } from "@/components/loading";
@@ -94,6 +96,7 @@ import {
   TYPE_ORDER,
   TYPES,
 } from "@/lib/inquiry";
+import { isHot, leadFit, TIER_LABEL, tierTone, type Fit, type Tier } from "@/lib/score";
 import type { Lead, LeadStage, LeadType, Meeting, Message, QuickReply, Staff } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/state/auth";
@@ -148,8 +151,11 @@ interface Row {
   leads: Lead[];
   last: Message | undefined;
   hot: boolean;
+  fit: Fit | null;
   waitingHours: number | null;
 }
+
+const TIER_RANK: Record<Tier, number> = { top: 0, good: 1, low: 2 };
 
 function InboxPage() {
   const { staff, session } = useAuth();
@@ -192,7 +198,8 @@ function InboxPage() {
         lead,
         leads,
         last: data.last.get(conv.id),
-        hot: Boolean(lead?.hot),
+        hot: isHot(lead),
+        fit: lead ? leadFit(lead) : null,
         waitingHours: conv.waiting_since ? hoursSince(conv.waiting_since) : null,
       };
     });
@@ -231,14 +238,19 @@ function InboxPage() {
 
   const rows = useMemo(() => {
     const list = allRows.filter((r) => matches(r, typeFilter, chip));
-    // What is waiting on us first: hot and unanswered, then unanswered by how
-    // long, then everything else by latest activity.
-    const rank = (r: Row) => (r.waitingHours !== null ? (r.hot ? 0 : 1) : 2);
+    // Best clients first: Top (or marked hot), Good, the rest. Inside each,
+    // whoever is waiting on us, longest first; then the higher score; then
+    // latest activity.
+    const rank = (r: Row) => (r.hot ? 0 : r.fit ? TIER_RANK[r.fit.tier] : 3);
     return list.sort((a, b) => {
       const d = rank(a) - rank(b);
       if (d) return d;
-      if (a.waitingHours !== null && b.waitingHours !== null)
-        return b.waitingHours - a.waitingHours;
+      const wa = a.waitingHours !== null;
+      const wb = b.waitingHours !== null;
+      if (wa !== wb) return wa ? -1 : 1;
+      if (wa && wb) return b.waitingHours! - a.waitingHours!;
+      const s = (b.fit?.score ?? 0) - (a.fit?.score ?? 0);
+      if (s) return s;
       return Date.parse(b.conv.last_activity) - Date.parse(a.conv.last_activity);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -276,7 +288,7 @@ function InboxPage() {
   const summaryBadges = (
     <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
       <span className="hidden xl:inline">
-        Sorted: <span className="font-medium text-foreground">hot and waiting first</span>
+        Sorted: <span className="font-medium text-foreground">best clients first</span>
       </span>
       {summary.hotWaiting > 0 && (
         <Badge variant="outline" className="gap-1 border-destructive/40 text-destructive">
@@ -397,6 +409,22 @@ function RowAvatar({ row }: { row: Row }) {
   );
 }
 
+/** "92 · Top client" — the fit score, coloured by tier. */
+function FitPill({ fit, long = false }: { fit: Fit; long?: boolean }) {
+  return (
+    <span
+      title={fit.reason}
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[11px] font-semibold leading-none tabular-nums",
+        tierTone(fit.tier),
+      )}
+    >
+      {fit.score}
+      {long && <span className="font-medium">· {TIER_LABEL[fit.tier]}</span>}
+    </span>
+  );
+}
+
 function WaitBadge({ hours }: { hours: number }) {
   const label = hours < 1 ? `${Math.max(1, Math.round(hours * 60))}m` : `${Math.floor(hours)}h`;
   return (
@@ -456,6 +484,10 @@ function ThreadList({
   emptyMessage: string;
 }) {
   const [searchOpen, setSearchOpen] = useState(Boolean(search));
+  const paged = usePagination(rows, {
+    initialPageSize: 10,
+    resetKey: `${typeFilter}|${stageFilter}|${chip}|${search}`,
+  });
   const navigate = useNavigate();
   const typeLabel = TYPE_FILTERS.find((f) => f.key === typeFilter)?.label ?? "All";
   const stageText = stageFilter === "all" ? "" : ` · ${stageLabel(stageFilter)}`;
@@ -579,7 +611,7 @@ function ThreadList({
           <p className="px-3 py-6 text-sm text-muted-foreground">{emptyMessage}</p>
         )}
         <ul className="flex flex-col gap-0.5">
-          {rows.map((row) => {
+          {paged.page.map((row) => {
             const assignee = row.conv.assigned_to ? staffById.get(row.conv.assigned_to) : undefined;
             return (
               <li
@@ -654,8 +686,9 @@ function ThreadList({
                         </span>
                       </span>
                     )}
-                    {(row.waitingHours !== null || assignee || row.leads.length > 1) && (
+                    {(row.fit || row.waitingHours !== null || assignee || row.leads.length > 1) && (
                       <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                        {row.fit && row.lead?.type !== "other" && <FitPill fit={row.fit} />}
                         {row.waitingHours !== null && <WaitBadge hours={row.waitingHours} />}
                         {row.leads.length > 1 && (
                           <span className="rounded-full border border-border px-1.5 py-0.5 text-[11px] leading-none text-muted-foreground">
@@ -675,6 +708,7 @@ function ThreadList({
             );
           })}
         </ul>
+        <PaginationBar pagination={paged} noun="conversations" className="px-2 pb-1 pt-3" />
       </CardContent>
     </Card>
   );
@@ -1130,38 +1164,10 @@ function LeadPanel({
               </div>
             </div>
 
-            <div
-              className={cn(
-                "rounded-xl px-3 py-2.5 text-sm",
-                lead.hot ? "bg-destructive/10" : "bg-secondary/60",
-              )}
-            >
-              <div className="flex items-center justify-between gap-3">
-                <span
-                  className={cn(
-                    "flex items-center gap-1.5 font-medium",
-                    lead.hot ? "text-destructive" : "text-muted-foreground",
-                  )}
-                >
-                  <Flame className="size-4" />
-                  {lead.hot ? "Hot lead" : "Not hot"}
-                </span>
-                <Switch
-                  checked={lead.hot}
-                  aria-label="Hot lead"
-                  onCheckedChange={(v) =>
-                    patchLead.mutate({ id: lead.id, patch: { hot_override: v } })
-                  }
-                />
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {lead.hot_override !== null
-                  ? `Set by hand${lead.hot_reason ? ` · rules say: ${lead.hot_reason}` : ""}`
-                  : lead.hot_reason
-                    ? `Why: ${lead.hot_reason}`
-                    : "Doesn't meet the hot rules."}
-              </p>
-            </div>
+            <FitCard
+              lead={lead}
+              onHot={(v) => patchLead.mutate({ id: lead.id, patch: { hot_override: v } })}
+            />
 
             <div className="grid grid-cols-1 gap-3">
               <label className="space-y-1.5">
@@ -1601,6 +1607,70 @@ const NEXT_STEP: Record<LeadStage, string> = {
 };
 
 /** The conversation in numbers, and the obvious next move. */
+/**
+ * Why this person ranks where they do: the score, its three parts as bars,
+ * and the hand override. Hot is a Top client unless someone flips it here.
+ */
+function FitCard({ lead, onHot }: { lead: Lead; onHot: (v: boolean) => void }) {
+  const fit = leadFit(lead);
+  const hot = isHot(lead);
+  const scored = lead.type !== "other";
+  return (
+    <div
+      className={cn("rounded-xl px-3 py-3 text-sm", hot ? "bg-destructive/10" : "bg-secondary/60")}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <span className="flex items-center gap-2">
+          {scored && (
+            <span className="text-2xl font-bold leading-none tabular-nums text-foreground">
+              {fit.score}
+            </span>
+          )}
+          <span className="leading-tight">
+            <span
+              className={cn(
+                "flex items-center gap-1 text-xs font-semibold",
+                hot ? "text-destructive" : "text-muted-foreground",
+              )}
+            >
+              {hot && <Flame className="size-3.5" />}
+              {scored ? TIER_LABEL[fit.tier] : "Not scored"}
+            </span>
+            <span className="block text-[11px] text-muted-foreground">
+              {scored ? "fit, out of 100" : "Read it and decide"}
+            </span>
+          </span>
+        </span>
+        <span className="flex items-center gap-2 text-xs text-muted-foreground">
+          Hot
+          <Switch checked={hot} aria-label="Hot lead" onCheckedChange={onHot} />
+        </span>
+      </div>
+      {scored && (
+        <ul className="mt-3 space-y-1.5">
+          {fit.parts.map((p) => (
+            <li key={p.key} className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1">
+              <span className="truncate text-xs capitalize text-foreground">{p.label}</span>
+              <span className="text-[11px] tabular-nums text-muted-foreground">
+                {p.points}/{p.max}
+              </span>
+              <span className="col-span-2 h-1 overflow-hidden rounded-full bg-background/80">
+                <span
+                  className="block h-full rounded-full bg-primary"
+                  style={{ width: `${(p.points / p.max) * 100}%` }}
+                />
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {lead.hot_override !== null && (
+        <p className="mt-2 text-[11px] text-muted-foreground">Hot set by hand.</p>
+      )}
+    </div>
+  );
+}
+
 function AtAGlance({ row }: { row: Row }) {
   const inbox = useInbox(true);
   const msgs = (inbox.data?.messages ?? []).filter((m) => m.conversation_id === row.conv.id);

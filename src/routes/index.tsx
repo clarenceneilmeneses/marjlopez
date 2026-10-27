@@ -77,10 +77,12 @@ function Landing() {
 
 // ------------------------------------------------------------------ hero
 
+/** The four offers, in the boss's order (2026-10-28) — each opens its own page. */
 const STARTERS = [
-  { type: "start", label: "Start", sub: "an Airbnb business" },
-  { type: "build", label: "Build", sub: "my own Airbnb" },
-  { type: "system", label: "Get a system", sub: "like Malaya's" },
+  { slug: "management", label: "Manage", sub: "my property" },
+  { slug: "seminar", label: "Seminar", sub: "learn from Marj" },
+  { slug: "invest", label: "Invest", sub: "in a villa" },
+  { slug: "system", label: "System", sub: "for my resort" },
 ] as const;
 
 function Hero() {
@@ -134,21 +136,21 @@ function Hero() {
         </div>
 
         {/* The inquiry starter — overlaps the frame's edge, like Malaya's search
-            pill, and behaves like it: one highlight glides between the three
-            choices, no hairlines between them (Clarence, 2026-10-25). */}
-        <div className="relative z-10 mx-auto -mt-8 w-[calc(100%-1.5rem)] max-w-3xl lg:-mt-9">
+            pill, and behaves like it: one highlight glides between the
+            choices, no hairlines between them (Clarence, 2026-10-25). Each
+            choice opens that offer's own page. */}
+        <div className="relative z-10 mx-auto -mt-8 w-[calc(100%-1.5rem)] max-w-4xl lg:-mt-9">
           <div className="flex flex-col gap-1 rounded-3xl bg-card p-2 shadow-level-3 sm:flex-row sm:items-center sm:rounded-full">
             <GlideRow
               className="flex flex-1 flex-col gap-1 sm:flex-row sm:items-center"
               highlightClassName="bg-secondary rounded-2xl sm:rounded-full"
             >
               {STARTERS.map((s) => {
-                const Icon = TYPES[s.type].icon;
+                const Icon = TYPES[s.slug].icon;
                 return (
                   <Link
-                    key={s.type}
-                    to="/inquire"
-                    search={{ type: s.type, step: 2 }}
+                    key={s.slug}
+                    to={`/${s.slug}`}
                     data-glide
                     className="relative flex flex-1 items-center gap-3 rounded-2xl px-4 py-2.5 sm:rounded-full"
                   >
@@ -450,11 +452,10 @@ function VillaPreview({ panel: p, n }: { panel: Panel; n: number }) {
           </span>
           {p.soon ? (
             <Link
-              to="/inquire"
-              search={{ type: "build", step: 2 }}
+              to="/invest"
               className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
             >
-              Build yours <ArrowRight className="size-4" />
+              Invest in it <ArrowRight className="size-4" />
             </Link>
           ) : (
             <a
@@ -530,8 +531,7 @@ function Built() {
               <span className="text-muted-foreground">₱8.8M for both</span>
             </Link>
             <Link
-              to="/inquire"
-              search={{ type: "build", step: 2 }}
+              to="/invest"
               className="brand-caps inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-[15px] text-primary-foreground shadow-level-2 transition hover:bg-primary/90"
             >
               Build yours <ArrowRight className="size-4" />

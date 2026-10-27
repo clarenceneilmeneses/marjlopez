@@ -146,7 +146,7 @@ export function NotificationBell({ className }: { className?: string }) {
                         <Flame className="size-3.5 shrink-0 text-destructive" aria-label="Hot" />
                       )}
                     </span>
-                    <span className="mt-0.5 line-clamp-2 block text-xs text-muted-foreground">
+                    <span className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
                       {e.text}
                     </span>
                     <span className="mt-1 block text-[11px] text-muted-foreground">

@@ -13,6 +13,9 @@ interface AuthState {
   profile: Profile | null;
   /** Staff row looked up (or there is no session). */
   roleReady: boolean;
+  /** Arrived from a password-reset link: signed in, owed a new password. */
+  recovering: boolean;
+  endRecovery: () => void;
   signOut: () => Promise<void>;
 }
 
@@ -21,6 +24,7 @@ const AuthContext = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
+  const [recovering, setRecovering] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -28,7 +32,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(data.session);
       setReady(true);
     });
-    const { data } = supabase.auth.onAuthStateChange((_event, next) => {
+    const { data } = supabase.auth.onAuthStateChange((event, next) => {
+      if (event === "PASSWORD_RECOVERY") setRecovering(true);
       setSession(next);
       setReady(true);
     });
@@ -72,6 +77,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     staff: staff.data ?? null,
     profile: profile.data ?? null,
     roleReady: ready && (!uid || staff.isFetched),
+    recovering,
+    endRecovery: () => setRecovering(false),
     signOut: async () => {
       await supabase.auth.signOut();
       queryClient.clear();

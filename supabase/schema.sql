@@ -78,7 +78,8 @@ create table leads (
                    default 'LD-' || lpad(nextval('lead_code_seq')::text, 4, '0'),
   person_id        uuid not null references profiles (id) on delete cascade,
   conversation_id  uuid references conversations (id) on delete cascade,
-  type             text not null check (type in ('start', 'build', 'system', 'other')),
+  type             text not null
+                   check (type in ('management', 'seminar', 'invest', 'system', 'other')),
   answers          jsonb not null default '{}'::jsonb,
   -- Pulled out of `answers` so the Inbox can filter and sort on them.
   location         text,
@@ -88,8 +89,9 @@ create table leads (
   stage            text not null default 'new'
                    check (stage in ('new', 'talking', 'call_booked', 'proposal_sent', 'won', 'lost')),
   lost_reason      text,
-  -- Computed by the trigger below from the answers; `hot_override` is a
-  -- person's call and wins when set.
+  -- Who ranks first is worked out in the app from the answers (lib/score.ts),
+  -- so the rules live in one place. `hot_override` is a person's call and
+  -- wins over the score; `hot` mirrors it for anything reading the table.
   hot              boolean not null default false,
   hot_reason       text,
   hot_override     boolean,
@@ -164,7 +166,8 @@ create table quick_replies (
   title          text not null,
   body           text not null,
   -- Set on at most one reply per type: the thank-you sent after that request.
-  auto_for_type  text unique check (auto_for_type in ('start', 'build', 'system', 'other')),
+  auto_for_type  text unique
+                 check (auto_for_type in ('management', 'seminar', 'invest', 'system', 'other')),
   sort           int not null default 0,
   created_at     timestamptz not null default now()
 );
@@ -190,38 +193,13 @@ language sql stable security definer set search_path = public as $$
 $$;
 
 -- ---------------------------------------------------------------- hot leads
--- Simple, visible rules (PRD §9.3). The reason is shown on the lead panel.
+-- The fit score and its reasons are computed in the app (lib/score.ts, the
+-- boss's 2026-10-28 ranking). The table only keeps the hand override.
 create or replace function lead_hot_rules() returns trigger
 language plpgsql as $$
-declare
-  a jsonb := new.answers;
-  reasons text[] := '{}';
 begin
-  if new.type = 'start' then
-    if a->>'capital' in ('300k-1m', '1m+') and a->>'start_when' in ('asap', '1-3m') then
-      reasons := array[
-        'Capital ' || case a->>'capital' when '1m+' then '₱1M+' else '₱300k–1M' end,
-        case a->>'start_when' when 'asap' then 'starting ASAP' else 'starting in 1–3 months' end
-      ];
-    end if;
-  elsif new.type = 'build' then
-    if a->>'budget' in ('5-10m', '10m+') then
-      reasons := reasons || ('Budget ' || case a->>'budget' when '10m+' then '₱10M+' else '₱5–10M' end);
-    end if;
-    if a->>'lot' = 'own' and a->>'timeline' in ('3m', '3-6m') then
-      reasons := reasons || 'owns a lot'::text || 'building within 6 months'::text;
-    end if;
-  elsif new.type = 'system' then
-    if a->>'units' in ('2-5', '6-15', '16+') then
-      reasons := reasons || (coalesce(a->>'units', '') || ' units');
-    end if;
-    if a->>'when' = 'asap' then
-      reasons := reasons || 'needs it ASAP'::text;
-    end if;
-  end if;
-
-  new.hot := coalesce(new.hot_override, cardinality(reasons) > 0);
-  new.hot_reason := case when cardinality(reasons) > 0 then array_to_string(reasons, ' · ') end;
+  new.hot := coalesce(new.hot_override, false);
+  new.hot_reason := null;
   return new;
 end;
 $$;
