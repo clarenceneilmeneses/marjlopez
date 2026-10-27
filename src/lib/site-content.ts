@@ -177,6 +177,7 @@ export const SITE_PHOTOS: { src: string; label: string }[] = [
   { src: "/malaya/villa-aerial.webp", label: "Villa, drone shot" },
   { src: "/malaya/villa-hillside-pool.webp", label: "Hillside pool" },
   { src: "/malaya/lanai-set-for-dinner.webp", label: "Lanai set for an event" },
+  { src: "/system/dashboard.webp", label: "System — Dashboard" },
   { src: "/system/inbox.webp", label: "System — Inbox" },
   { src: "/system/calendar.webp", label: "System — Calendar" },
   { src: "/system/booking.webp", label: "System — Booking" },

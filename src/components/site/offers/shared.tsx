@@ -16,7 +16,14 @@ import {
 } from "@/components/ui/accordion";
 import { TYPES } from "@/lib/inquiry";
 import { OFFER_ORDER, OFFERS, type Offer } from "@/lib/offers";
+import type { LandingContent } from "@/lib/site-content";
 import { cn } from "@/lib/utils";
+
+/** What every layout gets: its offer, and the landing's content (numbers, the build). */
+export interface LayoutProps {
+  o: Offer;
+  landing: LandingContent;
+}
 
 export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
   return (

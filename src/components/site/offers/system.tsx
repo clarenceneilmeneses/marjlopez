@@ -22,6 +22,8 @@ import { type Offer } from "@/lib/offers";
 import { cn } from "@/lib/utils";
 
 import { Apply, Eyebrow, FaqAccordion, H2, OfferBadge, OtherOffers } from "./shared";
+import type { LayoutProps } from "./shared";
+import { Browser, IPhone } from "./devices";
 
 const BROWN = "#3a2416";
 
@@ -45,7 +47,7 @@ const PAY = [
   { src: "/system/pay/xendit.svg", name: "Xendit" },
 ];
 
-export function SystemLayout({ o }: { o: Offer; facebook: string }) {
+export function SystemLayout({ o }: LayoutProps) {
   return (
     <>
       <Hero o={o} />
@@ -58,30 +60,6 @@ export function SystemLayout({ o }: { o: Offer; facebook: string }) {
       <Faq o={o} />
       <Closing o={o} />
     </>
-  );
-}
-
-function Browser({ src, url, className }: { src: string; url: string; className?: string }) {
-  return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-xl bg-white shadow-level-3 ring-1 ring-black/10",
-        className,
-      )}
-    >
-      <div className="flex items-center gap-2 border-b border-black/5 bg-[#f4f1ec] px-3 py-2">
-        <span className="flex gap-1.5">
-          <span className="size-2.5 rounded-full bg-[#ff5f57]" />
-          <span className="size-2.5 rounded-full bg-[#febc2e]" />
-          <span className="size-2.5 rounded-full bg-[#28c840]" />
-        </span>
-        <span className="mx-auto truncate rounded-md bg-white px-3 py-0.5 text-[11px] text-neutral-500">
-          {url}
-        </span>
-        <span className="w-10" />
-      </div>
-      <img src={src} alt="" loading="lazy" className="block w-full" />
-    </div>
   );
 }
 
@@ -110,13 +88,14 @@ function Hero({ o }: { o: Offer }) {
           </div>
         </div>
 
-        {/* The admin in a browser, the guest site on a phone — cut off by the
-            frame's bottom edge, like a product shot. */}
+        {/* The admin in a browser, the guest site on an iPhone — cut off by
+            the frame's bottom edge, like a product shot. */}
         <div className="relative mx-auto mt-12 max-w-5xl translate-y-6 lg:mt-16">
-          <Browser src={o.hero.src} url="admin · Malaya Villas" />
-          <div className="absolute -right-2 bottom-10 hidden w-[19%] overflow-hidden rounded-[1.6rem] border-[6px] border-[#1d120b] bg-white shadow-level-3 md:block lg:-right-8">
-            <img src="/system/site-phone.webp" alt="" className="block w-full" loading="lazy" />
-          </div>
+          <Browser src={o.hero.src} url="admin · Malaya Villas" eager />
+          <IPhone
+            src="/system/site-phone.webp"
+            className="absolute -right-3 -top-10 hidden w-[21%] md:block lg:-right-14 lg:-top-14"
+          />
         </div>
       </div>
     </section>

@@ -368,7 +368,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
     name: "System for your resort",
     headline: ["The system that", "runs Malaya Villas"],
     sub: "A website guests book on, one inbox for every message, a calendar that doesn't double-book, and payments and reports — built for resorts and villas, used every day by Malaya.",
-    hero: { src: "/system/inbox.webp" },
+    hero: { src: "/system/dashboard.webp" },
     cta: "Get a demo",
     facts: [
       "Website + inbox + bookings + payments",

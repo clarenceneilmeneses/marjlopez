@@ -2,8 +2,10 @@
  * Property management — for owners, so it reads like a well-run property:
  * calm, practical, a report you'd trust.
  *
- *   Hero      a villa at night, full frame; the headline low on the left and
- *             a white "what's included" card standing on the frame's edge
+ *   Hero      a villa at night behind the headline, and an iPhone lock screen
+ *             where the owner's notifications slide in one by one — booked,
+ *             checked in, cleaned, report ready. That's the whole pitch.
+ *   Villas    the ones the team already runs, sliding past
  *   Why       the story beside a two-photo collage
  *   Gets      a ruled hand-off list beside a tall photo that stays put
  *   Proof     the real numbers on a dark band
@@ -12,18 +14,23 @@
  *   FAQ       "Owners ask" on the left, the answers on the right
  *   Closing   text and photo, split
  */
-import { Check, X } from "@/components/icons";
+import { Check, Lock, MapPin, X } from "@/components/icons";
+import type { CSSProperties } from "react";
 
 import { ParallaxImage } from "@/components/site/parallax";
 import { proofWith, type Offer } from "@/lib/offers";
-import { PORTFOLIO } from "@/lib/villas";
+import { PORTFOLIO, VILLAS, villaPhoto } from "@/lib/villas";
 
 import { Apply, Eyebrow, FaqAccordion, H2, OfferBadge, OtherOffers } from "./shared";
+import type { LayoutProps } from "./shared";
+import { IPhone } from "./devices";
 
-export function ManagementLayout({ o, facebook }: { o: Offer; facebook: string }) {
+export function ManagementLayout({ o, landing }: LayoutProps) {
+  const facebook = landing.numbers.facebook;
   return (
     <>
       <Hero o={o} />
+      <Villas />
       <Why o={o} />
       <Gets o={o} />
       <Proof facebook={facebook} />
@@ -38,21 +45,20 @@ export function ManagementLayout({ o, facebook }: { o: Offer; facebook: string }
 function Hero({ o }: { o: Offer }) {
   return (
     <section className="px-3 sm:px-6">
-      <div className="relative mx-auto max-w-[1400px]">
-        <div className="relative h-[640px] overflow-hidden rounded-[2rem] bg-[#0f0d0c] shadow-level-3 lg:h-[min(80vh,720px)]">
-          <ParallaxImage
-            src={o.hero.src}
-            alt=""
-            strength={5}
-            frameClassName="absolute inset-0"
-            className="object-cover"
-            style={o.hero.position ? { objectPosition: o.hero.position } : undefined}
-            loading="eager"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0f0d0c]/95 via-[#0f0d0c]/25 to-transparent" />
-          <div className="absolute inset-y-0 left-0 hidden w-2/3 bg-gradient-to-r from-[#0f0d0c]/60 to-transparent lg:block" />
+      <div className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[2rem] bg-[#0f0d0c] shadow-level-3">
+        <ParallaxImage
+          src={o.hero.src}
+          alt=""
+          strength={5}
+          frameClassName="absolute inset-0"
+          className="object-cover opacity-80"
+          style={o.hero.position ? { objectPosition: o.hero.position } : undefined}
+          loading="eager"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0f0d0c] via-[#0f0d0c]/40 to-[#0f0d0c]/20 lg:bg-gradient-to-r lg:from-[#0f0d0c]/90 lg:via-[#0f0d0c]/45 lg:to-[#0f0d0c]/10" />
 
-          <div className="absolute inset-x-0 bottom-0 p-6 pb-10 sm:p-10 lg:max-w-[52%] lg:p-14">
+        <div className="relative grid items-center gap-12 px-6 pt-16 sm:px-10 lg:min-h-[min(82vh,740px)] lg:grid-cols-[1.15fr_0.85fr] lg:px-16 lg:py-16">
+          <div>
             <OfferBadge o={o} dark />
             <h1 className="site-display mt-5 text-[2.2rem] leading-[0.95] text-white sm:text-6xl xl:text-7xl">
               {o.headline[0]}
@@ -66,28 +72,129 @@ function Hero({ o }: { o: Offer }) {
               <Apply o={o} tone="light" />
               <span className="text-xs text-white/60">About 2 minutes · no payment</span>
             </div>
+            <ul className="mt-8 flex flex-wrap gap-2">
+              {o.facts.map((f) => (
+                <li
+                  key={f}
+                  className="flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md"
+                >
+                  <Check className="size-3.5 text-[#7ee2a8]" />
+                  {f}
+                </li>
+              ))}
+            </ul>
+          </div>
+          {/* On a phone the iPhone rises out of the frame's bottom edge. */}
+          <div className="flex justify-center lg:justify-end">
+            <OwnerPhone />
           </div>
         </div>
+      </div>
+    </section>
+  );
+}
 
-        {/* What's included, standing on the frame's bottom edge on a laptop. */}
-        <div className="relative z-10 mx-3 -mt-6 rounded-3xl bg-card p-5 shadow-level-3 sm:mx-6 lg:absolute lg:bottom-10 lg:right-10 lg:mx-0 lg:mt-0 lg:w-[340px]">
-          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
-            What&rsquo;s included
-          </p>
-          <ul className="mt-3 divide-y divide-border/60">
-            {o.facts.map((f) => (
-              <li key={f} className="flex items-start gap-3 py-2.5 text-sm font-medium">
-                <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-success/15 text-success">
-                  <Check className="size-3" />
+/**
+ * What an owner's phone looks like with Malaya running the place: a lock
+ * screen over one of the villas, the team's updates arriving one at a time.
+ * An illustration of the kind of message, so no amounts and no names.
+ */
+const NOTES = [
+  { title: "New booking", body: "2 nights, a family of 6. Check-in Friday.", when: "now" },
+  { title: "Guest checked in", body: "The team met them at the gate. All good.", when: "2h ago" },
+  { title: "Cleaning done", body: "Turnover finished — photos are in your report.", when: "Sun" },
+  {
+    title: "Your monthly report",
+    body: "Nights booked, money in, money out, your payout.",
+    when: "1st",
+  },
+];
+
+const SF = {
+  fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif",
+};
+
+function OwnerPhone() {
+  return (
+    <IPhone className="w-[250px] translate-y-10 sm:w-[280px] lg:w-[300px] lg:translate-y-0">
+      <img
+        src="/malaya/villa-hillside-pool.webp"
+        alt=""
+        className="absolute inset-0 size-full object-cover"
+      />
+      <span className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/10 to-black/55" />
+      <div className="absolute inset-x-0 top-[9%] text-center text-white" style={SF}>
+        <Lock className="mx-auto size-3.5 opacity-90" />
+        <p className="mt-1 text-[11px] font-medium opacity-90">Your villa, this week</p>
+        <p className="text-[64px] font-semibold leading-none tracking-tight">9:41</p>
+      </div>
+      <ul className="absolute inset-x-[5%] bottom-[7%] space-y-1.5" style={SF}>
+        {NOTES.map((n, i) => (
+          <li
+            key={n.title}
+            className="animate-in fade-in slide-in-from-bottom-4 rounded-2xl bg-white/75 p-2.5 shadow-sm backdrop-blur-xl duration-500"
+            style={{ animationDelay: `${600 + i * 900}ms`, animationFillMode: "both" }}
+          >
+            <div className="flex items-start gap-2">
+              <img
+                src="/brand/malaya-mark.png"
+                alt=""
+                className="mt-0.5 size-6 shrink-0 rounded-md bg-white object-cover"
+              />
+              <div className="min-w-0 flex-1 leading-tight">
+                <div className="flex items-baseline justify-between gap-1">
+                  <p className="truncate text-[11px] font-semibold text-black">{n.title}</p>
+                  <p className="shrink-0 text-[9px] text-black/50">{n.when}</p>
+                </div>
+                <p className="text-[10px] leading-snug text-black/75">{n.body}</p>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <span className="absolute bottom-[1.6%] left-1/2 h-[0.6%] w-[34%] -translate-x-1/2 rounded-full bg-white/80" />
+    </IPhone>
+  );
+}
+
+/** Every villa the team runs today, sliding past — the scale, shown. */
+function Villas() {
+  const fade = "linear-gradient(to right, transparent, black 6%, black 94%, transparent)";
+  return (
+    <section className="pt-20 lg:pt-24">
+      <p className="text-center text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+        Already run by the team · {PORTFOLIO.villas} villas
+      </p>
+      <div
+        className="marquee mt-6 overflow-hidden"
+        style={{ maskImage: fade, WebkitMaskImage: fade }}
+      >
+        <ul
+          className="marquee-track flex w-max gap-4 py-2"
+          style={{ "--marquee-speed": "60s" } as CSSProperties}
+        >
+          {[...VILLAS, ...VILLAS].map((v, i) => (
+            <li
+              key={i}
+              aria-hidden={i >= VILLAS.length || undefined}
+              className="relative h-44 w-64 shrink-0 overflow-hidden rounded-3xl bg-secondary shadow-level-2 sm:h-52 sm:w-80"
+            >
+              <img
+                src={villaPhoto(v.code, v.cover)}
+                alt={v.title}
+                loading="lazy"
+                className="absolute inset-0 size-full object-cover"
+              />
+              <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+              <span className="absolute inset-x-4 bottom-3 text-white">
+                <span className="block text-sm font-semibold">{v.title}</span>
+                <span className="flex items-center gap-1 text-xs text-white/80">
+                  <MapPin className="size-3" /> {v.location}
                 </span>
-                {f}
-              </li>
-            ))}
-          </ul>
-          <p className="mt-2 text-xs text-muted-foreground">
-            The same team and system that run Malaya&rsquo;s {PORTFOLIO.villas} villas.
-          </p>
-        </div>
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
@@ -139,8 +246,8 @@ function Gets({ o }: { o: Offer }) {
       <div className="hidden lg:block">
         <div className="sticky top-24 overflow-hidden rounded-[2rem] shadow-level-3">
           <img
-            src="/malaya/villa-hillside-pool.webp"
-            alt="A Malaya villa's pool deck from above"
+            src="/villas/pr-hidden-cabin-a/0.webp"
+            alt="A Cabin at Malaya Hidden Villas"
             loading="lazy"
             className="aspect-[3/4] w-full object-cover"
           />

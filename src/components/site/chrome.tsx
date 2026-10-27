@@ -11,8 +11,9 @@ import {
   Home,
   LogOut,
   MessageCircle,
+  ArrowRight,
+  LayoutGrid,
   MoreHorizontal,
-  Send,
   User,
 } from "@/components/icons";
 import { useEffect, useState } from "react";
@@ -29,6 +30,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { BRAND, FACEBOOK, LINKS } from "@/lib/brand";
+import { TYPES } from "@/lib/inquiry";
+import { OFFER_ORDER, OFFERS } from "@/lib/offers";
 import { MALAYA_SITE } from "@/lib/villas";
 import { PlatformLogo, type Platform } from "./logos";
 import { GlideRow } from "./glide";
@@ -39,6 +42,42 @@ import { useAuth } from "@/state/auth";
 import { useMine } from "@/state/data";
 import { SignInDialog } from "./auth-panel";
 import { ClientBell } from "./client-bell";
+
+/**
+ * The four offers, for "Work with me" and the phone's Offers tab (Clarence,
+ * 2026-10-28: both open the offers, not the form, so nobody skips the pages).
+ */
+function OfferLinks({ onPick, big = false }: { onPick?: () => void; big?: boolean }) {
+  return (
+    <ul className={cn("grid gap-1.5", big && "gap-2")}>
+      {OFFER_ORDER.map((slug) => {
+        const t = TYPES[OFFERS[slug].type];
+        const Icon = t.icon;
+        return (
+          <li key={slug}>
+            <Link
+              to={`/${slug}`}
+              onClick={onPick}
+              className={cn(
+                "group flex items-center gap-3 rounded-2xl transition active:scale-[0.98]",
+                big ? "bg-secondary/70 p-3 hover:bg-secondary" : "p-2.5 hover:bg-secondary/70",
+              )}
+            >
+              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
+                <Icon className="size-5" />
+              </span>
+              <span className="min-w-0 flex-1 leading-tight">
+                <span className="block text-sm font-semibold">{OFFERS[slug].name}</span>
+                <span className="mt-0.5 block text-xs text-muted-foreground">{t.blurb}</span>
+              </span>
+              <ArrowRight className="size-4 shrink-0 text-primary transition group-hover:translate-x-0.5" />
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 /** The landing page's sections, for the header and the phone menu. */
 const SECTIONS = [
@@ -231,12 +270,22 @@ export function PublicHeader() {
                     Sign in
                   </button>
                 )}
-                <Link
-                  to="/inquire"
-                  className="brand-caps inline-flex h-9 items-center rounded-full bg-primary px-5 text-sm text-primary-foreground transition hover:bg-primary/90"
-                >
-                  Work with me
-                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="brand-caps inline-flex h-9 items-center rounded-full bg-primary px-5 text-sm text-primary-foreground transition hover:bg-primary/90"
+                    >
+                      Work with me
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-[340px] rounded-3xl p-2">
+                    <DropdownMenuLabel className="px-2.5 text-xs font-normal text-muted-foreground">
+                      What can Marj help you with?
+                    </DropdownMenuLabel>
+                    <OfferLinks />
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             )}
             <ClientBell />
@@ -288,6 +337,36 @@ export function PublicHeader() {
   );
 }
 
+type Tab = {
+  to: "/" | "/messages";
+  hash?: string;
+  label: string;
+  icon: typeof Home;
+  active: boolean;
+  badge?: number;
+};
+
+function TabLink({ tab }: { tab: Tab }) {
+  const Icon = tab.icon;
+  return (
+    <Link
+      to={tab.to}
+      {...(tab.hash ? { hash: tab.hash } : {})}
+      aria-current={tab.active ? "page" : undefined}
+      className={navPillTab(tab.active)}
+    >
+      <span className="relative">
+        <Icon className="size-[22px]" strokeWidth={tab.active ? 2.2 : 1.8} />
+        {tab.badge ? (
+          <span className="absolute -right-1 -top-0.5 size-2 rounded-full bg-destructive" />
+        ) : null}
+        <NavPillBadge count={0} />
+      </span>
+      <span className="max-w-full truncate px-1">{tab.label}</span>
+    </Link>
+  );
+}
+
 function PublicBottomNav() {
   const { session, staff } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -296,33 +375,25 @@ function PublicBottomNav() {
   const unread = useClientUnread();
   const talking = useHasConversation();
   const [moreOpen, setMoreOpen] = useState(false);
+  const [offersOpen, setOffersOpen] = useState(false);
   const hidden = typing || scrolledAway;
+  const onOffer = OFFER_ORDER.some((s) => pathname === `/${s}`);
 
-  const tabs: {
-    to: "/" | "/inquire" | "/messages";
-    hash?: string;
-    label: string;
-    icon: typeof Home;
-    active: boolean;
-    badge?: number;
-  }[] = [
+  const tabs: Tab[] = [
     { to: "/", label: "Home", icon: Home, active: pathname === "/" },
-    // Inquire or Messages, never both: a client in a conversation starts
-    // another request from New request on their Messages.
-    talking
-      ? {
-          to: "/messages",
-          label: "Messages",
-          icon: MessageCircle,
-          active: pathname.startsWith("/messages"),
-          badge: unread ? 1 : 0,
-        }
-      : {
-          to: "/inquire",
-          label: "Inquire",
-          icon: Send,
-          active: pathname.startsWith("/inquire"),
-        },
+    // Messages for a client already talking to the team; everyone else gets
+    // the Offers tab (a button, below) instead of a shortcut to the form.
+    ...(talking
+      ? [
+          {
+            to: "/messages" as const,
+            label: "Messages",
+            icon: MessageCircle,
+            active: pathname.startsWith("/messages"),
+            badge: unread ? 1 : 0,
+          },
+        ]
+      : []),
     // Clarence, 2026-10-25: one more tab before More. The villas are the
     // proof the whole page leans on, so they get the slot (and leave More).
     { to: "/", hash: "villas", label: "Villas", icon: Building2, active: false },
@@ -335,33 +406,41 @@ function PublicBottomNav() {
         className={cn("pointer-events-none justify-center", navPillDock(hidden), "md:hidden")}
       >
         <nav aria-label="Site" className={cn(NAV_PILL, "pointer-events-auto max-w-md")}>
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <Link
-                key={tab.label}
-                to={tab.to}
-                {...(tab.hash ? { hash: tab.hash } : {})}
-                aria-current={tab.active ? "page" : undefined}
-                className={navPillTab(tab.active)}
-              >
-                <span className="relative">
-                  <Icon className="size-[22px]" strokeWidth={tab.active ? 2.2 : 1.8} />
-                  {tab.badge ? (
-                    <span className="absolute -right-1 -top-0.5 size-2 rounded-full bg-destructive" />
-                  ) : null}
-                  <NavPillBadge count={0} />
-                </span>
-                <span className="max-w-full truncate px-1">{tab.label}</span>
-              </Link>
-            );
-          })}
+          {tabs.slice(0, 1).map((tab) => (
+            <TabLink key={tab.label} tab={tab} />
+          ))}
+          {!talking && (
+            <button
+              type="button"
+              onClick={() => setOffersOpen(true)}
+              aria-current={onOffer ? "page" : undefined}
+              className={navPillTab(onOffer)}
+            >
+              <LayoutGrid className="size-[22px]" strokeWidth={onOffer ? 2.2 : 1.8} />
+              <span>Offers</span>
+            </button>
+          )}
+          {tabs.slice(1).map((tab) => (
+            <TabLink key={tab.label} tab={tab} />
+          ))}
           <button type="button" onClick={() => setMoreOpen(true)} className={navPillTab(false)}>
             <MoreHorizontal className="size-[22px]" strokeWidth={1.8} />
             <span>More</span>
           </button>
         </nav>
       </div>
+      <Sheet open={offersOpen} onOpenChange={setOffersOpen}>
+        <SheetContent
+          side="bottom"
+          className="rounded-t-[1.75rem] bg-card px-4 pb-8 pt-6 md:hidden"
+        >
+          <SheetTitle className="px-1 font-display text-xl">Work with Marj</SheetTitle>
+          <p className="px-1 pb-4 text-sm text-muted-foreground">
+            Pick what you need — each has its own page.
+          </p>
+          <OfferLinks big onPick={() => setOffersOpen(false)} />
+        </SheetContent>
+      </Sheet>
       <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
         <SheetContent side="left" className="flex w-[272px] flex-col gap-0 bg-card p-0 md:hidden">
           <SheetTitle className="sr-only">Menu</SheetTitle>
@@ -443,7 +522,8 @@ export function PublicFooter() {
             </a>
             <div className="mt-6">
               <Link
-                to={talking ? "/messages" : "/inquire"}
+                to={talking ? "/messages" : "/"}
+                {...(talking ? {} : { hash: "offers" })}
                 className="brand-caps inline-flex h-11 items-center rounded-full bg-primary px-6 text-[15px] text-primary-foreground transition hover:bg-primary/90"
               >
                 {talking ? "My messages" : "Work with me"}

@@ -144,8 +144,9 @@ function Hero({ c }: C) {
             nobody skips the offer pages, and make every choice look tappable).
             Each opens that offer's own page; the form is one tap further. */}
         <nav
+          id="offers"
           aria-label="Ways to work with Marj"
-          className="relative z-10 mx-auto -mt-10 w-[calc(100%-1.5rem)] max-w-5xl rounded-[1.75rem] bg-card p-2 shadow-level-3 lg:-mt-11"
+          className="relative z-10 scroll-mt-24 mx-auto -mt-10 w-[calc(100%-1.5rem)] max-w-5xl rounded-[1.75rem] bg-card p-2 shadow-level-3 lg:-mt-11"
         >
           <ul className="grid grid-cols-2 gap-2 lg:grid-cols-4">
             {STARTERS.map((slug) => {
@@ -153,22 +154,30 @@ function Hero({ c }: C) {
               const s = c.hero.starters[slug];
               return (
                 <li key={slug}>
+                  {/* A phone: a small card — filled icon, arrow, the words under
+                      them — so it reads as a button without hover (Clarence,
+                      2026-10-28: "doesn't look clickable on mobile"). A laptop:
+                      one row, filling brown on hover. */}
                   <Link
                     to={`/${slug}`}
-                    className="group flex h-full items-center gap-3 rounded-[1.25rem] bg-secondary/70 px-3 py-3 transition duration-200 hover:-translate-y-0.5 hover:bg-primary hover:shadow-level-2 sm:px-4"
+                    className="group flex h-full flex-col gap-3 rounded-[1.25rem] border border-primary/15 bg-secondary/60 p-3 shadow-level-1 transition duration-200 active:scale-[0.97] active:bg-primary/10 lg:flex-row lg:items-center lg:border-transparent lg:px-4 lg:shadow-none lg:hover:-translate-y-0.5 lg:hover:bg-primary lg:hover:shadow-level-2"
                   >
-                    <span className="grid size-9 shrink-0 place-items-center rounded-full bg-card text-primary shadow-level-1 sm:size-10 transition group-hover:bg-white/15 group-hover:text-white group-hover:shadow-none">
-                      <Icon className="size-5" />
+                    <span className="flex items-center justify-between lg:contents">
+                      <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-level-1 transition lg:group-hover:bg-white/15 lg:group-hover:shadow-none">
+                        <Icon className="size-5" />
+                      </span>
+                      <span className="grid size-7 place-items-center rounded-full bg-card text-primary shadow-level-1 lg:order-last lg:size-auto lg:bg-transparent lg:shadow-none lg:group-hover:text-white">
+                        <ArrowRight className="size-4 transition lg:group-hover:translate-x-0.5" />
+                      </span>
                     </span>
                     <span className="min-w-0 flex-1 leading-tight">
-                      <span className="block text-[11px] font-bold uppercase tracking-[0.12em] text-foreground transition group-hover:text-white">
+                      <span className="block text-[12px] font-bold uppercase tracking-[0.12em] text-foreground transition lg:text-[11px] lg:group-hover:text-white">
                         {s.label}
                       </span>
-                      <span className="block text-[13px] text-muted-foreground transition group-hover:text-white/80 sm:text-sm">
+                      <span className="mt-0.5 block text-[13px] text-muted-foreground transition lg:text-sm lg:group-hover:text-white/80">
                         {s.sub}
                       </span>
                     </span>
-                    <ArrowRight className="hidden size-4 shrink-0 text-primary transition group-hover:translate-x-0.5 group-hover:text-white sm:block" />
                   </Link>
                 </li>
               );

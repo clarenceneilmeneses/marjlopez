@@ -291,8 +291,11 @@ const OFFER: Section[] = [
   },
 ];
 
-/** The system page shows one photo in "Why" (the team photo is already in the footer). */
-const SYSTEM_OFFER: Section[] = OFFER.map((sec) =>
+/**
+ * System and Invest show one photo in "Why": the team photo is already in the
+ * footer, and Invest's build is told by the landing's build photos.
+ */
+const ONE_PHOTO_OFFER: Section[] = OFFER.map((sec) =>
   sec.key === "why"
     ? {
         ...sec,
@@ -310,7 +313,7 @@ export const EDITABLE_PAGES: EditablePage[] = [
     label: OFFERS[slug].name,
     path: `/${slug}` as EditablePage["path"],
     base: offerDefault(slug),
-    sections: slug === "system" ? SYSTEM_OFFER : OFFER,
+    sections: slug === "system" || slug === "invest" ? ONE_PHOTO_OFFER : OFFER,
   })),
 ];
 

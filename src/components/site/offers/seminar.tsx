@@ -5,6 +5,8 @@
  *   Hero      no dark frame: a cream page, the headline big on the left, his
  *             portrait in an arch on the right and a ticket for the next batch
  *   Proof     a quiet row of pills under the hero
+ *   Band      the day's topics as one big moving line, outlined and filled
+ *   Watch     his PTV feature, playable on the page
  *   Why       his story as a pull quote, two pinned photos (then / now)
  *   Gets      the day as a printed programme beside a photo of a set room
  *   Fit       two plain columns, the catch on a sand note
@@ -12,18 +14,23 @@
  *   FAQ       every answer open, two columns — nothing to click
  *   Closing   a dark band with his portrait
  */
-import { Check, Star, X } from "@/components/icons";
+import { Check, Play, Star, X } from "@/components/icons";
+import { useState, type CSSProperties } from "react";
 
 import { proofWith, type Offer } from "@/lib/offers";
 import { cn } from "@/lib/utils";
 
 import { Apply, Eyebrow, H2, OfferBadge, OtherOffers } from "./shared";
+import type { LayoutProps } from "./shared";
 
-export function SeminarLayout({ o, facebook }: { o: Offer; facebook: string }) {
+export function SeminarLayout({ o, landing }: LayoutProps) {
+  const facebook = landing.numbers.facebook;
   return (
     <>
       <Hero o={o} facebook={facebook} />
+      <TopicBand o={o} />
       <Why o={o} />
+      <Watch />
       <Gets o={o} />
       <Fit o={o} />
       <Steps o={o} />
@@ -105,10 +112,103 @@ function Hero({ o, facebook }: { o: Offer; facebook: string }) {
   );
 }
 
+/**
+ * The day's topics as one big moving line on a brown band, outlined and
+ * filled in turn — the "seminar poster" moment, read off the programme.
+ */
+function TopicBand({ o }: { o: Offer }) {
+  const words = o.gets.items.map((it) => it.title);
+  const row = [...words, ...words];
+  return (
+    <section className="mt-24 overflow-hidden bg-[#3a2416] py-7 sm:py-9 lg:mt-32">
+      <ul
+        className="marquee-track flex w-max items-center gap-8 sm:gap-12"
+        style={{ "--marquee-speed": "40s" } as CSSProperties}
+      >
+        {row.map((w, i) => (
+          <li
+            key={i}
+            aria-hidden={i >= words.length || undefined}
+            className="flex shrink-0 items-center gap-8 sm:gap-12"
+          >
+            <span
+              className="site-display whitespace-nowrap text-5xl leading-none sm:text-7xl"
+              style={
+                i % 2
+                  ? { color: "transparent", WebkitTextStroke: "1.5px rgba(255,255,255,0.75)" }
+                  : { color: "#fff" }
+              }
+            >
+              {w}
+            </span>
+            <Star className="size-6 shrink-0 fill-[#e9b872] text-[#e9b872] sm:size-8" />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Marj on national TV, playable right here — tap and it loads the video. */
+const PTV = {
+  id: "Uq1KitcVAwQ",
+  title: "PTV · Rise and Shine Pilipinas",
+  meta: "Father's Day Special",
+  image: "/brand/ptv-feature.webp",
+};
+
+function Watch() {
+  const [playing, setPlaying] = useState(false);
+  return (
+    <section className="mx-auto max-w-5xl px-4 pt-28 sm:px-8 lg:pt-36">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <Eyebrow>Before you meet him</Eyebrow>
+          <H2 className="mt-4">Watch Marj on PTV</H2>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          {PTV.title} · {PTV.meta}
+        </p>
+      </div>
+      <div className="relative mt-8 aspect-video overflow-hidden rounded-[2rem] bg-black shadow-level-3">
+        {playing ? (
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${PTV.id}?autoplay=1&rel=0`}
+            title={PTV.title}
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowFullScreen
+            className="absolute inset-0 size-full"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPlaying(true)}
+            aria-label={`Play: ${PTV.title}`}
+            className="group absolute inset-0"
+          >
+            <img src={PTV.image} alt="" loading="lazy" className="size-full object-cover" />
+            <span className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/20" />
+            <span className="absolute left-1/2 top-1/2 grid size-20 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-[#FF0000] shadow-level-3 transition group-hover:scale-110 sm:size-24">
+              <span className="absolute inset-0 animate-ping rounded-full bg-white/40" />
+              <Play className="relative size-8 fill-current sm:size-10" />
+            </span>
+            <span className="absolute bottom-5 left-5 text-left text-white sm:bottom-7 sm:left-7">
+              <span className="block text-[11px] font-bold uppercase tracking-[0.14em] text-white/70">
+                As seen on TV
+              </span>
+              <span className="mt-1 block text-lg font-semibold sm:text-xl">{PTV.title}</span>
+            </span>
+          </button>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function Why({ o }: { o: Offer }) {
   const shots = [o.why.before, o.why.after];
   return (
-    <section className="mx-auto max-w-5xl px-4 pt-28 text-center sm:px-8 lg:pt-36">
+    <section className="mx-auto max-w-5xl px-4 pt-24 text-center sm:px-8 lg:pt-28">
       <Eyebrow>The short version of his story</Eyebrow>
       <H2 className="mx-auto mt-4 max-w-3xl">{o.why.heading}</H2>
       <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-foreground/85">

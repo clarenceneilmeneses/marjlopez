@@ -17,26 +17,27 @@
  */
 import { PublicFooter, PublicHeader } from "@/components/site/chrome";
 import type { Offer, OfferSlug } from "@/lib/offers";
+import type { LandingContent } from "@/lib/site-content";
 
 import { InvestLayout } from "./offers/invest";
 import { ManagementLayout } from "./offers/management";
 import { SeminarLayout } from "./offers/seminar";
 import { SystemLayout } from "./offers/system";
 
-const LAYOUTS: Record<OfferSlug, (p: { o: Offer; facebook: string }) => React.ReactNode> = {
+const LAYOUTS: Record<OfferSlug, (p: { o: Offer; landing: LandingContent }) => React.ReactNode> = {
   management: ManagementLayout,
   seminar: SeminarLayout,
   invest: InvestLayout,
   system: SystemLayout,
 };
 
-export function OfferPage({ offer, facebook }: { offer: Offer; facebook: string }) {
+export function OfferPage({ offer, landing }: { offer: Offer; landing: LandingContent }) {
   const Layout = LAYOUTS[offer.slug];
   return (
     <div className="min-h-screen bg-background">
       <PublicHeader />
       <main id="content" className="pb-6">
-        <Layout o={offer} facebook={facebook} />
+        <Layout o={offer} landing={landing} />
       </main>
       <PublicFooter />
     </div>

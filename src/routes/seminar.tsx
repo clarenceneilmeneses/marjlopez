@@ -25,7 +25,5 @@ function Page() {
   // In Admin → Website's preview frame, the unsaved words instead.
   const draft = usePreviewDraft(offerKey("seminar"));
   const rows = draft === undefined ? saved : { ...saved, [offerKey("seminar")]: draft };
-  return (
-    <OfferPage offer={offerFrom("seminar", rows)} facebook={landingFrom(rows).numbers.facebook} />
-  );
+  return <OfferPage offer={offerFrom("seminar", rows)} landing={landingFrom(rows)} />;
 }
