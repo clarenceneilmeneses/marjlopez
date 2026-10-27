@@ -1,7 +1,8 @@
 /**
  * A system for your resort — software, so it reads like a product page and
- * shows the real thing: screenshots of Malaya's own admin (from the Malaya
- * project's demo account, sample guests only — no real names or revenue).
+ * shows the real thing: Malaya's live admin (screenshots from Clarence,
+ * 2026-10-28, guests' names, emails, mobiles and messages blurred — Data
+ * Privacy Act) and the live malayavillas.com.
  *
  *   Hero      Malaya-brown ground, the headline centred, the admin in a
  *             browser frame and the guest site on a phone beside it
@@ -29,12 +30,10 @@ const BROWN = "#3a2416";
 
 /** One screenshot per feature card, in the order of the default cards. */
 const SHOTS = [
-  { src: "/system/site-desk.webp", url: "yourresort.com" },
+  { src: "/system/site-desk.webp", url: "malayavillas.com" },
   { src: "/system/inbox.webp", url: "admin · Inbox" },
   { src: "/system/calendar.webp", url: "admin · Calendar" },
-  { src: "/system/booking.webp", url: "admin · Booking" },
-  { src: "/system/home.webp", url: "admin · Home" },
-  { src: "/system/today.webp", url: "admin · Today" },
+  { src: "/system/booking.webp", url: "admin · Bookings & Guests" },
 ];
 
 const PAY = [

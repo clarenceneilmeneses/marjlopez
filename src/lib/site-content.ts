@@ -181,7 +181,6 @@ export const SITE_PHOTOS: { src: string; label: string }[] = [
   { src: "/system/inbox.webp", label: "System — Inbox" },
   { src: "/system/calendar.webp", label: "System — Calendar" },
   { src: "/system/booking.webp", label: "System — Booking" },
-  { src: "/system/home.webp", label: "System — Home" },
   { src: "/system/site-desk.webp", label: "Malaya website" },
   ...[1, 2, 3, 4].map((n) => ({ src: `/builds/lian/${n}.webp`, label: `Lian build ${n}` })),
   ...VILLAS.map((v) => ({ src: villaPhoto(v.code, v.cover), label: v.title })),
