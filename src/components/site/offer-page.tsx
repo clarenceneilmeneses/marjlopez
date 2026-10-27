@@ -13,7 +13,7 @@
  *   7  FAQ
  *   8  Closing     the button again, and the other three offers
  *
- * Every word comes from lib/offers.ts. Every button opens the inquiry form on
+ * Every word comes from lib/offers.ts, or from Admin → Website once saved there. Every button opens the inquiry form on
  * this offer's questions, so whoever comes from here arrives already sorted.
  */
 import { Link } from "@tanstack/react-router";
@@ -28,17 +28,16 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { TYPES } from "@/lib/inquiry";
-import { OFFER_ORDER, OFFERS, PROOF, type Offer, type OfferSlug } from "@/lib/offers";
+import { OFFER_ORDER, OFFERS, proofWith, type Offer } from "@/lib/offers";
 import { cn } from "@/lib/utils";
 
-export function OfferPage({ slug }: { slug: OfferSlug }) {
-  const o = OFFERS[slug];
+export function OfferPage({ offer: o, facebook }: { offer: Offer; facebook: string }) {
   return (
     <div className="min-h-screen bg-background">
       <PublicHeader />
       <main id="content">
         <Hero o={o} />
-        <Proof />
+        <Proof facebook={facebook} />
         <Why o={o} />
         <Gets o={o} />
         <Fit o={o} />
@@ -138,11 +137,11 @@ function Hero({ o }: { o: Offer }) {
 
 // ------------------------------------------------------------------ proof
 
-function Proof() {
+function Proof({ facebook }: { facebook: string }) {
   return (
     <section className="mx-auto mt-14 max-w-5xl px-4 sm:px-8">
       <dl className="grid grid-cols-2 gap-x-6 gap-y-6 border-y border-border/70 py-6 lg:grid-cols-4">
-        {PROOF.map((p) => (
+        {proofWith(facebook).map((p) => (
           <div key={p.small} className="text-center lg:text-left">
             <dt className="site-display text-4xl leading-none text-brand-heading tabular-nums">
               {p.big}

@@ -7,6 +7,7 @@
 import { Link, Navigate, useRouterState } from "@tanstack/react-router";
 import {
   ExternalLink,
+  Globe,
   LayoutDashboard,
   LogOut,
   MessageSquareText,
@@ -54,7 +55,13 @@ const SIDEBAR_KEY = "marj:sidebar-collapsed";
 const TOP_PILL =
   "flex items-center gap-0.5 rounded-full border border-border/70 bg-card p-0.5 shadow-level-2";
 
-type NavTo = "/admin" | "/admin/inbox" | "/admin/clients" | "/admin/quick-replies" | "/admin/team";
+type NavTo =
+  | "/admin"
+  | "/admin/inbox"
+  | "/admin/clients"
+  | "/admin/quick-replies"
+  | "/admin/team"
+  | "/admin/website";
 
 /** `pill: false` keeps a page out of the phone's nav pill; it's under More there. */
 const NAV: {
@@ -76,6 +83,8 @@ const NAV: {
     pill: false,
   },
   { to: "/admin/team", label: "Team", short: "Team", icon: Users },
+  // What the public pages say (2026-10-28).
+  { to: "/admin/website", label: "Website", short: "Website", icon: Globe, pill: false },
 ];
 
 function Wordmark({ compact = false }: { compact?: boolean }) {

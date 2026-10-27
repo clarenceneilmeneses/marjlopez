@@ -13,7 +13,8 @@
  *                  clean list — the admin's white-card look.
  *   4  Reviews     Two rows of real guest reviews, sliding past.
  *
- * Every figure's source is in lib/brand.ts.
+ * Every figure's source is in lib/brand.ts. The words and photos can be
+ * changed from Admin → Website; the defaults are in lib/site-content.ts.
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
@@ -44,12 +45,18 @@ import {
   type ProfileLink,
 } from "@/lib/brand";
 import { TYPES } from "@/lib/inquiry";
+import { fetchSiteContent, landingFrom, type LandingContent } from "@/lib/site-content";
 import { cn } from "@/lib/utils";
 import { MALAYA_SITE, PORTFOLIO, VILLAS, villaPhoto, villaUrl } from "@/lib/villas";
+import { usePreviewDraft } from "@/state/site";
 
 export const Route = createFileRoute("/")({
+  // The saved words, read before the page renders so the first paint has them.
+  loader: () => fetchSiteContent(["landing"]),
   component: Landing,
 });
+
+type C = { c: LandingContent };
 
 function Eyebrow({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
@@ -60,15 +67,19 @@ function Eyebrow({ children, className }: { children: React.ReactNode; className
 }
 
 function Landing() {
+  const rows = Route.useLoaderData();
+  // In Admin → Website's preview frame, the unsaved words instead.
+  const draft = usePreviewDraft("landing");
+  const c = landingFrom(draft === undefined ? rows : { ...rows, landing: draft });
   return (
     <div className="min-h-screen bg-background">
       <PublicHeader />
       <main id="content">
-        <Hero />
-        <Villas />
-        <Built />
-        <MeetMarj />
-        <Reviews />
+        <Hero c={c} />
+        <Villas c={c} />
+        <Built c={c} />
+        <MeetMarj c={c} />
+        <Reviews c={c} />
       </main>
       <PublicFooter />
     </div>
@@ -78,14 +89,9 @@ function Landing() {
 // ------------------------------------------------------------------ hero
 
 /** The four offers, in the boss's order (2026-10-28) — each opens its own page. */
-const STARTERS = [
-  { slug: "management", label: "Manage", sub: "my property" },
-  { slug: "seminar", label: "Seminar", sub: "learn from Marj" },
-  { slug: "invest", label: "Invest", sub: "in a villa" },
-  { slug: "system", label: "System", sub: "for my resort" },
-] as const;
+const STARTERS = ["management", "seminar", "invest", "system"] as const;
 
-function Hero() {
+function Hero({ c }: C) {
   return (
     <section className="px-3 sm:px-6">
       <div className="relative mx-auto max-w-[1400px]">
@@ -93,7 +99,7 @@ function Hero() {
             and the photo read as one studio wall. */}
         <div className="relative h-[620px] overflow-hidden rounded-[2rem] bg-[#151314] shadow-level-3 sm:h-[640px] lg:h-[min(78vh,700px)]">
           <ParallaxImage
-            src="/brand/marj.webp"
+            src={c.hero.photo}
             alt="Marj Lopez"
             strength={6}
             frameClassName="absolute inset-0 lg:left-auto lg:aspect-square lg:h-full"
@@ -118,19 +124,18 @@ function Hero() {
               <span className="flex items-center gap-1 text-sm font-semibold">
                 Marj Lopez <BadgeCheck className="size-4 text-[#4a9bff]" />
               </span>
-              <span className="text-xs text-white/80">{FACEBOOK.followers} followers →</span>
+              <span className="text-xs text-white/80">{c.numbers.facebook} followers →</span>
             </span>
           </a>
 
           <div className="absolute inset-x-0 bottom-0 p-6 pb-12 sm:p-10 sm:pb-14 lg:inset-y-0 lg:right-auto lg:flex lg:w-[58%] lg:flex-col lg:justify-center lg:p-16 lg:pb-24">
             <h1 className="site-display text-[2.7rem] leading-[0.95] text-white sm:text-6xl xl:text-7xl">
-              Start &amp; earn
+              {c.hero.headline[0]}
               <br />
-              through Airbnb
+              {c.hero.headline[1]}
             </h1>
             <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-white/80 sm:text-base">
-              Host of {PORTFOLIO.villas} villas in Cavite and Tagaytay. Helping aspiring hosts start
-              and earn — even without owning a property.
+              {c.hero.sub}
             </p>
           </div>
         </div>
@@ -145,12 +150,13 @@ function Hero() {
               className="flex flex-1 flex-col gap-1 sm:flex-row sm:items-center"
               highlightClassName="bg-secondary rounded-2xl sm:rounded-full"
             >
-              {STARTERS.map((s) => {
-                const Icon = TYPES[s.slug].icon;
+              {STARTERS.map((slug) => {
+                const Icon = TYPES[slug].icon;
+                const s = c.hero.starters[slug];
                 return (
                   <Link
-                    key={s.slug}
-                    to={`/${s.slug}`}
+                    key={slug}
+                    to={`/${slug}`}
                     data-glide
                     className="relative flex flex-1 items-center gap-3 rounded-2xl px-4 py-2.5 sm:rounded-full"
                   >
@@ -175,7 +181,7 @@ function Hero() {
         </div>
       </div>
 
-      <Followers />
+      <Followers c={c} />
     </section>
   );
 }
@@ -186,10 +192,10 @@ function Hero() {
  * looks awkward"), so there it is a two-column grid of equal tiles, number
  * over label, with "As seen on PTV" across the bottom.
  */
-function Followers() {
+function Followers({ c }: C) {
   const pills: { logo?: Platform; big: string; small: string; href: string; tv?: boolean }[] = [
-    { logo: "facebook", big: FACEBOOK.followers, small: "Facebook", href: FACEBOOK.url },
-    { logo: "instagram", big: INSTAGRAM.followers, small: "Instagram", href: INSTAGRAM.url },
+    { logo: "facebook", big: c.numbers.facebook, small: "Facebook", href: FACEBOOK.url },
+    { logo: "instagram", big: c.numbers.instagram, small: "Instagram", href: INSTAGRAM.url },
     {
       logo: "airbnb",
       big: `${AIRBNB_HOST.rating}★`,
@@ -285,7 +291,7 @@ const PANELS: Panel[] = [
  * Picking a row only picks it. The one way off the page is the preview's own
  * View villa button, so nobody leaves by accident.
  */
-function Villas() {
+function Villas({ c }: C) {
   // Opens on the acquired villa (Clarence, 2026-10-25), the newest one.
   const [active, setActive] = useState(() =>
     Math.max(
@@ -297,13 +303,11 @@ function Villas() {
   return (
     <section id="villas" className="scroll-mt-20 pt-20 lg:pt-24">
       <div className="mx-auto max-w-3xl px-4 text-center">
-        <Eyebrow>Cavite | Tagaytay | Tarlac</Eyebrow>
+        <Eyebrow>{c.villas.eyebrow}</Eyebrow>
         <h2 className="site-display mt-4 text-4xl leading-none text-brand-heading sm:text-6xl">
-          {PORTFOLIO.villas} villas. One more coming.
+          {c.villas.heading}
         </h2>
-        <p className="brand-eyebrow mt-5 text-[10px] text-primary sm:text-xs">
-          Malaya Villas is the proof
-        </p>
+        <p className="brand-eyebrow mt-5 text-[10px] text-primary sm:text-xs">{c.villas.tagline}</p>
       </div>
 
       <div className="mx-auto mt-10 grid max-w-6xl gap-5 px-3 sm:px-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.25fr)] lg:items-start">
@@ -475,26 +479,6 @@ function VillaPreview({ panel: p, n }: { panel: Panel; n: number }) {
 
 // ------------------------------------------------------------------ built
 
-/** His beach cabins in Lian, Batangas — built from scratch (his FB post, 2026-10). */
-const BUILD_STEPS = [
-  {
-    photo: "/builds/lian/1.webp",
-    step: "Breaking ground",
-    note: "Walls, arches and the plunge pool's shell",
-  },
-  { photo: "/builds/lian/2.webp", step: "Shell up", note: "Glass gables in, tiles going on" },
-  { photo: "/builds/lian/3.webp", step: "Finishing", note: "Pools tiled, lights and planters in" },
-  { photo: "/builds/lian/4.webp", step: "Airbnb-ready", note: "Fully furnished, ready for guests" },
-];
-
-const BUILD_FACTS = [
-  "2 cabins",
-  "60 sqm each",
-  "High ceilings",
-  "Private plunge pools",
-  "5-min walk to the beach",
-];
-
 /**
  * The build as a strip of all four photos, side by side (Clarence,
  * 2026-10-25: nobody clicks through a slideshow, so the photos past the first
@@ -506,42 +490,43 @@ const BUILD_FACTS = [
  * one quiet line, the two CTAs answer it on the right, and every caption is
  * two lines tall so the four step names share a baseline.
  */
-function Built() {
+function Built({ c }: C) {
+  const b = c.built;
   return (
     <section id="built" className="scroll-mt-20 pt-24 lg:pt-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <Eyebrow>Built from the ground up · Lian, Batangas</Eyebrow>
+            <Eyebrow>{b.eyebrow}</Eyebrow>
             <h2 className="site-display mt-4 text-4xl leading-none text-brand-heading sm:text-5xl">
-              From bare lot to beach cabins
+              {b.heading}
             </h2>
-            <p className="mt-4 text-sm text-muted-foreground sm:text-base">
-              {BUILD_FACTS.join(" · ")}
-            </p>
+            <p className="mt-4 text-sm text-muted-foreground sm:text-base">{b.facts.join(" · ")}</p>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <Link
-              to="/inquire"
-              search={{ type: "other", step: 2 }}
-              className="inline-flex h-11 items-center gap-2 rounded-full bg-card px-5 text-sm shadow-level-1 transition hover:shadow-level-2"
-            >
-              <span className="size-2 rounded-full bg-success" />
-              <span className="font-semibold">Now for sale</span>
-              <span className="text-muted-foreground">₱8.8M for both</span>
-            </Link>
+            {b.sale.show && (
+              <Link
+                to="/inquire"
+                search={{ type: "other", step: 2 }}
+                className="inline-flex h-11 items-center gap-2 rounded-full bg-card px-5 text-sm shadow-level-1 transition hover:shadow-level-2"
+              >
+                <span className="size-2 rounded-full bg-success" />
+                <span className="font-semibold">{b.sale.label}</span>
+                <span className="text-muted-foreground">{b.sale.price}</span>
+              </Link>
+            )}
             <Link
               to="/invest"
               className="brand-caps inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-[15px] text-primary-foreground shadow-level-2 transition hover:bg-primary/90"
             >
-              Build yours <ArrowRight className="size-4" />
+              {b.cta} <ArrowRight className="size-4" />
             </Link>
           </div>
         </div>
 
         <ol className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
-          {BUILD_STEPS.map((s, i) => {
-            const last = i === BUILD_STEPS.length - 1;
+          {b.steps.map((s, i) => {
+            const last = i === b.steps.length - 1;
             return (
               <li
                 key={s.step}
@@ -576,8 +561,6 @@ function Built() {
 
 // -------------------------------------------------------------- meet marj
 
-const PITCH = FACEBOOK.pitch.split(" · ");
-
 /** Where he's been featured. Labels are ours, not the outlets' headlines. */
 const FEATURES = [
   {
@@ -598,15 +581,22 @@ const FEATURES = [
   },
 ];
 
-function MeetMarj() {
-  const mine = LINKS.filter((l) => l.kind === "personal");
+function MeetMarj({ c }: C) {
+  // His follower counts as set in the editor, on his own two accounts.
+  const followers = (l: ProfileLink) =>
+    l.url === FACEBOOK.url
+      ? { ...l, stat: `${c.numbers.facebook} followers` }
+      : l.url === INSTAGRAM.url
+        ? { ...l, stat: `${c.numbers.instagram} followers` }
+        : l;
+  const mine = LINKS.filter((l) => l.kind === "personal").map(followers);
   const more = LINKS.filter((l) => l.kind !== "personal");
   return (
     <section id="about" className="mx-auto max-w-6xl scroll-mt-20 px-4 pt-24 sm:px-8 lg:pt-28">
       <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)] lg:gap-16">
         <div className="space-y-3">
           <ParallaxImage
-            src="/brand/marj-family.webp"
+            src={c.meet.photo}
             alt="Marj with his family"
             strength={6}
             frameClassName="aspect-square w-full rounded-[2rem] bg-white shadow-level-3"
@@ -657,16 +647,15 @@ function MeetMarj() {
           </div>
         </div>
         <div>
-          <Eyebrow>Meet Marj</Eyebrow>
+          <Eyebrow>{c.meet.eyebrow}</Eyebrow>
           <h2 className="site-display mt-4 text-4xl leading-none text-brand-heading sm:text-5xl">
-            Family first. Host of {PORTFOLIO.villas} villas.
+            {c.meet.heading}
           </h2>
-          <p className="mt-5 text-base leading-relaxed text-foreground">
-            &ldquo;Growing up without a home, I dreamed of having one.&rdquo; He started out renting
-            staycations, found joy in it, and built Malaya Villas from there.
+          <p className="mt-5 whitespace-pre-line text-base leading-relaxed text-foreground">
+            {c.meet.story}
           </p>
           <ul className="mt-5 space-y-2">
-            {PITCH.map((line) => (
+            {c.meet.pitch.map((line) => (
               <li key={line} className="flex items-start gap-2.5 text-sm text-foreground">
                 <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-success/15 text-success">
                   <Check className="size-3" />
@@ -761,16 +750,16 @@ function AccountRow({ link, last = false }: { link: ProfileLink; last?: boolean 
 
 // ---------------------------------------------------------------- reviews
 
-function Reviews() {
+function Reviews({ c }: C) {
   const half = Math.ceil(GUEST_REVIEWS.length / 2);
   const rows = [GUEST_REVIEWS.slice(0, half), GUEST_REVIEWS.slice(half)];
   const fade = "linear-gradient(to right, transparent, black 6%, black 94%, transparent)";
   return (
     <section id="reviews" className="scroll-mt-20 pt-24 lg:pt-28">
       <div className="mx-auto max-w-3xl px-4 text-center">
-        <Eyebrow>Guest reviews</Eyebrow>
+        <Eyebrow>{c.reviews.eyebrow}</Eyebrow>
         <h2 className="site-display mt-4 text-4xl leading-none text-brand-heading sm:text-6xl">
-          {TOTAL_REVIEWS}+ guests said it
+          {c.reviews.heading}
         </h2>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           {REVIEW_SCORES.map((r) => (

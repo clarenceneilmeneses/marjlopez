@@ -9,7 +9,7 @@
  * no income claims, no countdown timers. Where a fee or a date isn't decided
  * yet, the page says it's sent in the Inbox instead of making one up.
  */
-import { AIRBNB_HOST, FACEBOOK, TOTAL_REVIEWS } from "./brand";
+import { AIRBNB_HOST, TOTAL_REVIEWS } from "./brand";
 import { PORTFOLIO } from "./villas";
 import type { LeadType } from "./types";
 
@@ -46,15 +46,18 @@ interface Shot {
   position?: string;
 }
 
-/** Shared proof — the same real numbers the landing page uses. */
-export const PROOF = [
+/**
+ * Shared proof — the same real numbers the landing page uses. The Facebook
+ * count is the one set in the website editor (landing → numbers).
+ */
+export const proofWith = (facebookFollowers: string) => [
   { big: `${PORTFOLIO.villas}`, small: "villas Malaya runs today" },
   { big: `${TOTAL_REVIEWS}+`, small: "guest reviews across Airbnb, Google, Facebook" },
   {
     big: `${AIRBNB_HOST.rating}★`,
     small: `Marj's own Airbnb host rating, ${AIRBNB_HOST.reviews} reviews`,
   },
-  { big: FACEBOOK.followers, small: "follow him on Facebook" },
+  { big: facebookFollowers, small: "follow him on Facebook" },
 ];
 
 const BARE_LOT: Shot = {
