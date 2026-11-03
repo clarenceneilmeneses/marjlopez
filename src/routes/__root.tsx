@@ -9,10 +9,11 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { NewPasswordDialog } from "@/components/site/auth-panel";
+import { BrandIntro, INTRO_SCRIPT } from "@/components/site/intro";
 import { Toaster } from "@/components/ui/sonner";
 import { TopProgress } from "@/components/top-progress";
 import { AuthProvider } from "@/state/auth";
@@ -110,13 +111,18 @@ function RootShell({ children }: { children: ReactNode }) {
   // that still differ, like white pills on the page tint.
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const isPublic = !pathname.startsWith("/admin");
+  // The brand intro, only when the visit LANDS on a public page — decided once,
+  // so moving from the admin to the site later never plays it.
+  const [intro] = useState(isPublic);
 
   return (
     <html lang="en" data-site={isPublic ? "public" : undefined} suppressHydrationWarning>
       <head>
+        {intro && <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />}
         <HeadContent />
       </head>
       <body>
+        {intro && <BrandIntro />}
         {children}
         <Scripts />
       </body>

@@ -88,7 +88,7 @@ function Hero({ c }: C) {
       <div className="relative mx-auto max-w-[1400px]">
         {/* The frame. The photo's own backdrop is this near-black, so the frame
             and the photo read as one studio wall. */}
-        <div className="relative h-[600px] overflow-hidden rounded-[2rem] bg-[#151314] shadow-level-3 sm:h-[620px] lg:h-[min(76vh,680px)]">
+        <div className="intro-settle relative h-[600px] overflow-hidden rounded-[2rem] bg-[#151314] shadow-level-3 sm:h-[620px] lg:h-[min(76vh,680px)]">
           <ParallaxImage
             src={c.hero.photo}
             alt="Marj Lopez"
