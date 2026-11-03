@@ -42,7 +42,7 @@ function friendly(message: string): string {
   const m = message.toLowerCase();
   if (m.includes("invalid login credentials")) return "That email and password don't match.";
   if (m.includes("email not confirmed")) {
-    return "Confirm your email first — open the link we sent you, then sign in.";
+    return "Confirm your email first | open the link we sent you, then sign in.";
   }
   if (m.includes("rate limit") || m.includes("security purposes")) {
     return "Too many tries for now. Wait a minute, then try again.";
@@ -178,7 +178,7 @@ export function AuthPanel({
       // answers with a user that has no identities. Either way, it's a sign in.
       if (err?.message.includes("already registered") || data.user?.identities?.length === 0) {
         setView("signin");
-        setNotice("That email already has an account — sign in instead.");
+        setNotice("That email already has an account | sign in instead.");
         return;
       }
       if (err) {
@@ -232,7 +232,7 @@ export function AuthPanel({
           {sent === "confirm" ? (
             <>
               We sent a link to <strong className="text-foreground">{email.trim()}</strong>. Open it
-              on this device and you&apos;ll come straight back here — your answers are saved.
+              on this device and you&apos;ll come straight back here | your answers are saved.
             </>
           ) : (
             <>
@@ -461,7 +461,7 @@ export function SignInDialog({
         />
         {view === "signin" && (
           <p className="-mt-1 text-center text-xs text-muted-foreground">
-            On Marj&apos;s team? Sign in here too — you&apos;ll go straight to the dashboard.
+            On Marj&apos;s team? Sign in here too | you&apos;ll go straight to the dashboard.
           </p>
         )}
       </DialogContent>
@@ -499,7 +499,7 @@ export function NewPasswordDialog() {
       <DialogContent className="gap-5 p-7 sm:max-w-[400px]">
         <AuthHeader
           title={done ? "Password saved" : "Set a new password"}
-          blurb={done ? "You're signed in — use it next time." : "Pick one you'll remember."}
+          blurb={done ? "You're signed in | use it next time." : "Pick one you'll remember."}
         />
         {done ? (
           <Button className="h-12 rounded-full text-base" onClick={endRecovery}>

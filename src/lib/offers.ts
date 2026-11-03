@@ -86,7 +86,7 @@ export const proofWith = (facebookFollowers: string) => [
 const BARE_LOT: Shot = {
   src: "/builds/lian/1.webp",
   label: "Breaking ground",
-  caption: "Lian, Batangas — walls and the plunge pool's shell.",
+  caption: "Lian, Batangas | walls and the plunge pool's shell.",
 };
 const DONE: Shot = {
   src: "/builds/lian/4.webp",
@@ -117,7 +117,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
       "For owners in Cavite, Batangas, Tagaytay",
     ],
     why: {
-      heading: "We already do this every day — for ourselves",
+      heading: "We already do this every day | for ourselves",
       body: `Malaya started as one rented staycation. Today the team runs ${PORTFOLIO.villas} villas with ${PORTFOLIO.bedrooms} bedrooms between them, from one inbox. Managing your place is the same work, on one more address.`,
       before: {
         src: "/villas/pr-hidden/0.webp",
@@ -136,11 +136,11 @@ export const OFFERS: Record<OfferSlug, Offer> = {
       items: [
         {
           title: "Listing and pricing",
-          body: "Photos, title, house rules, and prices that move with weekends, holidays and the season — on Airbnb and direct.",
+          body: "Photos, title, house rules, and prices that move with weekends, holidays and the season | on Airbnb and direct.",
         },
         {
           title: "Every guest message",
-          body: 'Inquiries, check-in instructions, the 11pm "where\'s the key" — answered by the team, not you.',
+          body: 'Inquiries, check-in instructions, the 11pm "where\'s the key" | answered by the team, not you.',
         },
         {
           title: "Cleaning and turnover",
@@ -154,19 +154,19 @@ export const OFFERS: Record<OfferSlug, Offer> = {
     },
     fit: {
       yes: [
-        "You own one or more properties — or you're finishing one",
+        "You own one or more properties | or you're finishing one",
         "It's near where Malaya already operates, or you're open to that",
         "You want it earning without it becoming your second job",
       ],
       no: [
         "You don't own or control the property yet",
-        "You want a guaranteed monthly rent — this is a share of what it actually earns",
+        "You want a guaranteed monthly rent | this is a share of what it actually earns",
         "You'd rather keep making every call yourself",
       ],
     },
     catchLine: {
       heading: "Straight answer: we don't take every property",
-      body: "A place that won't book makes both of us look bad. So before anything is signed, the team looks at where it is, what it is, and what similar places earn — and tells you honestly if it's a fit. If it isn't, you still leave with the numbers.",
+      body: "A place that won't book makes both of us look bad. So before anything is signed, the team looks at where it is, what it is, and what similar places earn | and tells you honestly if it's a fit. If it isn't, you still leave with the numbers.",
     },
     steps: [
       {
@@ -189,7 +189,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
     faq: [
       {
         q: "How much do you charge?",
-        a: "A share of booking revenue, agreed in writing before we start. It depends on the property and the work — we give you the exact figure after the walkthrough, not before we've seen it.",
+        a: "A share of booking revenue, agreed in writing before we start. It depends on the property and the work | we give you the exact figure after the walkthrough, not before we've seen it.",
       },
       {
         q: "Do I still own and control my property?",
@@ -201,12 +201,12 @@ export const OFFERS: Record<OfferSlug, Offer> = {
       },
       {
         q: "What if it's not finished yet?",
-        a: "Apply now. Owners who talk to us before furnishing usually save money — we'll tell you what guests actually pay for.",
+        a: "Apply now. Owners who talk to us before furnishing usually save money | we'll tell you what guests actually pay for.",
       },
     ],
     closing: {
       heading: "Two ways this goes",
-      body: "Keep answering guests at midnight and chasing cleaners — or let the team that already does it for a living take it on. Either way, the first conversation costs nothing.",
+      body: "Keep answering guests at midnight and chasing cleaners | or let the team that already does it for a living take it on. Either way, the first conversation costs nothing.",
     },
   },
 
@@ -231,7 +231,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
     facts: ["One-on-one with Marj", "Online or in person", "Built around your own numbers"],
     why: {
       heading: "He learned it the expensive way",
-      body: `"Growing up without a home, I dreamed of having one." Marj started out renting staycations, then hosting them, then building them. ${PORTFOLIO.villas} villas later, coaching is the short version of what that took — applied to your plan, not a general one.`,
+      body: `"Growing up without a home, I dreamed of having one." Marj started out renting staycations, then hosting them, then building them. ${PORTFOLIO.villas} villas later, coaching is the short version of what that took | applied to your plan, not a general one.`,
       before: BARE_LOT,
       after: DONE,
     },
@@ -241,7 +241,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
       items: [
         {
           title: "Where to start",
-          body: "Your own property, a property you lease, or a partner's — which fits you, what each needs and what each risks.",
+          body: "Your own property, a property you lease, or a partner's | which fits you, what each needs and what each risks.",
         },
         {
           title: "The real costs",
@@ -249,11 +249,11 @@ export const OFFERS: Record<OfferSlug, Offer> = {
         },
         {
           title: "A listing that books",
-          body: `Photos, title, pricing and reviews — what moves a listing up, from a host with ${AIRBNB_HOST.reviews} Airbnb reviews of his own.`,
+          body: `Photos, title, pricing and reviews | what moves a listing up, from a host with ${AIRBNB_HOST.reviews} Airbnb reviews of his own.`,
         },
         {
           title: "Running it, not just starting it",
-          body: "Cleaning, guest messages, payments and staff — the routine that keeps it from eating your week.",
+          body: "Cleaning, guest messages, payments and staff | the routine that keeps it from eating your week.",
         },
       ],
     },
@@ -264,14 +264,14 @@ export const OFFERS: Record<OfferSlug, Offer> = {
         "You're already hosting and want to grow past one unit",
       ],
       no: [
-        "You're looking for a get-rich-quick scheme — there isn't one here",
+        "You're looking for a get-rich-quick scheme | there isn't one here",
         "You want someone to do it for you (see Property Management instead)",
         "₱10,000 would strain your budget right now",
       ],
     },
     catchLine: {
       heading: "Straight answer: it's paid, and it's one-on-one",
-      body: "₱10,000, because it's Marj's own time, one person at a time — not a recorded course or a big room. That's also why we ask a few questions first: if coaching isn't the right door for where you are, the team tells you before you pay anything.",
+      body: "₱10,000, because it's Marj's own time, one person at a time | not a recorded course or a big room. That's also why we ask a few questions first: if coaching isn't the right door for where you are, the team tells you before you pay anything.",
     },
     steps: [
       {
@@ -295,7 +295,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
       },
       {
         q: "I don't own a property. Is this for me?",
-        a: "Yes — leasing and partnering are covered. You'll know by the end whether starting now makes sense for you.",
+        a: "Yes | leasing and partnering are covered. You'll know by the end whether starting now makes sense for you.",
       },
       {
         q: "Online or in person?",
@@ -304,12 +304,12 @@ export const OFFERS: Record<OfferSlug, Offer> = {
       { q: "Is it in Tagalog or English?", a: "Taglish, the way Marj talks on his page." },
       {
         q: "Can I bring my partner?",
-        a: "Yes — say so when you apply. Business partners and spouses are welcome in the same session.",
+        a: "Yes | say so when you apply. Business partners and spouses are welcome in the same session.",
       },
     ],
     closing: {
       heading: "Two ways this goes",
-      body: "Keep watching other people's villa tours — or sit down with someone who's built the thing, and leave knowing your next step. Applying doesn't commit you to anything.",
+      body: "Keep watching other people's villa tours | or sit down with someone who's built the thing, and leave knowing your next step. Applying doesn't commit you to anything.",
     },
   },
 
@@ -352,29 +352,29 @@ export const OFFERS: Record<OfferSlug, Offer> = {
         },
       ],
     },
-    headline: ["Build it, rent it,", "sell it — with Marj"],
+    headline: ["Build it, rent it,", "sell it | with Marj"],
     sub: "Put capital into villas Malaya builds and runs, build on land you already own with Marj's team doing the work, or buy one that's finished and earning. You see every number before you commit.",
     hero: { src: "/malaya/villa-aerial.webp", position: "center" },
     cta: "Talk to Marj about investing",
     facts: ["Villas Malaya builds and runs", "Every deal in writing", "You see the numbers first"],
     why: {
-      heading: "From bare lot to booked — he's done it, start to finish",
+      heading: "From bare lot to booked | he's done it, start to finish",
       body: `Malaya doesn't just manage villas, it builds them. Lian, Batangas went from a bare lot to two furnished beach cabins. Villa no. ${PORTFOLIO.villas + 1}, near Clark, is already acquired. Investors come in on projects like these.`,
       before: BARE_LOT,
       after: {
         src: "/villas/next.webp",
         label: "Acquired · Tarlac",
-        caption: `Villa no. ${PORTFOLIO.villas + 1} — 10 minutes from Clark Airport, opening soon.`,
+        caption: `Villa no. ${PORTFOLIO.villas + 1} | 10 minutes from Clark Airport, opening soon.`,
         position: "46% 62%",
       },
     },
     gets: {
       heading: "Ways to come in",
-      lead: "Every investor's situation is different, so these are starting points for the conversation — not packages.",
+      lead: "Every investor's situation is different, so these are starting points for the conversation | not packages.",
       items: [
         {
           title: "Build",
-          body: "Fund the next villa Malaya builds, or build on your own lot — Marj's team designs and builds it, the way Lian was done.",
+          body: "Fund the next villa Malaya builds, or build on your own lot | Marj's team designs and builds it, the way Lian was done.",
         },
         {
           title: "Rent",
@@ -382,7 +382,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
         },
         {
           title: "Sell",
-          body: "Buy a villa that's finished and ready for guests — like the two Lian cabins, for sale now at ₱8.8M for both.",
+          body: "Buy a villa that's finished and ready for guests | like the two Lian cabins, for sale now at ₱8.8M for both.",
         },
       ],
     },
@@ -393,7 +393,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
         "You want to see the books, not just the photos",
       ],
       no: [
-        "You need a guaranteed return — rentals earn what they book, and some months are slow",
+        "You need a guaranteed return | rentals earn what they book, and some months are slow",
         "You can't afford for this money to be tied up for a while",
       ],
     },
@@ -412,7 +412,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
       },
       {
         title: "See the numbers",
-        body: "Costs, timeline, how earnings are shared and reported — on paper.",
+        body: "Costs, timeline, how earnings are shared and reported | on paper.",
       },
       {
         title: "Decide in your own time",
@@ -426,7 +426,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
       },
       {
         q: "What returns can I expect?",
-        a: "We'll show you what Malaya's villas have actually earned and what a project's costs are — not a promised percentage. Rentals have good months and slow ones.",
+        a: "We'll show you what Malaya's villas have actually earned and what a project's costs are | not a promised percentage. Rentals have good months and slow ones.",
       },
       {
         q: "Is it in writing?",
@@ -434,12 +434,12 @@ export const OFFERS: Record<OfferSlug, Offer> = {
       },
       {
         q: "Can I visit the villas?",
-        a: "Yes. Seeing a working villa is the best way to judge one — ask on the call.",
+        a: "Yes. Seeing a working villa is the best way to judge one | ask on the call.",
       },
     ],
     closing: {
       heading: "Two ways this goes",
-      body: "Keep the money where it is — or have one honest conversation about putting it into something you can visit, stay in, and read the books of. The call is free.",
+      body: "Keep the money where it is | or have one honest conversation about putting it into something you can visit, stay in, and read the books of. The call is free.",
     },
   },
 
@@ -452,7 +452,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
     video: NO_VIDEO("A walk through the system"),
     price: NO_PRICE,
     headline: ["The system that", "runs Malaya Villas"],
-    sub: "A website guests book on, one inbox for every message, a calendar that doesn't double-book, and payments and reports — built for resorts and villas, used every day by Malaya.",
+    sub: "A website guests book on, one inbox for every message, a calendar that doesn't double-book, and payments and reports | built for resorts and villas, used every day by Malaya.",
     hero: { src: "/system/dashboard.webp" },
     cta: "Get a demo",
     facts: [
@@ -462,12 +462,12 @@ export const OFFERS: Record<OfferSlug, Offer> = {
     ],
     why: {
       heading: "Built because Malaya needed it",
-      body: `With ${PORTFOLIO.villas} villas, several Facebook pages and listings on Airbnb, messages got lost and dates got double-booked. So Malaya built its own system. It's what the team runs on now — and what you'd get.`,
+      body: `With ${PORTFOLIO.villas} villas, several Facebook pages and listings on Airbnb, messages got lost and dates got double-booked. So Malaya built its own system. It's what the team runs on now | and what you'd get.`,
       before: {
         src: "/brand/about-team.webp",
         label: "Who uses it",
         plain: true,
-        caption: "Team Malaya — the people who use it every day.",
+        caption: "Team Malaya | the people who use it every day.",
         position: "30% center",
       },
       after: {
@@ -483,7 +483,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
       items: [
         {
           title: "Your own booking website",
-          body: "Your rooms or villas, photos and rates, with guests booking and paying directly — no commission.",
+          body: "Your rooms or villas, photos and rates, with guests booking and paying directly | no commission.",
         },
         {
           title: "One inbox",
@@ -501,18 +501,18 @@ export const OFFERS: Record<OfferSlug, Offer> = {
     },
     fit: {
       yes: [
-        "You run a resort, villas or an inn — or open within months",
+        "You run a resort, villas or an inn | or open within months",
         "You have more than one unit, or more messages than you can answer",
         "You're tired of double bookings and lost inquiries",
       ],
       no: [
-        "You only want an Airbnb listing — Airbnb already does that",
+        "You only want an Airbnb listing | Airbnb already does that",
         "You're not operating and not opening soon",
       ],
     },
     catchLine: {
       heading: "Straight answer: it's not a template",
-      body: "It's set up for your property — your rooms, your rates, your payment methods — which takes a few weeks and has a setup cost. In exchange it does what Malaya needs it to, because Malaya uses it.",
+      body: "It's set up for your property | your rooms, your rates, your payment methods | which takes a few weeks and has a setup cost. In exchange it does what Malaya needs it to, because Malaya uses it.",
     },
     steps: [
       {
@@ -521,11 +521,11 @@ export const OFFERS: Record<OfferSlug, Offer> = {
       },
       {
         title: "See it running",
-        body: "A demo on a call, using a real resort's setup — not slides.",
+        body: "A demo on a call, using a real resort's setup | not slides.",
       },
       {
         title: "Get a proposal",
-        body: "What you'd get, how long setup takes, and the price — in writing.",
+        body: "What you'd get, how long setup takes, and the price | in writing.",
       },
       { title: "Go live", body: "We set it up with your rooms and rates and train your staff." },
     ],
@@ -540,7 +540,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
       },
       {
         q: "Can my staff use it?",
-        a: "Yes — each person gets their own login, and you see who answered what.",
+        a: "Yes | each person gets their own login, and you see who answered what.",
       },
       {
         q: "How long until it's live?",
@@ -549,7 +549,7 @@ export const OFFERS: Record<OfferSlug, Offer> = {
     ],
     closing: {
       heading: "Two ways this goes",
-      body: "Keep running the resort from five apps and a notebook — or see the one system Malaya runs everything on. A demo takes half an hour.",
+      body: "Keep running the resort from five apps and a notebook | or see the one system Malaya runs everything on. A demo takes half an hour.",
     },
   },
 };

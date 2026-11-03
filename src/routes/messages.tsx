@@ -49,7 +49,7 @@ import {
 
 export const Route = createFileRoute("/messages")({
   validateSearch: (s: Record<string, unknown>): { sent?: number } => (s["sent"] ? { sent: 1 } : {}),
-  head: () => ({ meta: [{ title: `Messages — ${BRAND.name}` }] }),
+  head: () => ({ meta: [{ title: `Messages | ${BRAND.name}` }] }),
   component: MessagesPage,
 });
 
@@ -110,7 +110,7 @@ function MessagesPage() {
           </span>
           <h1 className="brand-caps mt-5 text-2xl text-primary">No messages yet</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Tell us what you need — starting, building or running an Airbnb — and {BRAND.team}{" "}
+            Tell us what you need | starting, building or running an Airbnb | and {BRAND.team}{" "}
             replies right here.
           </p>
           <Button asChild className="brand-caps mt-6 h-11 rounded-full px-6 text-[15px]">
@@ -307,7 +307,7 @@ function Inbox({
       <RequestCard lead={lead} viewer="client" />
       {nextCall && <MeetingCard meeting={nextCall} viewer="client" />}
       <p className="px-1 text-xs text-muted-foreground">
-        Want to add something? Just write it in the chat — it&apos;s the same conversation for
+        Want to add something? Just write it in the chat | it&apos;s the same conversation for
         everything you ask.
       </p>
     </div>
@@ -378,7 +378,7 @@ function Inbox({
                     {
                       onSuccess: () =>
                         toast.success(
-                          accept ? "Call confirmed — see you then!" : "We'll suggest another time.",
+                          accept ? "Call confirmed | see you then!" : "We'll suggest another time.",
                         ),
                       onError: (e) => toast.error(errorText(e)),
                     },

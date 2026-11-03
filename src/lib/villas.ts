@@ -100,7 +100,7 @@ export const VILLAS: Villa[] = [
     location: "Iruhin West, Tagaytay",
     highlight: "Private pool · Rooftop",
     summary:
-      "The big house on the Hidden Villas site — made for celebrations, gatherings and barkada weekends.",
+      "The big house on the Hidden Villas site | made for celebrations, gatherings and barkada weekends.",
     bedrooms: 4,
     bathrooms: 4,
     maxPax: 40,
@@ -126,7 +126,7 @@ export const VILLAS: Villa[] = [
     group: "Malaya Hidden Villas",
     location: "Iruhin West, Tagaytay",
     highlight: "Bali-inspired glass cabin",
-    summary: "The newest one — a Bali-inspired glass cabin with natural light and nature views.",
+    summary: "The newest one | a Bali-inspired glass cabin with natural light and nature views.",
     bedrooms: 2,
     bathrooms: 1,
     maxPax: 15,

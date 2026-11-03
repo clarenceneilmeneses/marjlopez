@@ -249,7 +249,7 @@ function Why({ o }: { o: Offer }) {
             />
             <figcaption className="mt-3 text-left">
               <span className="block font-display text-lg text-[#2b1a10]">
-                {i === 0 ? "Then" : "Now"} — {s.label}
+                {i === 0 ? "Then" : "Now"} | {s.label}
               </span>
               <span className="block text-xs text-neutral-500">{s.caption}</span>
             </figcaption>
@@ -295,7 +295,7 @@ function Gets({ o }: { o: Offer }) {
           <div className="rounded-[2rem] bg-[#151314] p-7 text-white shadow-level-3">
             <p className="site-display text-3xl leading-tight">Bring your numbers.</p>
             <p className="mt-2 text-sm leading-relaxed text-white/70">
-              The session is built around what you bring — your area, your budget, your property.
+              The session is built around what you bring | your area, your budget, your property.
             </p>
             {o.price.show && o.price.amount && (
               <p className="mt-5 border-t border-white/15 pt-4 text-sm text-white/70">

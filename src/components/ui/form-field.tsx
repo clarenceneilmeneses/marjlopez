@@ -94,7 +94,7 @@ export function FormField({
           className={cn("text-sm", tone === "blocking" ? "text-destructive" : "text-warning")}
         >
           {problem}
-          {tone === "advisory" && <span className="text-muted-foreground"> — saved as typed.</span>}
+          {tone === "advisory" && <span className="text-muted-foreground"> | saved as typed.</span>}
         </p>
       ) : (
         hint && (

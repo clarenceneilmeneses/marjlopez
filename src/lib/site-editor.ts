@@ -71,7 +71,7 @@ const LANDING: Section[] = [
         kind: "image",
         key: "photo",
         label: "Photo",
-        hint: "A portrait works best — it sits on the right on a laptop.",
+        hint: "A portrait works best | it sits on the right on a laptop.",
       },
     ],
   },
@@ -91,7 +91,7 @@ const LANDING: Section[] = [
     ],
   },
   {
-    title: "Malaya — the proof",
+    title: "Malaya | the proof",
     key: "proof",
     hint: "The dark band under the offers. The four numbers come from the real counts.",
     fields: [
@@ -146,7 +146,7 @@ const OFFER: Section[] = [
         kind: "text",
         key: "pillar",
         label: "One word for the landing's card",
-        hint: "Manage, Learn, Invest, Systemize — shown in small caps over the name.",
+        hint: "Manage, Learn, Invest, Systemize | shown in small caps over the name.",
       },
       {
         kind: "text",
@@ -174,7 +174,7 @@ const OFFER: Section[] = [
   {
     title: "Video",
     key: "video",
-    hint: "Marj explaining this offer. Paste a YouTube or Facebook video link — with no link, the section is hidden.",
+    hint: "Marj explaining this offer. Paste a YouTube or Facebook video link | with no link, the section is hidden.",
     fields: [
       {
         kind: "text",

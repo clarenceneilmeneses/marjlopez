@@ -441,7 +441,7 @@ function PublicBottomNav() {
         >
           <SheetTitle className="px-1 font-display text-xl">Work with Marj</SheetTitle>
           <p className="px-1 pb-4 text-sm text-muted-foreground">
-            Pick what you need — each has its own page.
+            Pick what you need | each has its own page.
           </p>
           <OfferLinks big onPick={() => setOffersOpen(false)} />
         </SheetContent>

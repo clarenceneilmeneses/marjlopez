@@ -71,7 +71,7 @@ import {
 export const Route = createFileRoute("/admin/website")({
   validateSearch: (s: Record<string, unknown>): { page?: string } =>
     typeof s["page"] === "string" ? { page: s["page"] } : {},
-  head: () => ({ meta: [{ title: "Website — Marj Lopez" }] }),
+  head: () => ({ meta: [{ title: "Website | Marj Lopez" }] }),
   component: WebsitePage,
 });
 
@@ -174,7 +174,7 @@ function Editor({
       {
         onSuccess: () => {
           setDraft(null);
-          toast.success("Saved — it's live");
+          toast.success("Saved | it's live");
         },
         onError: (e) => toast.error(errorText(e)),
       },

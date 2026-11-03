@@ -58,7 +58,7 @@ const PANELS: Panel[] = [
     location: "San Vicente, Bamban, Tarlac",
     highlight: "10 minutes from Clark Airport",
     summary:
-      "Already acquired and opening soon — Malaya's newest, 10 minutes from Clark Airport. Want the next one to be yours?",
+      "Already acquired and opening soon | Malaya's newest, 10 minutes from Clark Airport. Want the next one to be yours?",
     stats: [],
     photos: ["/villas/next.webp"],
     coverPosition: "46% 62%",

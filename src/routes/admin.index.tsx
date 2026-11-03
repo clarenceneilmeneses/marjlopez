@@ -53,7 +53,7 @@ import { useInbox, useLiveUpdates, type InboxData } from "@/state/data";
 import { useFilters } from "@/state/filters";
 
 export const Route = createFileRoute("/admin/")({
-  head: () => ({ meta: [{ title: "Dashboard — Marj Lopez" }] }),
+  head: () => ({ meta: [{ title: "Dashboard | Marj Lopez" }] }),
   component: Dashboard,
 });
 
@@ -218,7 +218,7 @@ function Dashboard() {
     const url = `${window.location.origin}/inquire`;
     void navigator.clipboard?.writeText(url).then(
       () => toast.success("Inquiry link copied", { description: url }),
-      () => toast.error("Couldn't copy — the link is " + url),
+      () => toast.error("Couldn't copy | the link is " + url),
     );
   };
 

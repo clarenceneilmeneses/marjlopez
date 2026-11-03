@@ -4,7 +4,7 @@ import { PublicFooter, PublicHeader } from "@/components/site/chrome";
 import { BRAND } from "@/lib/brand";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({ meta: [{ title: `Privacy notice — ${BRAND.name}` }] }),
+  head: () => ({ meta: [{ title: `Privacy notice | ${BRAND.name}` }] }),
   component: Privacy,
 });
 

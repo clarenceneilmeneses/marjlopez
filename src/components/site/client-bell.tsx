@@ -127,7 +127,7 @@ export function ClientBell({ className }: { className?: string }) {
         <ul className="max-h-[70vh] overflow-y-auto p-1.5">
           {events.length === 0 && (
             <li className="px-3 py-8 text-center text-sm text-muted-foreground">
-              Nothing yet — the team&apos;s replies show up here.
+              Nothing yet | the team&apos;s replies show up here.
             </li>
           )}
           {events.map((e) => {

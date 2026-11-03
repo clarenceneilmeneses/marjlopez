@@ -45,7 +45,7 @@ export const LANDING_DEFAULT: LandingContent = {
   hero: {
     eyebrow: "Hospitality entrepreneur · Operator · Business builder",
     headline: ["Building hospitality", "businesses that earn"],
-    sub: `Marj runs ${PORTFOLIO.villas} villas under Malaya. Pick what you need below — have it managed, learn it, invest in it, or systemize it.`,
+    sub: `Marj runs ${PORTFOLIO.villas} villas under Malaya. Pick what you need below | have it managed, learn it, invest in it, or systemize it.`,
     photo: "/brand/marj.webp",
   },
   offers: {
@@ -53,7 +53,7 @@ export const LANDING_DEFAULT: LandingContent = {
     lead: "Building and growing hospitality businesses. Pick the one that fits where you are.",
   },
   proof: {
-    heading: "Malaya — the proof it works",
+    heading: "Malaya | the proof it works",
     body: "Real villas, actual operations, systems, and documented projects. Everything Marj offers, he runs here first.",
     photos: [
       { src: "/brand/about-tagaytay-aerial.webp" },
@@ -141,7 +141,7 @@ export const offerFrom = (slug: OfferSlug, rows: Record<string, unknown>): Offer
 
 /** The photos already on the site, offered by the editor's photo picker. */
 export const SITE_PHOTOS: { src: string; label: string }[] = [
-  { src: "/brand/marj.webp", label: "Marj — studio" },
+  { src: "/brand/marj.webp", label: "Marj | studio" },
   { src: "/brand/marj-family.webp", label: "Marj with family" },
   { src: "/brand/about-team.webp", label: "Team Malaya" },
   { src: "/brand/about-hero.webp", label: "Villa from above" },
@@ -151,10 +151,10 @@ export const SITE_PHOTOS: { src: string; label: string }[] = [
   { src: "/malaya/villa-aerial.webp", label: "Villa, drone shot" },
   { src: "/malaya/villa-hillside-pool.webp", label: "Hillside pool" },
   { src: "/malaya/lanai-set-for-dinner.webp", label: "Lanai set for an event" },
-  { src: "/system/dashboard.webp", label: "System — Dashboard" },
-  { src: "/system/inbox.webp", label: "System — Inbox" },
-  { src: "/system/calendar.webp", label: "System — Calendar" },
-  { src: "/system/booking.webp", label: "System — Booking" },
+  { src: "/system/dashboard.webp", label: "System | Dashboard" },
+  { src: "/system/inbox.webp", label: "System | Inbox" },
+  { src: "/system/calendar.webp", label: "System | Calendar" },
+  { src: "/system/booking.webp", label: "System | Booking" },
   { src: "/system/site-desk.webp", label: "Malaya website" },
   ...[1, 2, 3, 4].map((n) => ({ src: `/builds/lian/${n}.webp`, label: `Lian build ${n}` })),
   ...VILLAS.map((v) => ({ src: villaPhoto(v.code, v.cover), label: v.title })),
