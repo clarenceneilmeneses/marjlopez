@@ -10,7 +10,7 @@
  *                         bigger of amount and properties, for an investor)
  *   Readiness  up to 35   ready now · 1–3 months · 3–6 months · exploring
  *   Offer      up to 25   investor and system first, then management, then
- *                         the seminar
+ *                         coaching (the seminar until 2026-11-03)
  *
  * 70 and up is a Top client — what the Inbox's Hot chip and flame mean now.
  * A person's own call (`hot_override`) still wins over the score.
@@ -95,7 +95,7 @@ export function fitOf(type: LeadType, answers: Record<string, unknown>): Fit {
     invest: "investor",
     system: "wants a system",
     management: "management",
-    seminar: "seminar",
+    seminar: "coaching",
     other: "other",
   }[type];
 

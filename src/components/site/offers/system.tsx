@@ -7,6 +7,7 @@
  *   Hero      Malaya-brown ground, the headline centred, the admin in a
  *             browser frame and the guest site on a phone beside it
  *   Channels  the sites it works alongside, one quiet row
+ *   Video     a walk through the system, once a link is set
  *   Tour      the features as tabs, each with its own screenshot
  *   Payments  the ways guests pay
  *   Why       the team that uses it, beside the story
@@ -22,7 +23,7 @@ import { BrandMark } from "@/components/site/logos";
 import { type Offer } from "@/lib/offers";
 import { cn } from "@/lib/utils";
 
-import { Apply, Eyebrow, FaqAccordion, H2, OfferBadge, OtherOffers } from "./shared";
+import { Apply, Eyebrow, FaqAccordion, H2, OfferBadge, OfferVideo, OtherOffers } from "./shared";
 import type { LayoutProps } from "./shared";
 import { Browser, IPhone } from "./devices";
 
@@ -51,6 +52,7 @@ export function SystemLayout({ o }: LayoutProps) {
     <>
       <Hero o={o} />
       <Channels />
+      <OfferVideo o={o} />
       <Tour o={o} />
       <Payments />
       <Why o={o} />

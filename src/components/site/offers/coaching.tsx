@@ -1,13 +1,16 @@
 /**
- * The seminar — an event with Marj, so it reads like one: light, personal,
- * editorial, his face up front.
+ * 1-on-1 Coaching (the seminar until 2026-11-03, when the boss made it
+ * mentorship at ₱10k) — time with Marj, so it reads like it: light,
+ * personal, editorial, his face up front.
  *
  *   Hero      no dark frame: a cream page, the headline big on the left, his
- *             portrait in an arch on the right and a ticket for the next batch
+ *             portrait in an arch on the right and a ticket with the price
  *   Proof     a quiet row of pills under the hero
- *   Band      the day's topics as one big moving line, outlined and filled
- *   Watch     his PTV feature, playable on the page
+ *   Video     Marj on what coaching covers, once a link is set
+ *   Band      the session's topics as one big moving line, outlined and filled
  *   Why       his story as a pull quote, two pinned photos (then / now)
+ *   Watch     his PTV feature, playable on the page
+ *   Reviews   real guest reviews — proof that how he hosts works
  *   Gets      the day as a printed programme beside a photo of a set room
  *   Fit       two plain columns, the catch on a sand note
  *   Steps     four tickets with torn edges
@@ -20,17 +23,21 @@ import { useState, type CSSProperties } from "react";
 import { proofWith, type Offer } from "@/lib/offers";
 import { cn } from "@/lib/utils";
 
-import { Apply, Eyebrow, H2, OfferBadge, OtherOffers } from "./shared";
+import { GuestReviews } from "@/components/site/proof";
+
+import { Apply, Eyebrow, H2, OfferBadge, OfferVideo, OtherOffers } from "./shared";
 import type { LayoutProps } from "./shared";
 
-export function SeminarLayout({ o, landing }: LayoutProps) {
+export function CoachingLayout({ o, landing }: LayoutProps) {
   const facebook = landing.numbers.facebook;
   return (
     <>
       <Hero o={o} facebook={facebook} />
+      <OfferVideo o={o} />
       <TopicBand o={o} />
       <Why o={o} />
       <Watch />
+      <GuestReviews eyebrow="Proof his way works" heading="What guests say about Marj's villas" />
       <Gets o={o} />
       <Fit o={o} />
       <Steps o={o} />
@@ -56,9 +63,7 @@ function Hero({ o, facebook }: { o: Offer; facebook: string }) {
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <Apply o={o} />
-            <span className="text-xs text-muted-foreground">
-              Registering is free · no commitment
-            </span>
+            <span className="text-xs text-muted-foreground">Applying is free · no commitment</span>
           </div>
           {/* The proof, as small pills — this page is about him, not numbers. */}
           <ul className="mt-10 flex flex-wrap gap-2">
@@ -89,7 +94,7 @@ function Hero({ o, facebook }: { o: Offer; facebook: string }) {
           <div className="absolute -bottom-8 -left-3 w-[78%] rounded-2xl bg-card shadow-level-3 sm:-left-10">
             <div className="flex items-center justify-between gap-2 px-5 pt-4">
               <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-primary">
-                Next batch
+                1-on-1 with Marj
               </span>
               <Star className="size-4 fill-warning text-warning" />
             </div>
@@ -100,10 +105,21 @@ function Hero({ o, facebook }: { o: Offer; facebook: string }) {
                 </li>
               ))}
             </ul>
-            <div className="relative border-t-2 border-dashed border-border px-5 py-3 text-xs text-muted-foreground">
+            <div className="relative flex items-baseline justify-between gap-3 border-t-2 border-dashed border-border px-5 py-3">
               <span className="absolute -left-2.5 -top-2.5 size-5 rounded-full bg-background" />
               <span className="absolute -right-2.5 -top-2.5 size-5 rounded-full bg-background" />
-              Date, venue and fee are sent to your Inbox
+              {o.price.show && o.price.amount ? (
+                <>
+                  <span className="text-xs text-muted-foreground">Mentorship</span>
+                  <span className="site-display text-2xl leading-none text-brand-heading tabular-nums">
+                    {o.price.amount}
+                  </span>
+                </>
+              ) : (
+                <span className="text-xs text-muted-foreground">
+                  Schedule and fee are sent to your Inbox
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -113,8 +129,8 @@ function Hero({ o, facebook }: { o: Offer; facebook: string }) {
 }
 
 /**
- * The day's topics as one big moving line on a brown band, outlined and
- * filled in turn — the "seminar poster" moment, read off the programme.
+ * The session's topics as one big moving line on a brown band, outlined and
+ * filled in turn — the poster moment, read off the programme.
  */
 function TopicBand({ o }: { o: Offer }) {
   const words = o.gets.items.map((it) => it.title);
@@ -250,7 +266,7 @@ function Gets({ o }: { o: Offer }) {
       <div className="grid items-start gap-6 lg:grid-cols-[1fr_0.85fr]">
         {/* The programme: a printed card, parts down the left margin. */}
         <div className="rounded-[2rem] bg-card p-7 shadow-level-2 sm:p-10">
-          <Eyebrow>The programme</Eyebrow>
+          <Eyebrow>In your session</Eyebrow>
           <H2 className="mt-4">{o.gets.heading}</H2>
           <p className="mt-3 text-[15px] text-muted-foreground">{o.gets.lead}</p>
           <ol className="mt-8 divide-y divide-dashed divide-border">
@@ -279,9 +295,16 @@ function Gets({ o }: { o: Offer }) {
           <div className="rounded-[2rem] bg-[#151314] p-7 text-white shadow-level-3">
             <p className="site-display text-3xl leading-tight">Bring your numbers.</p>
             <p className="mt-2 text-sm leading-relaxed text-white/70">
-              The day is built around the questions people bring — your area, your budget, your
-              property.
+              The session is built around what you bring — your area, your budget, your property.
             </p>
+            {o.price.show && o.price.amount && (
+              <p className="mt-5 border-t border-white/15 pt-4 text-sm text-white/70">
+                <span className="site-display mr-2 text-3xl text-white tabular-nums">
+                  {o.price.amount}
+                </span>
+                {o.price.note}
+              </p>
+            )}
             <Apply o={o} tone="light" className="mt-5" />
           </div>
         </div>
@@ -294,7 +317,7 @@ function Fit({ o }: { o: Offer }) {
   return (
     <section className="mx-auto max-w-5xl px-4 pt-28 sm:px-8 lg:pt-36">
       <div className="text-center">
-        <Eyebrow>Before you register</Eyebrow>
+        <Eyebrow>Before you apply</Eyebrow>
         <H2 className="mt-4">Is this for you?</H2>
       </div>
       <div className="mt-10 grid gap-10 sm:grid-cols-2">
@@ -336,8 +359,8 @@ function Steps({ o }: { o: Offer }) {
   return (
     <section className="mx-auto max-w-6xl px-4 pt-28 sm:px-8 lg:pt-36">
       <div className="text-center">
-        <Eyebrow>After you register</Eyebrow>
-        <H2 className="mt-4">Four steps to your seat</H2>
+        <Eyebrow>After you apply</Eyebrow>
+        <H2 className="mt-4">Four steps to your session</H2>
       </div>
       <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {o.steps.map((s, i) => (

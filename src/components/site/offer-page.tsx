@@ -3,10 +3,12 @@
  * own — hero to footer — so the four don't read as one template with the
  * words swapped (Clarence, 2026-10-28: "to avoid the ai slop feel"):
  *
+ * Each also carries a video slot (shared.tsx) once a link is set.
+ *
  *   management  a well-run property: night photo, an "included" card, a
  *               ruled hand-off list, the catch as a pull quote
- *   seminar     an event with Marj: light page, his portrait in an arch, a
- *               ticket, pinned photos, a printed programme
+ *   seminar     1-on-1 coaching (was the seminar): light page, his portrait
+ *               in an arch, a ticket with the price, pinned photos, a programme
  *   invest      a prospectus: split hero with an at-a-glance table, the risk
  *               boxed before the pitch, a project strip ending in "yours"
  *   system      a product page: the real admin in a browser frame, a tabbed
@@ -21,12 +23,12 @@ import type { LandingContent } from "@/lib/site-content";
 
 import { InvestLayout } from "./offers/invest";
 import { ManagementLayout } from "./offers/management";
-import { SeminarLayout } from "./offers/seminar";
+import { CoachingLayout } from "./offers/coaching";
 import { SystemLayout } from "./offers/system";
 
 const LAYOUTS: Record<OfferSlug, (p: { o: Offer; landing: LandingContent }) => React.ReactNode> = {
   management: ManagementLayout,
-  seminar: SeminarLayout,
+  seminar: CoachingLayout,
   invest: InvestLayout,
   system: SystemLayout,
 };

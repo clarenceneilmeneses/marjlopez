@@ -1,11 +1,14 @@
 /**
- * Invest — money, so it reads like a prospectus: sober, ruled, the risk said
+ * Build, Rent & Sell (was "Invest with Marj" until 2026-11-03) — money, so
+ * it reads like a prospectus: sober, ruled, the risk said
  * before the pitch.
  *
  *   Hero      split down the middle: a dark panel with the headline and an
  *             "at a glance" table, the drone shot filling the other half
  *   Proof     the numbers as a ruled table row
- *   Story     the track record told by scrolling: the photo pinned, the
+ *   Video     Marj on building with partners, once a link is set
+ *   Story     the track record told by scrolling (the Lian build, moved here
+ *             from the landing 2026-11-03, with what's for sale now): the photo pinned, the
  *             build moving from bare lot to Airbnb-ready, then the villa
  *             bought for next, and a dashed "Next: yours" to finish
  *   Notice    the catch, boxed, BEFORE the ways in
@@ -19,20 +22,22 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check, Plus, ShieldCheck, X } from "@/components/icons";
 import { useEffect, useRef, useState } from "react";
 
-import { proofWith, type Offer } from "@/lib/offers";
-import type { LandingContent } from "@/lib/site-content";
+import { OFFERS, proofWith, type Build, type Offer } from "@/lib/offers";
 import { cn } from "@/lib/utils";
 
-import { Apply, Eyebrow, FaqAccordion, H2, OfferBadge, OtherOffers } from "./shared";
+import { Apply, Eyebrow, FaqAccordion, H2, OfferBadge, OfferVideo, OtherOffers } from "./shared";
 import type { LayoutProps } from "./shared";
 
 export function InvestLayout({ o, landing }: LayoutProps) {
   const facebook = landing.numbers.facebook;
+  // Only Invest has a build; a saved page from before it existed falls back here.
+  const build = o.build ?? OFFERS.invest.build!;
   return (
     <>
-      <Hero o={o} steps={landing.built.steps} />
+      <Hero o={o} steps={build.steps} />
       <Proof facebook={facebook} />
-      <BuildStory o={o} steps={landing.built.steps} />
+      <OfferVideo o={o} />
+      <BuildStory o={o} build={build} />
       <Notice o={o} />
       <Gets o={o} />
       <Fit o={o} />
@@ -43,7 +48,7 @@ export function InvestLayout({ o, landing }: LayoutProps) {
   );
 }
 
-function Hero({ o, steps }: { o: Offer; steps: LandingContent["built"]["steps"] }) {
+function Hero({ o, steps }: { o: Offer; steps: Build["steps"] }) {
   const next = o.why.after;
   return (
     <section className="px-3 sm:px-6">
@@ -146,9 +151,11 @@ function Proof({ facebook }: { facebook: string }) {
  * pinned while the page scrolls and the build moves on — bare lot, shell,
  * finishing, Airbnb-ready — then the villa already bought for next. A rail on
  * the left shows where you are. On a phone, the same frames swipe sideways.
- * The build photos are the landing's (Admin → Website → The build).
+ * The build photos are this page's own (Admin → Website → Build, Rent & Sell
+ * → The build).
  */
-function BuildStory({ o, steps }: { o: Offer; steps: LandingContent["built"]["steps"] }) {
+function BuildStory({ o, build }: { o: Offer; build: Build }) {
+  const steps = build.steps;
   const next = o.why.after;
   const frames = [
     ...steps.map((s) => ({
@@ -194,7 +201,25 @@ function BuildStory({ o, steps }: { o: Offer; steps: LandingContent["built"]["st
           <Eyebrow>Track record</Eyebrow>
           <H2 className="mt-4">{o.why.heading}</H2>
         </div>
-        <p className="text-base leading-relaxed text-foreground/85 lg:pt-10">{o.why.body}</p>
+        <div className="lg:pt-10">
+          <p className="text-base leading-relaxed text-foreground/85">{o.why.body}</p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">{build.heading}</span> ·{" "}
+            {build.facts.join(" · ")}
+          </p>
+          {build.sale.show && (
+            <Link
+              to="/inquire"
+              search={{ type: o.type, step: 2 }}
+              className="mt-5 inline-flex h-11 items-center gap-2 rounded-full bg-card px-5 text-sm shadow-level-1 transition hover:shadow-level-2"
+            >
+              <span className="size-2 rounded-full bg-success" />
+              <span className="font-semibold">{build.sale.label}</span>
+              <span className="text-muted-foreground">{build.sale.price}</span>
+              <ArrowRight className="size-4 text-primary" />
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Laptop: pinned photo, the page scrolls the build along. */}

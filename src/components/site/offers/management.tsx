@@ -5,23 +5,26 @@
  *   Hero      a villa at night behind the headline, and an iPhone lock screen
  *             where the owner's notifications slide in one by one — booked,
  *             checked in, cleaned, report ready. That's the whole pitch.
- *   Villas    the ones the team already runs, sliding past
+ *   Video     Marj explaining it, once a link is set in Admin → Website
+ *   Villas    every villa the team runs — the landing's picker, moved here
+ *             (2026-11-03) as this offer's proof
  *   Why       the story beside a two-photo collage
  *   Gets      a ruled hand-off list beside a tall photo that stays put
  *   Proof     the real numbers on a dark band
+ *   Reviews   real guest reviews of the villas the team runs
  *   Fit       two lists, then the catch as a pull quote
  *   Steps     four cards on a sand ground
  *   FAQ       "Owners ask" on the left, the answers on the right
  *   Closing   text and photo, split
  */
-import { Check, Lock, MapPin, X } from "@/components/icons";
-import type { CSSProperties } from "react";
+import { Check, Lock, X } from "@/components/icons";
 
 import { ParallaxImage } from "@/components/site/parallax";
+import { GuestReviews, VillaPicker } from "@/components/site/proof";
 import { proofWith, type Offer } from "@/lib/offers";
-import { PORTFOLIO, VILLAS, villaPhoto } from "@/lib/villas";
+import { PORTFOLIO } from "@/lib/villas";
 
-import { Apply, Eyebrow, FaqAccordion, H2, OfferBadge, OtherOffers } from "./shared";
+import { Apply, Eyebrow, FaqAccordion, H2, OfferBadge, OfferVideo, OtherOffers } from "./shared";
 import type { LayoutProps } from "./shared";
 import { IPhone } from "./devices";
 
@@ -30,10 +33,16 @@ export function ManagementLayout({ o, landing }: LayoutProps) {
   return (
     <>
       <Hero o={o} />
-      <Villas />
+      <OfferVideo o={o} />
+      <VillaPicker
+        eyebrow="Proof · run by the team today"
+        heading={`${PORTFOLIO.villas} villas. One more coming.`}
+        tagline="Same team, same system, your property next"
+      />
       <Why o={o} />
       <Gets o={o} />
       <Proof facebook={facebook} />
+      <GuestReviews heading="What guests say about the villas we run" />
       <Fit o={o} />
       <Steps o={o} />
       <Faq o={o} />
@@ -154,49 +163,6 @@ function OwnerPhone() {
       </ul>
       <span className="absolute bottom-[1.6%] left-1/2 h-[0.6%] w-[34%] -translate-x-1/2 rounded-full bg-white/80" />
     </IPhone>
-  );
-}
-
-/** Every villa the team runs today, sliding past — the scale, shown. */
-function Villas() {
-  const fade = "linear-gradient(to right, transparent, black 6%, black 94%, transparent)";
-  return (
-    <section className="pt-20 lg:pt-24">
-      <p className="text-center text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-        Already run by the team · {PORTFOLIO.villas} villas
-      </p>
-      <div
-        className="marquee mt-6 overflow-hidden"
-        style={{ maskImage: fade, WebkitMaskImage: fade }}
-      >
-        <ul
-          className="marquee-track flex w-max gap-4 py-2"
-          style={{ "--marquee-speed": "60s" } as CSSProperties}
-        >
-          {[...VILLAS, ...VILLAS].map((v, i) => (
-            <li
-              key={i}
-              aria-hidden={i >= VILLAS.length || undefined}
-              className="relative h-44 w-64 shrink-0 overflow-hidden rounded-3xl bg-secondary shadow-level-2 sm:h-52 sm:w-80"
-            >
-              <img
-                src={villaPhoto(v.code, v.cover)}
-                alt={v.title}
-                loading="lazy"
-                className="absolute inset-0 size-full object-cover"
-              />
-              <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-              <span className="absolute inset-x-4 bottom-3 text-white">
-                <span className="block text-sm font-semibold">{v.title}</span>
-                <span className="flex items-center gap-1 text-xs text-white/80">
-                  <MapPin className="size-3" /> {v.location}
-                </span>
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
   );
 }
 

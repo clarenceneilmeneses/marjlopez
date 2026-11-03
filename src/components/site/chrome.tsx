@@ -31,7 +31,7 @@ import {
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { BRAND, FACEBOOK, LINKS } from "@/lib/brand";
 import { TYPES } from "@/lib/inquiry";
-import { OFFER_ORDER, OFFERS } from "@/lib/offers";
+import { OFFER_ORDER, OFFER_PATHS, OFFERS, offerPath } from "@/lib/offers";
 import { MALAYA_SITE } from "@/lib/villas";
 import { PlatformLogo, type Platform } from "./logos";
 import { GlideRow } from "./glide";
@@ -56,7 +56,7 @@ function OfferLinks({ onPick, big = false }: { onPick?: () => void; big?: boolea
         return (
           <li key={slug}>
             <Link
-              to={`/${slug}`}
+              to={offerPath(slug)}
               onClick={onPick}
               className={cn(
                 "group flex items-center gap-3 rounded-2xl transition active:scale-[0.98]",
@@ -68,7 +68,9 @@ function OfferLinks({ onPick, big = false }: { onPick?: () => void; big?: boolea
               </span>
               <span className="min-w-0 flex-1 leading-tight">
                 <span className="block text-sm font-semibold">{OFFERS[slug].name}</span>
-                <span className="mt-0.5 block text-xs text-muted-foreground">{t.blurb}</span>
+                <span className="mt-0.5 block text-xs text-muted-foreground">
+                  {OFFERS[slug].forWhom}
+                </span>
               </span>
               <ArrowRight className="size-4 shrink-0 text-primary transition group-hover:translate-x-0.5" />
             </Link>
@@ -79,12 +81,14 @@ function OfferLinks({ onPick, big = false }: { onPick?: () => void; big?: boolea
   );
 }
 
-/** The landing page's sections, for the header and the phone menu. */
+/**
+ * The landing page's sections, for the header. The villas, the build and the
+ * reviews moved to the offer pages (2026-11-03), so the landing has three.
+ */
 const SECTIONS = [
-  { hash: "villas", label: "Villas" },
-  { hash: "built", label: "Builds" },
+  { hash: "offers", label: "Work with Marj" },
+  { hash: "proof", label: "Proof" },
   { hash: "about", label: "Meet Marj" },
-  { hash: "reviews", label: "Reviews" },
 ];
 
 export function Wordmark({ size = "header" }: { size?: "header" | "footer" }) {
@@ -338,7 +342,7 @@ export function PublicHeader() {
 }
 
 type Tab = {
-  to: "/" | "/messages";
+  to: "/" | "/messages" | "/management";
   hash?: string;
   label: string;
   icon: typeof Home;
@@ -377,7 +381,7 @@ function PublicBottomNav() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [offersOpen, setOffersOpen] = useState(false);
   const hidden = typing || scrolledAway;
-  const onOffer = OFFER_ORDER.some((s) => pathname === `/${s}`);
+  const onOffer = OFFER_PATHS.some((p) => pathname === p);
 
   const tabs: Tab[] = [
     { to: "/", label: "Home", icon: Home, active: pathname === "/" },
@@ -395,8 +399,9 @@ function PublicBottomNav() {
         ]
       : []),
     // Clarence, 2026-10-25: one more tab before More. The villas are the
-    // proof the whole page leans on, so they get the slot (and leave More).
-    { to: "/", hash: "villas", label: "Villas", icon: Building2, active: false },
+    // proof the whole site leans on, so they get the slot (and leave More).
+    // They live on Property Management since 2026-11-03.
+    { to: "/management", hash: "villas", label: "Villas", icon: Building2, active: false },
   ];
 
   return (
@@ -450,7 +455,12 @@ function PublicBottomNav() {
           <nav className="flex flex-col gap-1 px-3">
             {[
               { to: "/" as const, hash: "about", label: "About Marj", icon: User },
-              { to: "/" as const, hash: "reviews", label: "Guest reviews", icon: CircleHelp },
+              {
+                to: "/management" as const,
+                hash: "reviews",
+                label: "Guest reviews",
+                icon: CircleHelp,
+              },
               { to: "/privacy" as const, hash: undefined, label: "Privacy", icon: FileText },
             ].map((l) => (
               <Link
@@ -531,30 +541,23 @@ export function PublicFooter() {
             </div>
           </div>
           <FooterCol title="Work with me" titleClass={col}>
-            <Link to="/management" className={link}>
-              Property management
-            </Link>
-            <Link to="/seminar" className={link}>
-              Seminar
-            </Link>
-            <Link to="/invest" className={link}>
-              Invest with Marj
-            </Link>
-            <Link to="/system" className={link}>
-              System for your resort
-            </Link>
+            {OFFER_ORDER.map((slug) => (
+              <Link key={slug} to={offerPath(slug)} className={link}>
+                {OFFERS[slug].name}
+              </Link>
+            ))}
             <Link to="/inquire" search={{ type: "other", step: 2 }} className={link}>
               Partnerships
             </Link>
           </FooterCol>
           <FooterCol title="Explore" titleClass={col}>
-            <Link to="/" hash="villas" className={link}>
+            <Link to="/management" hash="villas" className={link}>
               The villas
             </Link>
             <Link to="/" hash="about" className={link}>
               Meet Marj
             </Link>
-            <Link to="/" hash="reviews" className={link}>
+            <Link to="/management" hash="reviews" className={link}>
               Guest reviews
             </Link>
             <a href={MALAYA_SITE} target="_blank" rel="noreferrer" className={link}>

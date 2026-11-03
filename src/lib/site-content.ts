@@ -14,80 +14,52 @@
  */
 import { supabase } from "@/integrations/supabase/client";
 
-import { FACEBOOK, INSTAGRAM, TOTAL_REVIEWS } from "./brand";
+import { FACEBOOK, INSTAGRAM } from "./brand";
 import { OFFER_ORDER, OFFERS, type Offer, type OfferSlug } from "./offers";
 import { PORTFOLIO, VILLAS, villaPhoto } from "./villas";
 
 // ------------------------------------------------------------------ landing
 
+/**
+ * The landing, cut down to the boss's framework (2026-11-03): a clear
+ * message, the four offers, one line of proof (Malaya), and who Marj is.
+ * The villas, the build and the reviews moved to the offer pages they prove.
+ * The four offers' words (pillar, name, who it's for) come from each offer's
+ * own page, so they're edited there.
+ */
 export interface LandingContent {
   numbers: { facebook: string; instagram: string };
   hero: {
+    eyebrow: string;
     headline: [string, string];
     sub: string;
     photo: string;
-    starters: Record<OfferSlug, { label: string; sub: string }>;
   };
-  villas: { eyebrow: string; heading: string; tagline: string };
-  built: {
-    eyebrow: string;
-    heading: string;
-    facts: string[];
-    sale: { show: boolean; label: string; price: string };
-    cta: string;
-    steps: { photo: string; step: string; note: string }[];
-  };
+  offers: { heading: string; lead: string };
+  proof: { heading: string; body: string; photos: { src: string }[] };
   meet: { eyebrow: string; heading: string; story: string; pitch: string[]; photo: string };
-  reviews: { eyebrow: string; heading: string };
 }
 
 export const LANDING_DEFAULT: LandingContent = {
   numbers: { facebook: FACEBOOK.followers, instagram: INSTAGRAM.followers },
   hero: {
-    headline: ["Start & earn", "through Airbnb"],
-    sub: `Host of ${PORTFOLIO.villas} villas in Cavite and Tagaytay. Helping aspiring hosts start and earn — even without owning a property.`,
+    eyebrow: "Hospitality entrepreneur · Operator · Business builder",
+    headline: ["Building hospitality", "businesses that earn"],
+    sub: `Marj runs ${PORTFOLIO.villas} villas under Malaya. Pick what you need below — have it managed, learn it, invest in it, or systemize it.`,
     photo: "/brand/marj.webp",
-    starters: {
-      management: { label: "Manage", sub: "my property" },
-      seminar: { label: "Seminar", sub: "learn from Marj" },
-      invest: { label: "Invest", sub: "in a villa" },
-      system: { label: "System", sub: "for my resort" },
-    },
   },
-  villas: {
-    eyebrow: "Cavite | Tagaytay | Tarlac",
-    heading: `${PORTFOLIO.villas} villas. One more coming.`,
-    tagline: "Malaya Villas is the proof",
+  offers: {
+    heading: "One expertise, four ways in",
+    lead: "Building and growing hospitality businesses. Pick the one that fits where you are.",
   },
-  built: {
-    eyebrow: "Built from the ground up · Lian, Batangas",
-    heading: "From bare lot to beach cabins",
-    facts: [
-      "2 cabins",
-      "60 sqm each",
-      "High ceilings",
-      "Private plunge pools",
-      "5-min walk to the beach",
-    ],
-    sale: { show: true, label: "Now for sale", price: "₱8.8M for both" },
-    cta: "Build yours",
-    steps: [
-      {
-        photo: "/builds/lian/1.webp",
-        step: "Breaking ground",
-        note: "Walls, arches and the plunge pool's shell",
-      },
-      { photo: "/builds/lian/2.webp", step: "Shell up", note: "Glass gables in, tiles going on" },
-      {
-        photo: "/builds/lian/3.webp",
-        step: "Finishing",
-        note: "Pools tiled, lights and planters in",
-      },
-      {
-        photo: "/builds/lian/4.webp",
-        step: "Airbnb-ready",
-        note: "Fully furnished, ready for guests",
-      },
+  proof: {
+    heading: "Malaya — the proof it works",
+    body: "Real villas, actual operations, systems, and documented projects. Everything Marj offers, he runs here first.",
+    photos: [
+      { src: "/brand/about-tagaytay-aerial.webp" },
+      { src: "/malaya/villa-hillside-pool.webp" },
+      { src: "/builds/lian/4.webp" },
+      { src: "/system/dashboard.webp" },
     ],
   },
   meet: {
@@ -98,7 +70,6 @@ export const LANDING_DEFAULT: LandingContent = {
     pitch: FACEBOOK.pitch.split(" · "),
     photo: "/brand/marj-family.webp",
   },
-  reviews: { eyebrow: "Guest reviews", heading: `${TOTAL_REVIEWS}+ guests said it` },
 };
 
 // ------------------------------------------------------------------- offers
@@ -112,6 +83,9 @@ export function offerDefault(slug: OfferSlug): OfferContent {
 }
 
 export const offerKey = (slug: OfferSlug) => `offer:${slug}` as const;
+
+/** Every offer's row — the landing reads all four for its cards. */
+export const OFFER_KEYS = OFFER_ORDER.map(offerKey);
 
 // -------------------------------------------------------------------- merge
 

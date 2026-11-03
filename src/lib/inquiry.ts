@@ -80,8 +80,9 @@ export const SOURCES: Option[] = [
 
 /**
  * The four offers, in the boss's order of priority (2026-10-28): property
- * management, the seminar, investing, and a system for their resort. Each has
- * its own page (lib/offers.ts) and its own questions below.
+ * management, 1-on-1 coaching (the seminar until 2026-11-03 — the key stays
+ * "seminar"), build/rent/sell investing, and business systems. Each has its
+ * own page (lib/offers.ts) and its own questions below.
  */
 export const TYPES: Record<
   LeadType,
@@ -95,20 +96,20 @@ export const TYPES: Record<
     marks: ["airbnb"],
   },
   seminar: {
-    label: "Join the seminar",
-    short: "Seminar",
-    blurb: "A day with Marj on starting and running an Airbnb that earns.",
+    label: "1-on-1 coaching with Marj",
+    short: "Coaching",
+    blurb: "Mentorship with Marj on starting and running an Airbnb that earns.",
     icon: Users,
   },
   invest: {
-    label: "Invest with Marj",
+    label: "Build, rent or sell with Marj",
     short: "Investor",
-    blurb: "Put capital into a villa Malaya builds and runs.",
+    blurb: "Build, co-own or buy a villa Malaya builds and runs.",
     icon: TrendingUp,
     marks: ["malaya"],
   },
   system: {
-    label: "A system for my resort",
+    label: "Business systems for my resort",
     short: "System",
     blurb: "Website, inbox, bookings and payments — the one that runs Malaya Villas.",
     icon: LayoutDashboard,
@@ -204,7 +205,7 @@ export const SCREENS: Record<LeadType, Screen[]> = {
   seminar: [
     {
       title: "Where are you right now?",
-      lead: "So the seminar meets you where you are.",
+      lead: "So Marj knows where you're starting from.",
       short: "Where you are",
       questions: [
         {
@@ -259,6 +260,18 @@ export const SCREENS: Record<LeadType, Screen[]> = {
       short: "Timing",
       questions: [
         { key: "ready", label: "When do you want to start?", control: "cards", options: READY },
+        // The boss (2026-11-03): coaching is ₱10k, and the questions should
+        // filter for qualified leads — so the price is asked about up front.
+        {
+          key: "budget",
+          label: "Coaching is ₱10,000. Is that within reach?",
+          control: "cards",
+          options: [
+            { value: "yes", label: "Yes, I'm ready", hint: "Send me the schedules" },
+            { value: "soon", label: "Yes, within the month" },
+            { value: "unsure", label: "I need to know more first" },
+          ],
+        },
       ],
     },
   ],
@@ -288,6 +301,7 @@ export const SCREENS: Record<LeadType, Screen[]> = {
             { value: "co-own", label: "Co-own a villa", hint: "With Malaya running it" },
             { value: "next-villa", label: "Fund the next Malaya villa" },
             { value: "my-land", label: "Build on my own land", hint: "Marj builds and runs it" },
+            { value: "buy", label: "Buy a finished villa", hint: "Like the Lian cabins" },
             { value: "open", label: "Open to suggestions" },
           ],
         },

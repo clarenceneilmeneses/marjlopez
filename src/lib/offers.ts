@@ -20,6 +20,22 @@ export interface Offer {
   type: LeadType;
   /** The small caps line over the headline, and the page's tab title. */
   name: string;
+  /**
+   * The verb over the name on the landing's card — MANAGE, LEARN, INVEST,
+   * SYSTEMIZE, from the boss's "one ecosystem" diagram (2026-11-03).
+   */
+  pillar: string;
+  /** Who it's for, one line — under the name on the landing and in the menus. */
+  forWhom: string;
+  /**
+   * Marj explaining the offer himself (the boss, 2026-11-03: "pwede din ako
+   * gumawa ng video"). A YouTube or Facebook link; empty hides the section.
+   */
+  video: { url: string; heading: string; caption: string };
+  /** The price, where it's fixed and public. Hidden unless `show`. */
+  price: { show: boolean; amount: string; note: string };
+  /** Invest only: the build told in photos, and what's for sale now. */
+  build?: Build;
   headline: [string, string];
   sub: string;
   hero: { src: string; position?: string };
@@ -35,6 +51,13 @@ export interface Offer {
   steps: { title: string; body: string }[];
   faq: { q: string; a: string }[];
   closing: { heading: string; body: string };
+}
+
+export interface Build {
+  heading: string;
+  facts: string[];
+  sale: { show: boolean; label: string; price: string };
+  steps: { photo: string; step: string; note: string }[];
 }
 
 interface Shot {
@@ -71,11 +94,19 @@ const DONE: Shot = {
   caption: "The same lot: two 60 sqm beach cabins, furnished.",
 };
 
+/** No video yet — the section stays hidden until a link is pasted in Admin → Website. */
+const NO_VIDEO = (heading: string) => ({ url: "", heading, caption: "" });
+const NO_PRICE = { show: false, amount: "", note: "" };
+
 export const OFFERS: Record<OfferSlug, Offer> = {
   management: {
     slug: "management",
     type: "management",
-    name: "Property management",
+    name: "Property Management",
+    pillar: "Manage",
+    forWhom: "For villa and property owners",
+    video: NO_VIDEO("How we run a property"),
+    price: NO_PRICE,
     headline: ["Your property, run", "like a Malaya villa"],
     sub: "You own it. Marj's team lists it, prices it, talks to every guest, and sends the cleaners. You get a monthly report and your payout.",
     hero: { src: "/malaya/villa-exterior.webp", position: "center 40%" },
@@ -179,32 +210,42 @@ export const OFFERS: Record<OfferSlug, Offer> = {
     },
   },
 
+  // Was the seminar; the boss (2026-11-03) made it 1-on-1 mentorship at ₱10k.
+  // The key stays "seminar" — it's the lead type saved on every inquiry.
   seminar: {
     slug: "seminar",
     type: "seminar",
-    name: "Seminar",
-    headline: ["Start an Airbnb", "the way Marj did"],
-    sub: "One day with Marj on the whole thing: finding the place, the real costs, listing it so it books, and running it without living on your phone.",
+    name: "1-on-1 Coaching",
+    pillar: "Learn",
+    forWhom: "For aspiring Airbnb operators",
+    video: NO_VIDEO("Marj on what coaching covers"),
+    price: {
+      show: true,
+      amount: "₱10,000",
+      note: "1-on-1 mentorship with Marj. You pay once your schedule is confirmed.",
+    },
+    headline: ["Learn Airbnb", "1-on-1 with Marj"],
+    sub: "Sit down with Marj and work through your own plan: your area, your budget, your property or the one you want to lease. What to do first, what it really costs, and how to run it so it earns.",
     hero: { src: "/brand/marj.webp", position: "62% center" },
-    cta: "Register for the next batch",
-    facts: ["In person or online", "Small batches", "Beginners and new hosts"],
+    cta: "Apply for coaching",
+    facts: ["One-on-one with Marj", "Online or in person", "Built around your own numbers"],
     why: {
       heading: "He learned it the expensive way",
-      body: `"Growing up without a home, I dreamed of having one." Marj started out renting staycations, then hosting them, then building them. ${PORTFOLIO.villas} villas later, the seminar is the short version of what that took.`,
+      body: `"Growing up without a home, I dreamed of having one." Marj started out renting staycations, then hosting them, then building them. ${PORTFOLIO.villas} villas later, coaching is the short version of what that took — applied to your plan, not a general one.`,
       before: BARE_LOT,
       after: DONE,
     },
     gets: {
       heading: "What you'll walk out with",
-      lead: "Not motivation. The actual steps, with the numbers from Malaya's own villas.",
+      lead: "Not motivation. Your next steps, checked against the numbers from Malaya's own villas.",
       items: [
         {
           title: "Where to start",
-          body: "Your own property, a property you lease, or a partner's — what each needs and what each risks.",
+          body: "Your own property, a property you lease, or a partner's — which fits you, what each needs and what each risks.",
         },
         {
           title: "The real costs",
-          body: "What furnishing, permits, deposits and the first months actually cost, line by line.",
+          body: "What furnishing, permits, deposits and the first months actually cost, line by line, for your area.",
         },
         {
           title: "A listing that books",
@@ -224,55 +265,95 @@ export const OFFERS: Record<OfferSlug, Offer> = {
       ],
       no: [
         "You're looking for a get-rich-quick scheme — there isn't one here",
-        "You want someone to do it for you (see property management instead)",
+        "You want someone to do it for you (see Property Management instead)",
+        "₱10,000 would strain your budget right now",
       ],
     },
     catchLine: {
-      heading: "Straight answer: what's the catch?",
-      body: "There's a fee, and seats are limited so Marj can actually answer questions. If you're further along — you have properties and want them run, or you want to invest — the seminar may not be the right door. Tell us where you are and the team will point you to the one that is.",
+      heading: "Straight answer: it's paid, and it's one-on-one",
+      body: "₱10,000, because it's Marj's own time, one person at a time — not a recorded course or a big room. That's also why we ask a few questions first: if coaching isn't the right door for where you are, the team tells you before you pay anything.",
     },
     steps: [
       {
-        title: "Register here",
-        body: "Tell us where you are and when you want to start. Two minutes.",
+        title: "Apply here",
+        body: "Tell us where you are and when you want to start. Two minutes, no payment.",
       },
       {
-        title: "Get the details in your Inbox",
-        body: "Date, venue or link, and the fee for the next batch — sent to you directly.",
+        title: "We reply in your Inbox",
+        body: "If it's a fit: Marj's open schedules, online or in person, and how to pay.",
       },
-      { title: "Save your seat", body: "Confirm and pay to hold it. Batches are kept small." },
+      { title: "Confirm your slot", body: "Pick a schedule and pay ₱10,000 to lock it in." },
       {
-        title: "Show up with questions",
-        body: "Bring your numbers. The day is built around them.",
+        title: "Your session with Marj",
+        body: "Bring your numbers and your questions. The session is built around them.",
       },
     ],
     faq: [
       {
-        q: "When is the next batch, and how much?",
-        a: "Each batch's date, venue and fee are sent in your Inbox once you register — that way you get the current one, not an old post.",
+        q: "How much is it?",
+        a: "₱10,000 for 1-on-1 mentorship with Marj. You only pay once your schedule is confirmed.",
       },
       {
         q: "I don't own a property. Is this for me?",
         a: "Yes — leasing and partnering are covered. You'll know by the end whether starting now makes sense for you.",
       },
+      {
+        q: "Online or in person?",
+        a: "Either. Say which you prefer when you apply and the team sends the schedules for it.",
+      },
       { q: "Is it in Tagalog or English?", a: "Taglish, the way Marj talks on his page." },
       {
         q: "Can I bring my partner?",
-        a: "Say so when you register and the team will tell you how.",
+        a: "Yes — say so when you apply. Business partners and spouses are welcome in the same session.",
       },
     ],
     closing: {
       heading: "Two ways this goes",
-      body: "Keep watching other people's villa tours — or spend a day with someone who's built the thing, and leave knowing your next step. Registering doesn't commit you to anything.",
+      body: "Keep watching other people's villa tours — or sit down with someone who's built the thing, and leave knowing your next step. Applying doesn't commit you to anything.",
     },
   },
 
   invest: {
     slug: "invest",
     type: "invest",
-    name: "Invest with Marj",
-    headline: ["Own part of the", "next Malaya villa"],
-    sub: "Put capital into a villa Malaya builds and runs, or build on land you already own with Marj's team doing the work. You see every number before you commit.",
+    name: "Build, Rent & Sell",
+    pillar: "Invest",
+    forWhom: "For qualified capital partners",
+    video: NO_VIDEO("Marj on building with partners"),
+    price: NO_PRICE,
+    // Was the landing's "The build" section (moved here 2026-11-03, so the
+    // landing stays short and the proof sits on the offer it proves).
+    build: {
+      heading: "From bare lot to beach cabins",
+      facts: [
+        "2 cabins",
+        "60 sqm each",
+        "High ceilings",
+        "Private plunge pools",
+        "5-min walk to the beach",
+      ],
+      sale: { show: true, label: "Now for sale", price: "₱8.8M for both" },
+      steps: [
+        {
+          photo: "/builds/lian/1.webp",
+          step: "Breaking ground",
+          note: "Walls, arches and the plunge pool's shell",
+        },
+        { photo: "/builds/lian/2.webp", step: "Shell up", note: "Glass gables in, tiles going on" },
+        {
+          photo: "/builds/lian/3.webp",
+          step: "Finishing",
+          note: "Pools tiled, lights and planters in",
+        },
+        {
+          photo: "/builds/lian/4.webp",
+          step: "Airbnb-ready",
+          note: "Fully furnished, ready for guests",
+        },
+      ],
+    },
+    headline: ["Build it, rent it,", "sell it — with Marj"],
+    sub: "Put capital into villas Malaya builds and runs, build on land you already own with Marj's team doing the work, or buy one that's finished and earning. You see every number before you commit.",
     hero: { src: "/malaya/villa-aerial.webp", position: "center" },
     cta: "Talk to Marj about investing",
     facts: ["Villas Malaya builds and runs", "Every deal in writing", "You see the numbers first"],
@@ -292,16 +373,16 @@ export const OFFERS: Record<OfferSlug, Offer> = {
       lead: "Every investor's situation is different, so these are starting points for the conversation — not packages.",
       items: [
         {
-          title: "Co-own a villa",
-          body: "A share in a villa that Malaya lists, runs and reports on, with your share of what it earns.",
+          title: "Build",
+          body: "Fund the next villa Malaya builds, or build on your own lot — Marj's team designs and builds it, the way Lian was done.",
         },
         {
-          title: "Fund the next project",
-          body: "Come in on a villa Malaya is building, with the costs, timeline and terms laid out before you decide.",
+          title: "Rent",
+          body: "Co-own a villa that Malaya lists, runs and reports on, with your share of what it earns each month.",
         },
         {
-          title: "Build on your own land",
-          body: "You have the lot. Marj's team designs, builds and then runs it, the way Lian was done.",
+          title: "Sell",
+          body: "Buy a villa that's finished and ready for guests — like the two Lian cabins, for sale now at ₱8.8M for both.",
         },
       ],
     },
@@ -365,7 +446,11 @@ export const OFFERS: Record<OfferSlug, Offer> = {
   system: {
     slug: "system",
     type: "system",
-    name: "System for your resort",
+    name: "Business Systems",
+    pillar: "Systemize",
+    forWhom: "For owners scaling operations",
+    video: NO_VIDEO("A walk through the system"),
+    price: NO_PRICE,
     headline: ["The system that", "runs Malaya Villas"],
     sub: "A website guests book on, one inbox for every message, a calendar that doesn't double-book, and payments and reports — built for resorts and villas, used every day by Malaya.",
     hero: { src: "/system/dashboard.webp" },
@@ -471,5 +556,52 @@ export const OFFERS: Record<OfferSlug, Offer> = {
 
 export const OFFER_ORDER: OfferSlug[] = ["management", "seminar", "invest", "system"];
 
-/** The page path for an offer — what the landing, footer and form link to. */
-export const offerPath = (slug: OfferSlug) => `/${slug}` as const;
+/**
+ * The page path for an offer — what the landing, footer and form link to.
+ * The seminar became coaching (2026-11-03): its page is /coaching, and
+ * /seminar sends old links there.
+ */
+const PATHS = {
+  management: "/management",
+  seminar: "/coaching",
+  invest: "/invest",
+  system: "/system",
+} as const satisfies Record<OfferSlug, string>;
+
+export type OfferPath = (typeof PATHS)[OfferSlug];
+export const offerPath = (slug: OfferSlug): OfferPath => PATHS[slug];
+export const OFFER_PATHS: OfferPath[] = OFFER_ORDER.map(offerPath);
+
+/**
+ * Pulls a playable embed out of a pasted video link: YouTube (watch, youtu.be,
+ * shorts, embed) or a Facebook video/reel. Anything else gives null and the
+ * video section stays hidden.
+ */
+export function videoEmbed(
+  url: string,
+):
+  | { kind: "youtube"; id: string; src: string; thumb: string }
+  | { kind: "facebook"; src: string }
+  | null {
+  const u = url.trim();
+  if (!u) return null;
+  const yt = u.match(
+    /(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([\w-]{11})/,
+  );
+  if (yt) {
+    const id = yt[1]!;
+    return {
+      kind: "youtube",
+      id,
+      src: `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`,
+      thumb: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+    };
+  }
+  if (/^https?:\/\/(?:www\.|m\.|web\.)?(?:facebook\.com|fb\.watch)\//.test(u)) {
+    return {
+      kind: "facebook",
+      src: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(u)}&show_text=false`,
+    };
+  }
+  return null;
+}

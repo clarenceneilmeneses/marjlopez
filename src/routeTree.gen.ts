@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CoachingRouteImport } from './routes/coaching'
 import { Route as InquireRouteImport } from './routes/inquire'
 import { Route as InvestRouteImport } from './routes/invest'
 import { Route as ManagementRouteImport } from './routes/management'
@@ -28,6 +29,11 @@ import { Route as AdminWebsiteRouteImport } from './routes/admin.website'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoachingRoute = CoachingRouteImport.update({
+  id: '/coaching',
+  path: '/coaching',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InquireRoute = InquireRouteImport.update({
@@ -103,6 +109,7 @@ const AdminWebsiteRoute = AdminWebsiteRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/coaching': typeof CoachingRoute
   '/inquire': typeof InquireRoute
   '/invest': typeof InvestRoute
   '/management': typeof ManagementRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/coaching': typeof CoachingRoute
   '/inquire': typeof InquireRoute
   '/invest': typeof InvestRoute
   '/management': typeof ManagementRoute
@@ -138,6 +146,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/coaching': typeof CoachingRoute
   '/inquire': typeof InquireRoute
   '/invest': typeof InvestRoute
   '/management': typeof ManagementRoute
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/coaching'
     | '/inquire'
     | '/invest'
     | '/management'
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/coaching'
     | '/inquire'
     | '/invest'
     | '/management'
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/coaching'
     | '/inquire'
     | '/invest'
     | '/management'
@@ -209,6 +221,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CoachingRoute: typeof CoachingRoute
   InquireRoute: typeof InquireRoute
   InvestRoute: typeof InvestRoute
   ManagementRoute: typeof ManagementRoute
@@ -232,6 +245,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/coaching': {
+      id: '/coaching'
+      path: '/coaching'
+      fullPath: '/coaching'
+      preLoaderRoute: typeof CoachingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/inquire': {
@@ -337,6 +357,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CoachingRoute: CoachingRoute,
   InquireRoute: InquireRoute,
   InvestRoute: InvestRoute,
   ManagementRoute: ManagementRoute,

@@ -11,7 +11,7 @@ import {
   type LandingContent,
   type OfferContent,
 } from "./site-content";
-import { OFFERS } from "./offers";
+import { OFFERS, offerPath, type OfferPath } from "./offers";
 
 export type Field =
   | { kind: "text"; key: string; label: string; hint?: string; placeholder?: string }
@@ -47,7 +47,7 @@ export interface Section {
 export interface EditablePage {
   key: string;
   label: string;
-  path: "/" | "/management" | "/seminar" | "/invest" | "/system";
+  path: "/" | OfferPath;
   base: LandingContent | OfferContent;
   sections: Section[];
 }
@@ -64,6 +64,7 @@ const LANDING: Section[] = [
     title: "Top of the page",
     key: "hero",
     fields: [
+      { kind: "text", key: "eyebrow", label: "Small line above the headline" },
       { kind: "pair", key: "headline", label: "Headline" },
       { kind: "textarea", key: "sub", label: "Under the headline", rows: 3 },
       {
@@ -72,22 +73,13 @@ const LANDING: Section[] = [
         label: "Photo",
         hint: "A portrait works best — it sits on the right on a laptop.",
       },
-      {
-        kind: "group",
-        key: "starters",
-        label: "The four buttons under the photo",
-        hint: "Each opens that offer's page.",
-        fields: OFFER_ORDER.map((slug) => ({
-          kind: "group" as const,
-          key: slug,
-          label: OFFERS[slug].name,
-          fields: [
-            { kind: "text" as const, key: "label", label: "Big word" },
-            { kind: "text" as const, key: "sub", label: "Small line" },
-          ],
-        })),
-      },
     ],
+  },
+  {
+    title: "The four offers",
+    key: "offers",
+    hint: "Each card's word, name and \"for whom\" line are edited on that offer's own page.",
+    fields: [heading, { kind: "textarea", key: "lead", label: "Under the heading", rows: 2 }],
   },
   {
     title: "Follower numbers",
@@ -99,47 +91,20 @@ const LANDING: Section[] = [
     ],
   },
   {
-    title: "Villas",
-    key: "villas",
-    hint: "The villa list itself comes from Malaya's listings, so it isn't edited here.",
-    fields: [eyebrow(), heading, { kind: "text", key: "tagline", label: "Line under the heading" }],
-  },
-  {
-    title: "The build",
-    key: "built",
+    title: "Malaya — the proof",
+    key: "proof",
+    hint: "The dark band under the offers. The four numbers come from the real counts.",
     fields: [
-      eyebrow(),
       heading,
-      {
-        kind: "lines",
-        key: "facts",
-        label: "Facts",
-        hint: "Shown as one line, separated by dots.",
-        add: "Add a fact",
-      },
-      {
-        kind: "group",
-        key: "sale",
-        label: "For-sale button",
-        fields: [
-          { kind: "toggle", key: "show", label: "Show it" },
-          { kind: "text", key: "label", label: "Label" },
-          { kind: "text", key: "price", label: "Price" },
-        ],
-      },
-      { kind: "text", key: "cta", label: "Main button", hint: "Opens the Invest page." },
+      { kind: "textarea", key: "body", label: "Text", rows: 3 },
       {
         kind: "items",
-        key: "steps",
-        label: "Photos, left to right",
+        key: "photos",
+        label: "Photos along the bottom",
         item: "Photo",
-        min: 1,
-        max: 8,
-        fields: [
-          { kind: "image", key: "photo", label: "Photo" },
-          { kind: "text", key: "step", label: "Name" },
-          { kind: "text", key: "note", label: "Caption" },
-        ],
+        min: 4,
+        max: 4,
+        fields: [{ kind: "image", key: "src", label: "Photo" }],
       },
     ],
   },
@@ -153,12 +118,6 @@ const LANDING: Section[] = [
       { kind: "textarea", key: "story", label: "His story", rows: 4 },
       { kind: "lines", key: "pitch", label: "Checklist", add: "Add a line" },
     ],
-  },
-  {
-    title: "Reviews",
-    key: "reviews",
-    hint: "The reviews are real guest reviews, so only the heading is edited here.",
-    fields: [eyebrow(), heading],
   },
 ];
 
@@ -183,6 +142,18 @@ const OFFER: Section[] = [
         label: "Offer name",
         hint: "The badge on the photo, and the browser tab.",
       },
+      {
+        kind: "text",
+        key: "pillar",
+        label: "One word for the landing's card",
+        hint: "Manage, Learn, Invest, Systemize — shown in small caps over the name.",
+      },
+      {
+        kind: "text",
+        key: "forWhom",
+        label: "Who it's for",
+        hint: "One line under the name on the landing's card.",
+      },
       { kind: "pair", key: "headline", label: "Headline" },
       { kind: "textarea", key: "sub", label: "Under the headline", rows: 3 },
       {
@@ -198,6 +169,31 @@ const OFFER: Section[] = [
         label: "Three short lines under the photo",
         add: "Add a line",
       },
+    ],
+  },
+  {
+    title: "Video",
+    key: "video",
+    hint: "Marj explaining this offer. Paste a YouTube or Facebook video link — with no link, the section is hidden.",
+    fields: [
+      {
+        kind: "text",
+        key: "url",
+        label: "Video link",
+        placeholder: "https://www.youtube.com/watch?v=…",
+      },
+      { kind: "text", key: "heading", label: "Heading over the video" },
+      { kind: "text", key: "caption", label: "Line beside the heading" },
+    ],
+  },
+  {
+    title: "Price",
+    key: "price",
+    hint: "Only for a fixed, public price. Shown on this page and on the landing's card.",
+    fields: [
+      { kind: "toggle", key: "show", label: "Show the price" },
+      { kind: "text", key: "amount", label: "Price", placeholder: "₱10,000" },
+      { kind: "text", key: "note", label: "Line under it" },
     ],
   },
   {
@@ -306,14 +302,58 @@ const ONE_PHOTO_OFFER: Section[] = OFFER.map((sec) =>
     : sec,
 );
 
+/** Build, Rent & Sell also tells the Lian build (the landing's until 2026-11-03). */
+const INVEST_OFFER: Section[] = [
+  ...ONE_PHOTO_OFFER.slice(0, 3),
+  {
+    title: "The build",
+    key: "build",
+    hint: "The photos the page scrolls through, from bare lot to Airbnb-ready.",
+    fields: [
+      heading,
+      {
+        kind: "lines",
+        key: "facts",
+        label: "Facts",
+        hint: "Shown as one line, separated by dots.",
+        add: "Add a fact",
+      },
+      {
+        kind: "group",
+        key: "sale",
+        label: "For-sale button",
+        fields: [
+          { kind: "toggle", key: "show", label: "Show it" },
+          { kind: "text", key: "label", label: "Label" },
+          { kind: "text", key: "price", label: "Price" },
+        ],
+      },
+      {
+        kind: "items",
+        key: "steps",
+        label: "Photos, in order",
+        item: "Photo",
+        min: 1,
+        max: 8,
+        fields: [
+          { kind: "image", key: "photo", label: "Photo" },
+          { kind: "text", key: "step", label: "Name" },
+          { kind: "text", key: "note", label: "Caption" },
+        ],
+      },
+    ],
+  },
+  ...ONE_PHOTO_OFFER.slice(3),
+];
+
 export const EDITABLE_PAGES: EditablePage[] = [
   { key: "landing", label: "Landing page", path: "/", base: LANDING_DEFAULT, sections: LANDING },
   ...OFFER_ORDER.map((slug) => ({
     key: offerKey(slug),
     label: OFFERS[slug].name,
-    path: `/${slug}` as EditablePage["path"],
+    path: offerPath(slug),
     base: offerDefault(slug),
-    sections: slug === "system" || slug === "invest" ? ONE_PHOTO_OFFER : OFFER,
+    sections: slug === "invest" ? INVEST_OFFER : slug === "system" ? ONE_PHOTO_OFFER : OFFER,
   })),
 ];
 
