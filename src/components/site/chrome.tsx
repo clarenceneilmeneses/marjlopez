@@ -12,7 +12,7 @@ import {
   LogOut,
   MessageCircle,
   ArrowRight,
-  LayoutGrid,
+  Briefcase,
   MoreHorizontal,
   User,
 } from "@/components/icons";
@@ -421,7 +421,7 @@ function PublicBottomNav() {
               aria-current={onOffer ? "page" : undefined}
               className={navPillTab(onOffer)}
             >
-              <LayoutGrid className="size-[22px]" strokeWidth={onOffer ? 2.2 : 1.8} />
+              <Briefcase className="size-[22px]" strokeWidth={onOffer ? 2.2 : 1.8} />
               <span>Offers</span>
             </button>
           )}
