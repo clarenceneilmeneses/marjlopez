@@ -104,22 +104,24 @@ export function IPhone({
 }
 
 /**
- * A MacBook: black bezel with the camera notch, and the aluminium base wider
- * than the screen with the thumb cut in its lip. Width comes from the
- * caller; the screen is 16 : 10 and the screenshot fills it from the top.
+ * A laptop, deliberately generic (Clarence, 2026-11-04: "dont use a macbook
+ * and remove the notch"): a charcoal lid with even bezels and a pin-dot
+ * webcam, a thicker chin, and a flat dark base with a slim front lip.
+ * Width comes from the caller; the screen is 16 : 10 and the screenshot
+ * fills it from the top left.
  */
 export function Laptop({ src, className }: { src: string; className?: string }) {
   return (
     <div className={cn("relative", className)}>
-      <div className="mx-[7%] rounded-t-[3.5%_5.5%] bg-[#0b0b0c] p-[1.6%] pb-[2%] ring-1 ring-[#3a3836] shadow-[0_30px_60px_-24px_rgba(0,0,0,0.6)]">
-        <div className="relative aspect-[16/10] overflow-hidden rounded-[0.6%] bg-white">
+      <div className="relative mx-[6%] rounded-[1.8%/2.8%] bg-gradient-to-b from-[#2a2a2c] to-[#1c1c1e] px-[1.8%] pb-[3.2%] pt-[2.4%] ring-1 ring-black/40 shadow-[0_30px_60px_-24px_rgba(0,0,0,0.6)]">
+        <span className="absolute left-1/2 top-[0.9%] size-[0.7%] min-h-[3px] min-w-[3px] -translate-x-1/2 rounded-full bg-[#0c0c0d] ring-1 ring-white/10" />
+        <div className="relative aspect-[16/10] overflow-hidden bg-white">
           <img src={src} alt="" loading="lazy" className="size-full object-cover object-left-top" />
-          <span className="absolute left-1/2 top-0 h-[3.2%] w-[11%] -translate-x-1/2 rounded-b-[30%] bg-[#0b0b0c]" />
         </div>
       </div>
-      <div className="relative h-0 pb-[3.4%]">
-        <div className="absolute inset-0 rounded-b-[40%_100%] bg-gradient-to-b from-[#d9d6d2] via-[#bdb9b4] to-[#8d8984] shadow-[0_18px_30px_-12px_rgba(0,0,0,0.55)]" />
-        <span className="absolute left-1/2 top-0 h-[38%] w-[15%] -translate-x-1/2 rounded-b-[40%] bg-[#a8a49f]" />
+      <div className="relative h-0 pb-[2.6%]">
+        <div className="absolute inset-0 rounded-b-[30%_100%] bg-gradient-to-b from-[#3a3a3d] via-[#2a2a2c] to-[#161617] shadow-[0_18px_30px_-12px_rgba(0,0,0,0.55)]" />
+        <span className="absolute inset-x-0 top-0 h-px bg-white/15" />
       </div>
     </div>
   );

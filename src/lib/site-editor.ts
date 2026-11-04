@@ -86,7 +86,7 @@ const LANDING: Section[] = [
     key: "numbers",
     hint: "Shown on the landing page and on every offer page. Update them as they grow.",
     fields: [
-      { kind: "text", key: "facebook", label: "Facebook followers", placeholder: "73K" },
+      { kind: "text", key: "facebook", label: "Facebook followers", placeholder: "75K" },
       { kind: "text", key: "instagram", label: "Instagram followers", placeholder: "33K" },
     ],
   },

@@ -17,7 +17,7 @@
  *                      to the whole screen and the title turns white
  *   data-split         a heading: lines rise out of a mask on scroll
  *   data-reveal        fades up when it scrolls in (siblings stagger)
- *   data-count         a figure ("73K", "4.47★", "202+") that counts up
+ *   data-count         a figure ("75K", "4.47★", "202+") that counts up
  *   data-parallax="n"  drifts n% against the scroll (negative = faster)
  *   data-seq           a pinned full-screen slideshow: [data-seq-slide]s
  *                      wipe in from the right, [data-seq-word] lights the
@@ -83,7 +83,7 @@ function introDelay(): number {
   return Math.max(0.2, INTRO_DONE_S - 0.35 - performance.now() / 1000);
 }
 
-/** "73K" → 0…73 + "K"; "4.47★" keeps two decimals. Non-numbers are left alone. */
+/** "75K" → 0…75 + "K"; "4.47★" keeps two decimals. Non-numbers are left alone. */
 function countUp(el: HTMLElement) {
   const text = el.textContent ?? "";
   const m = text.match(/^(\D*)([\d,]*\.?\d+)(.*)$/);
