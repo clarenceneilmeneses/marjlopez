@@ -8,14 +8,16 @@
  *
  *   (preloader)  the headline with a photo set into it, opening to the hero
  *                (components/site/intro.tsx)
- *   Hero         full screen: Casa Martha at sunset, his name; pinned, it shrinks
- *   Intro        his family photo, "WE HELP you START & EARN through AIRBNB"
- *                over it (his own Facebook cover line), the message, his bio
+ *   Hero         full screen: the Vistan Villa from above, his name; pinned, it shrinks
+ *   Burst        pinned: "WE HELP you START & EARN through AIRBNB" (his own
+ *                Facebook cover line) huge, Vistan prints flying out round
+ *                it, then the twilight pool opening to the full screen
+ *   Intro        the message and his bio
  *   Essence      "where HOSPITALITY meets SYSTEMS", then a pinned slideshow,
  *                "from GUEST, to HOST, to OPERATOR" (his story)
  *   Offers       the four offers: a big photo held on the left that changes
  *                as each offer scrolls by on the right, with two more photos
- *   Founder      his quote beside Team Malaya, his accounts
+ *   Founder      his quote beside his family, his accounts
  *   Gallery      Malaya's numbers, then a wall of villa photos drifting
  *   Quote        a guest's review in giant type, sliding, Malaya's mark
  *   Closing      the ask, and his name across the page
@@ -105,6 +107,7 @@ function Landing() {
       <PublicHeader />
       <main id="content">
         <Hero c={c} />
+        <Burst />
         <Intro c={c} />
         <Essence />
         <Offers c={c} offers={offers} />
@@ -126,7 +129,7 @@ function Hero({ c }: C) {
       <div data-hero-media className="absolute inset-0 overflow-hidden bg-[#181615]">
         <img
           src={c.hero.photo}
-          alt="Casa Martha, a Malaya villa, at sunset"
+          alt="The Vistan Villa, Malaya, from above"
           loading="eager"
           fetchPriority="high"
           className="size-full object-cover"
@@ -162,7 +165,23 @@ function Hero({ c }: C) {
   );
 }
 
-// ----------------------------------------------------------------- intro
+// ----------------------------------------------------------------- burst
+
+/**
+ * The Vistan Villa (PR-013, Bamban, Tarlac), Malaya's newest, photos at full
+ * size from Malaya's own uploads (public/hd/vistan). These are the prints
+ * that scatter round the headline; FILL is the one that opens to the screen.
+ * x/y are where each lands, in % of the screen from the centre; r its tilt.
+ */
+const BURST = [
+  { src: "/hd/vistan/13.webp", x: -33, y: -27, r: -8 },
+  { src: "/hd/vistan/08.webp", x: 33, y: -25, r: 7 },
+  { src: "/hd/vistan/22.webp", x: -37, y: 25, r: 5 },
+  { src: "/hd/vistan/06.webp", x: 35, y: 27, r: -6 },
+  { src: "/hd/vistan/25.webp", x: -9, y: -38, r: 3 },
+  { src: "/hd/vistan/18.webp", x: 11, y: 37, r: -4 },
+];
+const BURST_FILL = "/hd/vistan/24.webp";
 
 /** His own bio (lib/brand.ts), the sentences about how he started. */
 function startedLines(bio: string) {
@@ -170,33 +189,85 @@ function startedLines(bio: string) {
   return [s[0], s[2], s[3]].filter(Boolean).join(" ");
 }
 
+/**
+ * The section after the hero, Vero's "deserves to last forever" moment made
+ * bigger: pinned, his Facebook cover line huge across the screen with a pile
+ * of Vistan prints behind it; as you scroll the prints fly out round the
+ * words, the words darken one by one, then the twilight pool in the middle
+ * opens to the whole screen and the words turn white on it (motion.ts).
+ * Without motion it is the pile under the words, still.
+ */
+function Burst() {
+  // One size for every print, as CSS variables, so the opening photo starts
+  // exactly the size of a print.
+  const card =
+    "absolute left-[calc(50%-var(--bw)/2)] top-[calc(50%-var(--bh)/2)] h-[var(--bh)] w-[var(--bw)] overflow-hidden";
+  return (
+    <section
+      id="intro"
+      data-burst
+      className="relative h-[100svh] overflow-hidden bg-[#f3f0ed] [--bh:46vw] [--bw:36vw] sm:[--bh:26vw] sm:[--bw:20.8vw] lg:[--bh:20vw] lg:[--bw:16vw]"
+    >
+      {BURST.map((b, i) => (
+        <div
+          key={b.src}
+          data-burst-card
+          data-x={b.x}
+          data-y={b.y}
+          data-r={b.r}
+          className={cn(card, "shadow-[0_24px_60px_rgba(24,22,21,0.18)]")}
+          style={{ zIndex: i + 1 }}
+        >
+          <img src={b.src} alt="" loading="lazy" className="size-full object-cover" />
+        </div>
+      ))}
+      <div data-burst-center aria-hidden className={cn(card, "invisible")} />
+      <div
+        data-burst-fill
+        className="absolute inset-0 z-10 overflow-hidden"
+        style={{
+          clipPath:
+            "inset(calc(50% - var(--bh) / 2) calc(50% - var(--bw) / 2) calc(50% - var(--bh) / 2) calc(50% - var(--bw) / 2))",
+        }}
+      >
+        <img
+          src={BURST_FILL}
+          alt="The Vistan Villa's pool at twilight"
+          loading="lazy"
+          className="size-full object-cover"
+        />
+        <div data-burst-shade className="absolute inset-0 bg-black/35 opacity-0" />
+      </div>
+      <div className="pointer-events-none absolute inset-0 z-20 grid place-items-center px-4">
+        <h2
+          data-burst-title
+          className="text-balance text-center font-vero text-[13.5vw] leading-[0.9] tracking-[-0.01em] text-[#181615] sm:text-[9.5vw] lg:text-[8.6rem]"
+        >
+          <Vero text={FACEBOOK.headline} />
+        </h2>
+      </div>
+      <p
+        data-burst-after
+        className="absolute inset-x-0 bottom-8 z-20 px-4 text-center font-vero text-[15px] tracking-[0.04em] text-white opacity-0 sm:bottom-12"
+      >
+        <Vero text="The Vistan Villa, Bamban, Tarlac | Malaya's newest" />
+      </p>
+    </section>
+  );
+}
+
 function Intro({ c }: C) {
   return (
-    <section id="intro" className="scroll-mt-20 px-4 pb-28 pt-24 text-center sm:pt-32 lg:pb-40">
-      {/* His family on the studio's white: multiplied into the beige, so the
-          backdrop melts away, and faded at the foot like Vero's dress. */}
-      <div className="relative mx-auto w-[min(560px,88vw)]">
-        <img
-          src={c.meet.photo}
-          alt="Marj with his family"
-          loading="lazy"
-          data-parallax="-4"
-          className="w-full mix-blend-multiply [mask-image:radial-gradient(ellipse_58%_56%_at_50%_44%,#000_52%,transparent_80%)]"
-        />
-      </div>
-      <Big
-        text={FACEBOOK.headline}
-        className="relative mx-auto -mt-[7vw] max-w-6xl sm:-mt-[6vw] lg:-mt-20"
-      />
+    <section className="px-4 pb-28 pt-24 text-center sm:pt-32 lg:pb-40">
       <p
         data-reveal
-        className="mx-auto mt-12 max-w-lg text-xl font-semibold leading-snug tracking-[-0.01em] sm:text-2xl"
+        className="mx-auto max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.015em] sm:text-3xl"
       >
         {c.hero.sub}
       </p>
       <p
         data-reveal
-        className="mx-auto mt-5 max-w-md font-vero text-[17px] leading-relaxed text-[#181615]/75"
+        className="mx-auto mt-6 max-w-md font-vero text-[17px] leading-relaxed text-[#181615]/75"
       >
         {startedLines(AIRBNB_HOST.bio)}
       </p>
@@ -426,11 +497,11 @@ function Founder({ c }: C) {
       <div className="mx-auto mt-16 grid max-w-[1440px] items-center gap-12 lg:mt-24 lg:grid-cols-2 lg:gap-6">
         <div className="overflow-hidden bg-[#e8e3dd]">
           <img
-            src="/brand/about-team.webp"
-            alt="Marj Lopez with Team Malaya"
+            src={c.meet.photo}
+            alt="Marj with his family"
             loading="lazy"
             data-parallax="-4"
-            className="aspect-[5/4] w-full scale-110 object-cover object-[30%_center]"
+            className="aspect-square w-full scale-110 object-cover object-top"
           />
         </div>
         <div data-reveal className="mx-auto max-w-md text-center">

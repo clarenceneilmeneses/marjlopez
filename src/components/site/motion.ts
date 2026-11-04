@@ -10,6 +10,11 @@
  *   data-hero          the full-screen hero, pinned while it shrinks to a
  *                      band: [data-hero-media] (clipped), [data-hero-mark]
  *                      (the name, whose letters rise after the preloader)
+ *   data-burst         pinned: [data-burst-card] prints fly from a pile to
+ *                      their data-x/data-y/data-r places round
+ *                      [data-burst-title], whose words darken; then
+ *                      [data-burst-fill] opens from [data-burst-center]'s box
+ *                      to the whole screen and the title turns white
  *   data-split         a heading: lines rise out of a mask on scroll
  *   data-reveal        fades up when it scrolls in (siblings stagger)
  *   data-count         a figure ("73K", "4.47★", "202+") that counts up
@@ -156,6 +161,76 @@ export function usePageMotion(scope: RefObject<HTMLElement | null>) {
           if (img) tl.fromTo(img, { yPercent: 0 }, { yPercent: 6, ease: "none" }, 0);
           if (mark) tl.to(mark, { scale: 0.62, ease: "none" }, 0);
         }
+
+        // ---- the burst: pinned; the prints fly out from the pile to their
+        // places round the headline while its words darken, then the middle
+        // photo opens from the size of a print to the whole screen and the
+        // words turn white on it.
+        q<HTMLElement>("[data-burst]").forEach((stage) => {
+          const cards = gsap.utils.toArray<HTMLElement>(
+            stage.querySelectorAll("[data-burst-card]"),
+          );
+          const center = stage.querySelector<HTMLElement>("[data-burst-center]");
+          const fill = stage.querySelector<HTMLElement>("[data-burst-fill]");
+          const title = stage.querySelector<HTMLElement>("[data-burst-title]");
+          const shade = stage.querySelector<HTMLElement>("[data-burst-shade]");
+          const after = stage.querySelectorAll<HTMLElement>("[data-burst-after]");
+          if (!center || !fill || !title) return;
+          // The middle print's box, as an inset of the stage: where the fill starts.
+          const startInset = () => {
+            const s = stage.getBoundingClientRect();
+            const r = center.getBoundingClientRect();
+            return `inset(${r.top - s.top}px ${s.right - r.right}px ${s.bottom - r.bottom}px ${r.left - s.left}px)`;
+          };
+          const words = SplitText.create(title, { type: "words" }).words;
+          const num = (el: HTMLElement, k: string) => parseFloat(el.dataset[k] ?? "0");
+          gsap.set(cards, { rotate: (i) => (i % 2 ? 1 : -1) * (2 + i * 1.5) });
+          gsap.set(words, { opacity: 0.16 });
+          // The middle photo stays hidden until it opens: as a print-sized
+          // crop of a full-screen photo it reads as a random close-up.
+          gsap.set(fill, { autoAlpha: 0 });
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: stage,
+              start: "top top",
+              end: "+=230%",
+              pin: true,
+              scrub: 0.8,
+              invalidateOnRefresh: true,
+            },
+          });
+          tl.to(
+            cards,
+            {
+              x: (_, el: HTMLElement) => (num(el, "x") / 100) * window.innerWidth,
+              y: (_, el: HTMLElement) => (num(el, "y") / 100) * window.innerHeight,
+              rotate: (_, el: HTMLElement) => num(el, "r"),
+              ease: "power3.out",
+              duration: 1,
+              stagger: 0.05,
+            },
+            0,
+          )
+            .to(words, { opacity: 1, ease: "none", duration: 0.25, stagger: 0.09 }, 0.1)
+            .to(cards, { y: "-=4vh", ease: "none", duration: 0.5 }, 1.1)
+            .to(fill, { autoAlpha: 1, ease: "none", duration: 0.12 }, 1.42)
+            .fromTo(
+              fill,
+              { clipPath: () => startInset() },
+              { clipPath: "inset(0px 0px 0px 0px)", ease: "power2.inOut", duration: 1 },
+              1.5,
+            )
+            .fromTo(
+              fill.querySelector("img"),
+              { scale: 1.3 },
+              { scale: 1, ease: "power2.inOut", duration: 1 },
+              1.5,
+            );
+          if (shade) tl.to(shade, { opacity: 1, ease: "none", duration: 0.6 }, 1.8);
+          tl.to(title, { color: "#ffffff", ease: "none", duration: 0.5 }, 1.85);
+          if (after.length) tl.to(after, { opacity: 1, ease: "none", duration: 0.3 }, 2.3);
+          tl.to({}, { duration: 0.35 });
+        });
 
         // ---- headings: lines rise out of a mask as they scroll in.
         q<HTMLElement>("[data-split]").forEach((el) => {
