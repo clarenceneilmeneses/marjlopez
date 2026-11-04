@@ -1,16 +1,15 @@
 /**
  * The preloader: the first thing a visitor sees, once per visit.
  *
- * Clarence, 2026-11-04, first "an onload animation … so it has like a wow
- * factor", then "pretty much copy vero's landing page" (verostudio.com):
- * so it is Vero's. The headline in capitals on the page's beige, a photo set
- * into the middle of it, a progress line counting to 100%; then the photo
- * opens to fill the screen and the page is behind it. On the landing that
- * photo is the hero's own, so it hands straight over.
+ * Clarence, 2026-11-04: "an onload animation … so it has like a wow
+ * factor". A small frame on the beige, villa photos flicking up through it
+ * while a big counter runs to 100; then the frame grows to the whole screen
+ * on the last photo, the hero's own, so it hands straight over to the page.
+ * (The earlier headline-with-a-photo-in-it version was "awful".)
  *
  * It is pure CSS, rendered on the server, so it covers the page from the very
- * first paint, before any JavaScript has arrived (the % counts with an
- * animated CSS property). The inline script in the head (`INTRO_SCRIPT`)
+ * first paint, before any JavaScript has arrived (the counter counts with
+ * an animated CSS property). The inline script in the head (`INTRO_SCRIPT`)
  * runs before the body is drawn and switches it off when it would get in the
  * way:
  *   - it has already played in this tab (sessionStorage), so moving between
@@ -23,8 +22,6 @@
  */
 import { LANDING_DEFAULT } from "@/lib/site-content";
 
-import { Vero } from "./vero";
-
 const SEEN_KEY = "ml-intro-seen";
 
 /** Runs in <head>, before the body paints. Kept tiny and dependency-free. */
@@ -33,34 +30,37 @@ export const INTRO_SCRIPT = `(function(){try{var d=document.documentElement;if(w
 /** When the preloader has lifted, in seconds (motion.ts starts the hero then). */
 export const INTRO_DONE_S = 3.2;
 
+/**
+ * The photos that flick through the frame, lightest copies first; the last
+ * is the hero's own photo, so the frame opens straight onto it.
+ */
+const FLICKS = [
+  "/villas/pr-saglit/2.webp",
+  "/villas/pr-hidden-loft/0.webp",
+  "/villas/pr-malaya-2/6.webp",
+  "/villas/pr-bacoor/1.webp",
+  "/villas/pr-012/0.webp",
+];
+
 export function BrandIntro() {
-  const [top, bottom] = LANDING_DEFAULT.hero.headline;
-  const lines = (s: string) => {
-    // "Building hospitality" → two lines, so the photo sits mid-sentence.
-    const i = s.indexOf(" ");
-    return i < 0 ? [s] : [s.slice(0, i), s.slice(i + 1)];
-  };
-  const above = lines(top);
-  const below = lines(bottom);
-  const line = (text: string, i: number) => (
-    <span key={i} className="ml-loader__line">
-      <span style={{ "--i": i } as React.CSSProperties}>
-        <Vero text={text} />
-      </span>
-    </span>
-  );
+  const shots = [...FLICKS, LANDING_DEFAULT.hero.photo];
   return (
     <div className="ml-loader" aria-hidden="true">
-      <img className="ml-loader__img" src={LANDING_DEFAULT.hero.photo} alt="" />
-      <div className="ml-loader__text">
-        <div className="ml-loader__top">{above.map((t, i) => line(t, i))}</div>
-        <div className="ml-loader__slot" />
-        <div className="ml-loader__bottom">{below.map((t, i) => line(t, above.length + i))}</div>
+      <div className="ml-loader__frame">
+        {shots.map((src, i) => (
+          <img
+            key={src}
+            className="ml-loader__shot"
+            src={src}
+            alt=""
+            style={{ "--i": i } as React.CSSProperties}
+          />
+        ))}
       </div>
-      <div className="ml-loader__bar">
-        <span className="ml-loader__fill" />
-        <span className="ml-loader__pct" />
-      </div>
+      <p className="ml-loader__name">
+        Marj Lopez <em>for</em> Malaya Villas
+      </p>
+      <p className="ml-loader__count" />
     </div>
   );
 }

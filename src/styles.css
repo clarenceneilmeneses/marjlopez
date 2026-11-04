@@ -1158,14 +1158,14 @@ html.motion [data-hero-mark] {
 }
 
 /* ---------------------------------------------------------------------------
- * The preloader (components/site/intro.tsx), Vero's: the headline on the
- * beige with a photo set into it and a line counting to 100%, then the photo
- * opens to the full screen and fades into the page. ~3.4s, pure CSS.
+ * The preloader (components/site/intro.tsx). Clarence, 2026-11-04: the
+ * headline-with-a-photo version was "awful", so: a small frame in the middle
+ * of the beige, villa photos flicking up through it while a big counter runs
+ * to 100; then the frame grows to the whole screen on the last photo (the
+ * hero's own) and the loader fades into the page. ~3.2s, pure CSS.
  *
- * The photo is one full-screen <img> clipped to the slot in the text: the
- * slot sits dead centre (a 1fr / auto / 1fr grid), so the clip is just
- * "inset(50% minus half the slot)". Both use the same font-size, so `em`
- * matches.
+ * Each photo fills the frame itself (object-cover inside the frame), so it
+ * is always the whole photo, never a crop of a full-screen one.
  * ------------------------------------------------------------------------- */
 @property --ml-pct {
   syntax: "<integer>";
@@ -1173,102 +1173,102 @@ html.motion [data-hero-mark] {
   initial-value: 0;
 }
 .ml-loader {
-  --ml-size: clamp(2.6rem, 8.2vw, 7rem);
-  --ml-slot-w: 1.9em;
-  --ml-slot-h: 1.25em;
   --ml-ease: cubic-bezier(0.76, 0, 0.24, 1);
+  --ml-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ml-w: clamp(150px, 19vw, 280px);
+  --ml-h: calc(var(--ml-w) * 1.28);
   position: fixed;
   inset: 0;
   z-index: 9999;
   background: #f3f0ed;
   color: #181615;
-  animation: ml-loader-out 0.45s ease 3s forwards;
+  animation: ml-loader-out 0.5s ease 2.85s forwards;
 }
-.ml-loader__text {
+.ml-loader__frame {
   position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-rows: 1fr auto 1fr;
-  justify-items: center;
-  padding: 0 16px;
-  text-align: center;
-  font-family: "Cormorant Garamond", "Cormorant", Georgia, serif;
-  font-weight: 500;
-  font-size: var(--ml-size);
-  line-height: 0.92;
-  animation: ml-text-out 0.7s var(--ml-ease) 2.15s forwards;
-}
-.ml-loader__top {
-  align-self: end;
-}
-.ml-loader__bottom {
-  align-self: start;
-}
-.ml-loader__slot {
-  width: var(--ml-slot-w);
-  height: var(--ml-slot-h);
-  margin: 0.1em 0;
-}
-.ml-loader__line {
-  display: block;
+  left: 50%;
+  top: 50%;
+  width: var(--ml-w);
+  height: var(--ml-h);
   overflow: hidden;
-  padding: 0 0.08em 0.06em;
+  background: #e8e3dd;
+  transform: translate(-50%, -50%);
+  clip-path: inset(100% 0 0 0);
+  animation:
+    ml-frame-in 0.7s var(--ml-out) 0.1s forwards,
+    ml-frame-grow 1s var(--ml-ease) 1.95s forwards;
 }
-.ml-loader__line > span {
-  display: block;
-  transform: translateY(110%);
-  animation: ml-rise 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: calc(0.15s + var(--i) * 0.09s);
-}
-.ml-loader__img {
+.ml-loader__shot {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  font-size: var(--ml-size);
-  clip-path: inset(50% 50%);
-  animation: ml-open 3.05s linear forwards;
+  clip-path: inset(100% 0 0 0);
+  animation: ml-shot 0.55s var(--ml-out) forwards;
+  animation-delay: calc(0.35s + var(--i) * 0.3s);
 }
-.ml-loader__bar {
+.ml-loader__shot:first-child {
+  clip-path: inset(0 0 0 0);
+  animation: none;
+}
+.ml-loader__name,
+.ml-loader__count {
   position: absolute;
+  font-family: "Cormorant Garamond", "Cormorant", Georgia, serif;
+  font-weight: 500;
+  animation: ml-fade 0.4s ease 1.95s forwards;
+}
+.ml-loader__name {
   left: 16px;
-  right: 16px;
-  bottom: 28px;
-  height: 1px;
-  background: rgb(24 22 21 / 0.14);
-  animation: ml-fade 0.4s ease 2.1s forwards;
-}
-.ml-loader__fill {
-  position: absolute;
-  inset: 0;
-  background: #181615;
-  transform-origin: left;
-  transform: scaleX(0);
-  animation: ml-fill 2s cubic-bezier(0.65, 0, 0.35, 1) 0.1s forwards;
-}
-.ml-loader__pct {
-  position: absolute;
-  right: 0;
-  bottom: 10px;
-  font-family: var(--font-sans);
-  font-size: 12px;
+  bottom: 20px;
+  font-size: 13px;
   letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.ml-loader__name em {
+  font-style: italic;
+  text-transform: none;
+}
+.ml-loader__count {
+  right: 16px;
+  bottom: 4px;
+  font-size: clamp(4.5rem, 14vw, 11rem);
+  line-height: 0.8;
+  letter-spacing: -0.03em;
   counter-reset: pct var(--ml-pct);
-  animation: ml-count 2s cubic-bezier(0.65, 0, 0.35, 1) 0.1s forwards;
+  animation:
+    ml-count 1.8s cubic-bezier(0.65, 0, 0.35, 1) 0.1s forwards,
+    ml-fade 0.4s ease 1.95s forwards;
 }
-.ml-loader__pct::after {
-  content: counter(pct) "%";
+.ml-loader__count::after {
+  content: counter(pct);
 }
-
-@keyframes ml-rise {
-  to {
-    transform: none;
+@media (min-width: 640px) {
+  .ml-loader__name {
+    left: 32px;
+    bottom: 32px;
+  }
+  .ml-loader__count {
+    right: 32px;
+    bottom: 12px;
   }
 }
-@keyframes ml-fill {
+
+@keyframes ml-frame-in {
   to {
-    transform: scaleX(1);
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes ml-frame-grow {
+  to {
+    width: 100vw;
+    height: 100vh;
+  }
+}
+@keyframes ml-shot {
+  to {
+    clip-path: inset(0 0 0 0);
   }
 }
 @keyframes ml-count {
@@ -1279,34 +1279,6 @@ html.motion [data-hero-mark] {
 @keyframes ml-fade {
   to {
     opacity: 0;
-  }
-}
-@keyframes ml-text-out {
-  to {
-    opacity: 0;
-    transform: translateY(-4%) scale(1.04);
-  }
-}
-/* 0 → 0.55s the photo opens into the slot; it holds while the line counts;
-   2.15s → 3.05s it opens to the whole screen. */
-@keyframes ml-open {
-  0% {
-    clip-path: inset(50% 50%);
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  18% {
-    clip-path: inset(
-      calc(50% - var(--ml-slot-h) / 2) calc(50% - var(--ml-slot-w) / 2)
-    );
-  }
-  70% {
-    clip-path: inset(
-      calc(50% - var(--ml-slot-h) / 2) calc(50% - var(--ml-slot-w) / 2)
-    );
-    animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-  }
-  100% {
-    clip-path: inset(0 0);
   }
 }
 @keyframes ml-loader-out {
