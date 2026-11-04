@@ -22,7 +22,6 @@ export { default as Bath } from "./Bath";
 export { default as BedDouble } from "./BedDouble";
 export { default as Bell } from "./Bell";
 export { default as Bot } from "./Bot";
-export { default as Briefcase } from "./Briefcase01";
 export { default as Building2 } from "./Building03";
 export { default as Calculator } from "./Calculator";
 export { default as CalendarCheck } from "./CalendarCheck";

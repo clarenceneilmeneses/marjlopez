@@ -61,30 +61,28 @@ export function IPhone({
       <span className="absolute -right-[3px] top-[29%] h-[13%] w-[3px] rounded-r bg-[#6e6a66]" />
       <div className="rounded-[18%/8.5%] bg-gradient-to-b from-[#8d8984] via-[#5f5b57] to-[#8d8984] p-[2px] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)]">
         <div className="rounded-[17.5%/8.2%] bg-[#0b0b0c] p-[3.6%]">
-          <div className="relative aspect-[9/19.5] overflow-hidden rounded-[13.5%/6.3%] bg-white [container-type:inline-size]">
+          <div className="relative aspect-[9/19.5] overflow-hidden rounded-[13.5%/6.3%] bg-white">
             {/* A screenshot gets the iOS status bar above it, clear of the
-                Dynamic Island, the way the page sits on a real phone. Sized in
-                cqw (% of the screen's width), so a small phone gets a small
-                status bar instead of one that runs into the island. */}
+                Dynamic Island, the way the page sits on a real phone. */}
             {src && (
               <>
                 <span
-                  className="absolute inset-x-0 top-0 flex h-[6.2%] items-end justify-between bg-white px-[9%] pb-[1.5%] text-[4.2cqw] font-semibold leading-none text-black"
+                  className="absolute inset-x-0 top-0 flex h-[6.2%] items-end justify-between bg-white px-[9%] pb-[1.5%] text-[10px] font-semibold text-black"
                   style={{ fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}
                 >
                   <span>9:41</span>
-                  <span className="flex items-center gap-[1.6cqw]">
-                    <span className="flex items-end gap-[0.4cqw]">
-                      {[1.2, 2, 2.8, 3.6].map((h) => (
+                  <span className="flex items-center gap-1">
+                    <span className="flex items-end gap-px">
+                      {[3, 5, 7, 9].map((h) => (
                         <span
                           key={h}
-                          className="w-[0.8cqw] rounded-[0.3cqw] bg-black"
-                          style={{ height: `${h}cqw` }}
+                          className="w-[2px] rounded-sm bg-black"
+                          style={{ height: h }}
                         />
                       ))}
                     </span>
-                    <span className="relative h-[3.6cqw] w-[7.2cqw] rounded-[1.1cqw] border-[0.4cqw] border-black/40 p-[0.4cqw]">
-                      <span className="block h-full w-[75%] rounded-[0.4cqw] bg-black" />
+                    <span className="relative h-[9px] w-[18px] rounded-[3px] border border-black/40 p-px">
+                      <span className="block h-full w-[75%] rounded-[1px] bg-black" />
                     </span>
                   </span>
                 </span>
@@ -100,30 +98,6 @@ export function IPhone({
             <span className="absolute left-1/2 top-[1.6%] h-[3.6%] w-[31%] -translate-x-1/2 rounded-full bg-black" />
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-/**
- * A laptop, deliberately generic (Clarence, 2026-11-04: "dont use a macbook
- * and remove the notch"): a charcoal lid with even bezels and a pin-dot
- * webcam, a thicker chin, and a flat dark base with a slim front lip.
- * Width comes from the caller; the screen takes the screenshot's own shape,
- * so nothing of it is cropped.
- */
-export function Laptop({ src, className }: { src: string; className?: string }) {
-  return (
-    <div className={cn("relative", className)}>
-      <div className="relative mx-[6%] rounded-[1.8%/2.8%] bg-gradient-to-b from-[#2a2a2c] to-[#1c1c1e] px-[1.8%] pb-[3.2%] pt-[2.4%] ring-1 ring-black/40 shadow-[0_30px_60px_-24px_rgba(0,0,0,0.6)]">
-        <span className="absolute left-1/2 top-[0.9%] size-[0.7%] min-h-[3px] min-w-[3px] -translate-x-1/2 rounded-full bg-[#0c0c0d] ring-1 ring-white/10" />
-        <div className="relative overflow-hidden bg-white">
-          <img src={src} alt="" loading="lazy" className="block h-auto w-full" />
-        </div>
-      </div>
-      <div className="relative h-0 pb-[2.6%]">
-        <div className="absolute inset-0 rounded-b-[30%_100%] bg-gradient-to-b from-[#3a3a3d] via-[#2a2a2c] to-[#161617] shadow-[0_18px_30px_-12px_rgba(0,0,0,0.55)]" />
-        <span className="absolute inset-x-0 top-0 h-px bg-white/15" />
       </div>
     </div>
   );

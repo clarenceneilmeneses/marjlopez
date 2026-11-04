@@ -27,10 +27,10 @@ export const AIRBNB_HOST = {
   bio: "I'm a single dad of 4, a content creator, and a businessman, striving to provide my kids with a better future. Growing up without a home, I dreamed of having one. I started renting and trying out various accommodations like hotels, staycations, and Airbnb, and I found joy in it. That's why I decided to start my own rental business. I love places with great views, so my units are simple as long as there's a great view from the balcony.",
 };
 
-/** His personal Facebook, verified (screenshot from Clarence, 2026-10-25; 75K followers per Clarence, 2026-11-04). */
+/** His personal Facebook, verified (screenshot from Clarence, 2026-10-25). */
 export const FACEBOOK = {
   url: "https://www.facebook.com/marj.lopez.264561",
-  followers: "75K",
+  followers: "73K",
   intro: "Entrepreneur · Manila · Malaya Villa",
   email: "mrjnlpzg@gmail.com",
   /** His cover photo's line — his own pitch, word for word. */

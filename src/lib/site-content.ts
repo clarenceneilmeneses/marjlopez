@@ -45,26 +45,21 @@ export const LANDING_DEFAULT: LandingContent = {
   hero: {
     eyebrow: "Hospitality entrepreneur · Operator · Business builder",
     headline: ["Building hospitality", "businesses that earn"],
-    sub: `Marj runs ${PORTFOLIO.villas} villas under Malaya. Pick what you need below | have it managed, learn it, invest in it, or systemize it.`,
-    // The full-screen hero and the preloader's photo: the Vistan Villa
-    // (PR-013), Malaya's newest, from above, at the full size Malaya
-    // uploaded (public/hd/vistan). Clarence picked it, 2026-11-04.
-    photo: "/hd/vistan/00.webp",
+    sub: `Marj runs ${PORTFOLIO.villas} villas under Malaya. Pick what you need below — have it managed, learn it, invest in it, or systemize it.`,
+    photo: "/brand/marj.webp",
   },
   offers: {
     heading: "One expertise, four ways in",
     lead: "Building and growing hospitality businesses. Pick the one that fits where you are.",
   },
   proof: {
-    heading: "Malaya | the proof it works",
+    heading: "Malaya — the proof it works",
     body: "Real villas, actual operations, systems, and documented projects. Everything Marj offers, he runs here first.",
-    // The first photos of the landing's gallery wall (more follow from the
-    // villas). The old first one, a frame from a drone video, read as blurry.
     photos: [
-      { src: "/villas/pr-saglit/2.webp" },
-      { src: "/villas/pr-casa-martha/6.webp" },
-      { src: "/villas/pr-012/2.webp" },
-      { src: "/villas/pr-casa-martha/0.webp" },
+      { src: "/brand/about-tagaytay-aerial.webp" },
+      { src: "/malaya/villa-hillside-pool.webp" },
+      { src: "/builds/lian/4.webp" },
+      { src: "/system/dashboard.webp" },
     ],
   },
   meet: {
@@ -146,22 +141,7 @@ export const offerFrom = (slug: OfferSlug, rows: Record<string, unknown>): Offer
 
 /** The photos already on the site, offered by the editor's photo picker. */
 export const SITE_PHOTOS: { src: string; label: string }[] = [
-  { src: "/hd/vistan/00.webp", label: "The Vistan Villa from above (full size)" },
-  { src: "/hd/vistan/24.webp", label: "The Vistan Villa at twilight (full size)" },
-  { src: "/hd/vistan/13.webp", label: "The Vistan Villa at sunset (full size)" },
-  { src: "/hd/vistan/07.webp", label: "The Vistan Villa, drone (full size)" },
-  { src: "/hd/casa-martha-sunset.webp", label: "Casa Martha pool at sunset (full size)" },
-  { src: "/hd/malaya-1-pool.webp", label: "Malaya Villa 1 pool (full size)" },
-  { src: "/hd/casa-martha-garden.webp", label: "Casa Martha garden (full size)" },
-  { src: "/hd/bacoor-aerial.webp", label: "Bacoor from above (full size)" },
-  { src: "/hd/hidden-loft-pool.webp", label: "Hidden Villas loft pool (full size)" },
-  { src: "/villas/pr-malaya-1/0.webp", label: "Malaya Villa 1 at sunset" },
-  { src: "/villas/pr-malaya-2/6.webp", label: "Malaya Villa 2 pool" },
-  { src: "/villas/pr-casa-martha/6.webp", label: "Casa Martha" },
-  { src: "/villas/pr-012/2.webp", label: "Casa Grey" },
-  { src: "/villas/pr-casa-martha/1.webp", label: "Casa Martha pool at dusk" },
-  { src: "/villas/pr-saglit/2.webp", label: "Saglit" },
-  { src: "/brand/marj.webp", label: "Marj | studio" },
+  { src: "/brand/marj.webp", label: "Marj — studio" },
   { src: "/brand/marj-family.webp", label: "Marj with family" },
   { src: "/brand/about-team.webp", label: "Team Malaya" },
   { src: "/brand/about-hero.webp", label: "Villa from above" },
@@ -171,10 +151,10 @@ export const SITE_PHOTOS: { src: string; label: string }[] = [
   { src: "/malaya/villa-aerial.webp", label: "Villa, drone shot" },
   { src: "/malaya/villa-hillside-pool.webp", label: "Hillside pool" },
   { src: "/malaya/lanai-set-for-dinner.webp", label: "Lanai set for an event" },
-  { src: "/system/dashboard.webp", label: "System | Dashboard" },
-  { src: "/system/inbox.webp", label: "System | Inbox" },
-  { src: "/system/calendar.webp", label: "System | Calendar" },
-  { src: "/system/booking.webp", label: "System | Booking" },
+  { src: "/system/dashboard.webp", label: "System — Dashboard" },
+  { src: "/system/inbox.webp", label: "System — Inbox" },
+  { src: "/system/calendar.webp", label: "System — Calendar" },
+  { src: "/system/booking.webp", label: "System — Booking" },
   { src: "/system/site-desk.webp", label: "Malaya website" },
   ...[1, 2, 3, 4].map((n) => ({ src: `/builds/lian/${n}.webp`, label: `Lian build ${n}` })),
   ...VILLAS.map((v) => ({ src: villaPhoto(v.code, v.cover), label: v.title })),

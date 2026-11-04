@@ -111,7 +111,7 @@ function Hero({ o }: { o: Offer }) {
 const NOTES = [
   { title: "New booking", body: "2 nights, a family of 6. Check-in Friday.", when: "now" },
   { title: "Guest checked in", body: "The team met them at the gate. All good.", when: "2h ago" },
-  { title: "Cleaning done", body: "Turnover finished | photos are in your report.", when: "Sun" },
+  { title: "Cleaning done", body: "Turnover finished — photos are in your report.", when: "Sun" },
   {
     title: "Your monthly report",
     body: "Nights booked, money in, money out, your payout.",
@@ -352,7 +352,7 @@ function Faq({ o }: { o: Offer }) {
         <Eyebrow>Questions</Eyebrow>
         <H2 className="mt-4">Owners ask</H2>
         <p className="mt-4 text-[15px] text-muted-foreground">
-          Something else on your mind? Ask it in the form | the team answers in your Inbox.
+          Something else on your mind? Ask it in the form — the team answers in your Inbox.
         </p>
       </div>
       <FaqAccordion o={o} />

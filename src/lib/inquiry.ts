@@ -91,7 +91,7 @@ export const TYPES: Record<
   management: {
     label: "Manage my property",
     short: "Management",
-    blurb: "Marj's team runs your rental | listing, guests, cleaning, payouts.",
+    blurb: "Marj's team runs your rental — listing, guests, cleaning, payouts.",
     icon: KeyRound,
     marks: ["airbnb"],
   },
@@ -111,7 +111,7 @@ export const TYPES: Record<
   system: {
     label: "Business systems for my resort",
     short: "System",
-    blurb: "Website, inbox, bookings and payments | the one that runs Malaya Villas.",
+    blurb: "Website, inbox, bookings and payments — the one that runs Malaya Villas.",
     icon: LayoutDashboard,
     marks: ["malaya"],
   },

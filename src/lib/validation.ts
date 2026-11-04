@@ -82,13 +82,13 @@ export function isRealCalendarDay(iso: string): boolean {
   return d <= lastOfMonth;
 }
 
-export const DATE_HINT = "Use the calendar | dates are day, month, year.";
+export const DATE_HINT = "Use the calendar — dates are day, month, year.";
 
 /** A real `YYYY-MM-DD` day. Use this everywhere a date crosses the wire. */
 export const isoDaySchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "Dates must be in YYYY-MM-DD form.")
-  .refine(isRealCalendarDay, "That date doesn't exist | check the day and month.");
+  .refine(isRealCalendarDay, "That date doesn't exist — check the day and month.");
 
 // =============================================================================
 // Philippine mobile numbers
@@ -180,7 +180,7 @@ export function formatMobile(raw: string): string {
 }
 
 export const MOBILE_HINT =
-  "11 digits starting 09 | or + and the country code from abroad. We text the gate directions here.";
+  "11 digits starting 09 — or + and the country code from abroad. We text the gate directions here.";
 export const MOBILE_EXAMPLE = "0995 516 6278";
 export const MOBILE_EXAMPLE_ABROAD = "+65 9123 4567";
 
@@ -194,12 +194,12 @@ export function mobileProblem(raw: string): string | null {
   const abroad = value.startsWith("+") || value.startsWith("00");
   if (abroad) {
     if (digits.length < 8) {
-      return `That is ${digits.length} digits | an international number needs its country code and at least 8.`;
+      return `That is ${digits.length} digits — an international number needs its country code and at least 8.`;
     }
-    return `That number doesn't look right | check the country code. Example: ${MOBILE_EXAMPLE_ABROAD}`;
+    return `That number doesn't look right — check the country code. Example: ${MOBILE_EXAMPLE_ABROAD}`;
   }
   if (digits.length !== 11) {
-    return `That is ${digits.length} digits | a Philippine mobile has 11. From another country, start with + and the country code.`;
+    return `That is ${digits.length} digits — a Philippine mobile has 11. From another country, start with + and the country code.`;
   }
   return `That doesn't look like a Philippine mobile. Example: ${MOBILE_EXAMPLE}, or ${MOBILE_EXAMPLE_ABROAD} from abroad.`;
 }
@@ -212,7 +212,7 @@ export const mobileSchema = z
   .transform((v) => normaliseMobile(v) ?? v)
   .refine(
     (v) => normaliseMobile(v) !== null,
-    `Give an 11-digit mobile, e.g. ${MOBILE_EXAMPLE} | or + and the country code from abroad.`,
+    `Give an 11-digit mobile, e.g. ${MOBILE_EXAMPLE} — or + and the country code from abroad.`,
   );
 
 /**
@@ -244,7 +244,7 @@ export function emailProblem(raw: string): string | null {
   if (!value) return "Please give an email address.";
   if (value.length > 254) return "That email is too long.";
   if (!value.includes("@")) return "An email address needs an @.";
-  if (!EMAIL_RE.test(value)) return "That email doesn't look right | check for a typo.";
+  if (!EMAIL_RE.test(value)) return "That email doesn't look right — check for a typo.";
   return null;
 }
 
@@ -277,7 +277,7 @@ export const PASSWORD_HINT = `At least ${PASSWORD_MIN} characters. A short phras
 export function passwordProblem(raw: string): string | null {
   if (!raw) return "Please choose a password.";
   if (raw.length < PASSWORD_MIN) {
-    return `${raw.length} character${raw.length === 1 ? "" : "s"} | it needs at least ${PASSWORD_MIN}.`;
+    return `${raw.length} character${raw.length === 1 ? "" : "s"} — it needs at least ${PASSWORD_MIN}.`;
   }
   if (raw.length > 72) return "That password is too long (72 characters maximum).";
   if (/^\s|\s$/.test(raw)) return "A password can't start or end with a space.";

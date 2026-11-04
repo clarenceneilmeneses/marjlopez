@@ -46,7 +46,7 @@ import { useAuth } from "@/state/auth";
 import { errorText, useDeleteQuickReply, useQuickReplies, useSaveQuickReply } from "@/state/data";
 
 export const Route = createFileRoute("/admin/quick-replies")({
-  head: () => ({ meta: [{ title: "Quick replies | Marj Lopez" }] }),
+  head: () => ({ meta: [{ title: "Quick replies — Marj Lopez" }] }),
   component: QuickRepliesPage,
 });
 
@@ -147,7 +147,7 @@ function QuickRepliesPage() {
                         <span className="min-w-0 flex-1">
                           <span className="block text-sm font-semibold">{TYPES[t].label}</span>
                           <span className="line-clamp-2 block text-xs text-muted-foreground">
-                            {r ? r.body : "None set | they get no thank-you."}
+                            {r ? r.body : "None set — they get no thank-you."}
                           </span>
                         </span>
                         <Pencil className="mt-1 size-4 shrink-0 text-muted-foreground" />

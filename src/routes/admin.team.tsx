@@ -27,7 +27,7 @@ import { useInbox, useLiveUpdates, useStaffList } from "@/state/data";
 import { useFilters } from "@/state/filters";
 
 export const Route = createFileRoute("/admin/team")({
-  head: () => ({ meta: [{ title: "Team | Marj Lopez" }] }),
+  head: () => ({ meta: [{ title: "Team — Marj Lopez" }] }),
   component: TeamPage,
 });
 

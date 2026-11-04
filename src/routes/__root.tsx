@@ -9,11 +9,10 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { NewPasswordDialog } from "@/components/site/auth-panel";
-import { BrandIntro, INTRO_SCRIPT } from "@/components/site/intro";
 import { Toaster } from "@/components/ui/sonner";
 import { TopProgress } from "@/components/top-progress";
 import { AuthProvider } from "@/state/auth";
@@ -79,10 +78,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-title", content: BRAND.name },
       { name: "theme-color", content: "#f5f4f2" },
-      { title: `${BRAND.name} | Start, build and run your Airbnb` },
+      { title: `${BRAND.name} — Start, build and run your Airbnb` },
       { name: "description", content: BRAND.description },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: `${BRAND.name} | Start, build and run your Airbnb` },
+      { property: "og:title", content: `${BRAND.name} — Start, build and run your Airbnb` },
       { property: "og:description", content: BRAND.description },
       { property: "og:image", content: "/brand/about-hero.webp" },
     ],
@@ -94,7 +93,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         // Outfit + Karla, on both sides since 2026-10-25 (styles.css, "the
         // public side = the admin"). Barqen, Montserrat and Clash are gone.
-        href: "https://fonts.googleapis.com/css2?family=Outfit:wght@300..700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Karla:ital,wght@0,300..800;1,300..800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Outfit:wght@400..700&family=Karla:ital,wght@0,300..800;1,300..800&display=swap",
       },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
     ],
@@ -111,18 +110,13 @@ function RootShell({ children }: { children: ReactNode }) {
   // that still differ, like white pills on the page tint.
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const isPublic = !pathname.startsWith("/admin");
-  // The brand intro, only when the visit LANDS on a public page — decided once,
-  // so moving from the admin to the site later never plays it.
-  const [intro] = useState(isPublic);
 
   return (
     <html lang="en" data-site={isPublic ? "public" : undefined} suppressHydrationWarning>
       <head>
-        {intro && <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />}
         <HeadContent />
       </head>
       <body>
-        {intro && <BrandIntro />}
         {children}
         <Scripts />
       </body>

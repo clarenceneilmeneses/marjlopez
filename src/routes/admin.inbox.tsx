@@ -129,7 +129,7 @@ export const Route = createFileRoute("/admin/inbox")({
   // `?c=<conversation id>` opens that conversation — the bell and the dashboard link here.
   validateSearch: (s: Record<string, unknown>): { c?: string } =>
     typeof s["c"] === "string" ? { c: s["c"] } : {},
-  head: () => ({ meta: [{ title: "Inbox | Marj Lopez" }] }),
+  head: () => ({ meta: [{ title: "Inbox — Marj Lopez" }] }),
   component: InboxPage,
 });
 
@@ -1598,7 +1598,7 @@ function StageStepper({ lead }: { lead: Lead }) {
 }
 
 const NEXT_STEP: Record<LeadStage, string> = {
-  new: "Reply | they haven't heard from a person yet.",
+  new: "Reply — they haven't heard from a person yet.",
   talking: "Book a call: + → Schedule a call.",
   call_booked: "After the call, send the proposal and move it to Proposal sent.",
   proposal_sent: "Follow up in a few days if they go quiet.",
@@ -1699,7 +1699,7 @@ function AtAGlance({ row }: { row: Row }) {
             <span>
               <span className="font-semibold">Next: </span>
               {row.waitingHours !== null
-                ? `Reply | they've been waiting ${Math.max(1, Math.floor(row.waitingHours))}h.`
+                ? `Reply — they've been waiting ${Math.max(1, Math.floor(row.waitingHours))}h.`
                 : NEXT_STEP[row.lead.stage]}
             </span>
           </p>

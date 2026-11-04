@@ -1,45 +1,37 @@
 /**
- * The page the link in bio points to: the message, the four offers, the
- * proof (Malaya), and who Marj is (the boss, 2026-11-03).
+ * The page the link in bio points to. Simple on purpose (the boss,
+ * 2026-11-03: "wag masyadong overwhelming sa information … clear ang
+ * inoffer natin"): the message, the four offers, one line of proof, and who
+ * Marj is. Everything detailed — the villas, the build, the reviews — lives
+ * on the offer page it proves.
  *
- * Laid out after verostudio.com (Clarence, 2026-11-04: "pretty much copy
- * vero's landing page but with the contents of marjun … u literally have
- * access to the pictures"). Vero's order, Marj's words and photos:
+ *   1  Hero       Marj in a rounded frame, who he is and the one message
+ *   2  Offers     the four offers from his "one ecosystem" diagram —
+ *                 MANAGE · LEARN · INVEST · SYSTEMIZE — each opens its page
+ *   3  Numbers    the follower and review counts, one quiet row
+ *   4  Proof      Malaya, the proof of execution: four numbers, four photos
+ *   5  Meet Marj  his photo, his story, TV and press, his accounts
  *
- *   (preloader)  the headline with a photo set into it, opening to the hero
- *                (components/site/intro.tsx)
- *   Hero         full screen: the Vistan Villa from above, his name; pinned, it shrinks
- *   Burst        pinned: "WE HELP you START & EARN through AIRBNB" (his own
- *                Facebook cover line) huge, Vistan prints flying out round
- *                it, then the twilight pool opening to the full screen
- *   Intro        the message and his bio
- *   Essence      "where HOSPITALITY meets SYSTEMS", then a pinned slideshow,
- *                "from GUEST, to HOST, to OPERATOR" (his story)
- *   Offers       the four offers: a big photo held on the left that changes
- *                as each offer scrolls by on the right, with two more photos
- *   Founder      his quote beside his family, his accounts
- *   Gallery      Malaya's numbers, then a wall of villa photos drifting
- *   Quote        a guest's review in giant type, sliding, Malaya's mark
- *   Closing      the ask, and his name across the page
- *
- * The type voice (capitals, small words in italic) is components/site/vero.tsx;
- * the motion is components/site/motion.ts, driven by the data- attributes.
- * The words and photos marked "c." can be changed from Admin → Website; the
- * defaults are in lib/site-content.ts, and each offer's words in lib/offers.ts.
- * Big photos (hero, slideshow, the held offer photo) come from public/hd:
- * Malaya's originals at their full 2000px. The villas' 1400px copies are
- * only used small (the gallery, the pairs).
+ * Every figure's source is in lib/brand.ts. The words and photos can be
+ * changed from Admin → Website; the defaults are in lib/site-content.ts,
+ * and each offer's card words in lib/offers.ts.
  */
-import { createFileRoute } from "@tanstack/react-router";
-import { ChevronDown } from "@/components/icons";
-import { useRef } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, ArrowUpRight, BadgeCheck, Check, Globe, Play, Star } from "@/components/icons";
 
 import { PublicFooter, PublicHeader } from "@/components/site/chrome";
-import { IPhone, Laptop } from "@/components/site/offers/devices";
-import { usePageMotion, useSmoothScroll } from "@/components/site/motion";
-import { Vero, VeroButton } from "@/components/site/vero";
-import { AIRBNB_HOST, FACEBOOK, GUEST_REVIEWS, INSTAGRAM } from "@/lib/brand";
-import { OFFER_ORDER, offerPath, proofWith, type Offer, type OfferSlug } from "@/lib/offers";
+import { PlatformLogo, type Platform } from "@/components/site/logos";
+import { ParallaxImage } from "@/components/site/parallax";
+import {
+  AIRBNB_HOST,
+  FACEBOOK,
+  INSTAGRAM,
+  LINKS,
+  TOTAL_REVIEWS,
+  type ProfileLink,
+} from "@/lib/brand";
+import { TYPES } from "@/lib/inquiry";
+import { OFFER_ORDER, offerPath, proofWith, type Offer } from "@/lib/offers";
 import {
   fetchSiteContent,
   landingFrom,
@@ -53,44 +45,18 @@ import { usePreviewDraft } from "@/state/site";
 
 export const Route = createFileRoute("/")({
   // The saved words, read before the page renders so the first paint has
-  // them: the landing's own, and each offer's.
+  // them — the landing's own, and each offer's (its card's pillar and name).
   loader: () => fetchSiteContent(["landing", ...OFFER_KEYS]),
   component: Landing,
 });
 
 type C = { c: LandingContent };
 
-/** Small caps line over a heading, in the serif: "the ESSENCE of MALAYA". */
-function Kicker({ text, className }: { text: string; className?: string }) {
+function Eyebrow({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <p className={cn("font-vero text-[13px] tracking-[0.06em] sm:text-sm", className)}>
-      <Vero text={text} />
+    <p className={cn("brand-eyebrow text-[10px] text-muted-foreground sm:text-xs", className)}>
+      {children}
     </p>
-  );
-}
-
-/** The big headline: capitals in the serif, small words in italic. */
-function Big({
-  text,
-  as: Tag = "h2",
-  className,
-  split = true,
-}: {
-  text: string;
-  as?: "h1" | "h2" | "p";
-  className?: string;
-  split?: boolean;
-}) {
-  return (
-    <Tag
-      {...(split ? { "data-split": "" } : {})}
-      className={cn(
-        "text-balance font-vero text-[13vw] leading-[0.9] tracking-[-0.01em] text-[#181615] sm:text-[9vw] lg:text-[7.4rem]",
-        className,
-      )}
-    >
-      <Vero text={text} />
-    </Tag>
   );
 }
 
@@ -100,22 +66,14 @@ function Landing() {
   const draft = usePreviewDraft("landing");
   const c = landingFrom(draft === undefined ? rows : { ...rows, landing: draft });
   const offers = OFFER_ORDER.map((slug) => offerFrom(slug, rows));
-  const root = useRef<HTMLDivElement>(null);
-  useSmoothScroll();
-  usePageMotion(root);
   return (
-    <div ref={root} className="min-h-screen overflow-x-clip bg-[#f3f0ed] text-[#181615]">
+    <div className="min-h-screen bg-background">
       <PublicHeader />
       <main id="content">
         <Hero c={c} />
-        <Burst />
-        <Intro c={c} />
-        <Essence />
         <Offers c={c} offers={offers} />
-        <Founder c={c} />
-        <Gallery c={c} />
-        <GuestQuote />
-        <Closing />
+        <Proof c={c} />
+        <MeetMarj c={c} />
       </main>
       <PublicFooter />
     </div>
@@ -126,235 +84,62 @@ function Landing() {
 
 function Hero({ c }: C) {
   return (
-    <section data-hero className="relative h-[calc(100svh-4.25rem)] min-h-[520px]">
-      <div data-hero-media className="absolute inset-0 overflow-hidden bg-[#181615]">
-        <img
-          src={c.hero.photo}
-          alt="The Vistan Villa, Malaya, from above"
-          loading="eager"
-          fetchPriority="high"
-          className="size-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black/30" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_50%_50%,rgba(0,0,0,0.3),transparent_75%)]" />
-      </div>
-      <div
-        data-hero-mark
-        className="pointer-events-none absolute inset-0 grid place-items-center px-4 text-center text-white [text-shadow:0_2px_40px_rgba(0,0,0,0.35)]"
-      >
-        <div>
-          <h1
-            data-hero-name
-            className="font-vero text-[19vw] uppercase leading-[0.86] tracking-[-0.01em] sm:text-[15vw] lg:text-[12.5rem]"
-          >
-            Marj Lopez
-          </h1>
-          <p data-hero-rest className="mt-6 font-vero text-lg sm:mt-10 sm:text-2xl">
-            <Vero text={c.hero.eyebrow} />
-          </p>
-        </div>
-      </div>
-      <a
-        href="#intro"
-        aria-label="Scroll down"
-        data-hero-rest
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/80 transition hover:text-white"
-      >
-        <ChevronDown className="size-6 animate-bounce" />
-      </a>
-    </section>
-  );
-}
-
-// ----------------------------------------------------------------- burst
-
-/**
- * The Vistan Villa (PR-013, Bamban, Tarlac), Malaya's newest, photos at full
- * size from Malaya's own uploads (public/hd/vistan). These are the prints
- * that scatter round the headline; FILL is the one that opens to the screen.
- * x/y are where each lands, in % of the screen from the centre; r its tilt.
- */
-const BURST = [
-  { src: "/hd/vistan/13.webp", x: -33, y: -27, r: -8 },
-  { src: "/hd/vistan/08.webp", x: 33, y: -25, r: 7 },
-  { src: "/hd/vistan/22.webp", x: -37, y: 25, r: 5 },
-  { src: "/hd/vistan/06.webp", x: 35, y: 27, r: -6 },
-  { src: "/hd/vistan/25.webp", x: -9, y: -38, r: 3 },
-  { src: "/hd/vistan/18.webp", x: 11, y: 37, r: -4 },
-];
-const BURST_FILL = "/hd/vistan/24.webp";
-
-/** His own bio (lib/brand.ts), the sentences about how he started. */
-function startedLines(bio: string) {
-  const s = bio.split(/(?<=\.)\s+/);
-  return [s[0], s[2], s[3]].filter(Boolean).join(" ");
-}
-
-/**
- * The section after the hero, Vero's "deserves to last forever" moment made
- * bigger: pinned, his Facebook cover line huge across the screen with a pile
- * of Vistan prints behind it; as you scroll the prints fly out round the
- * words, the words darken one by one, then the twilight pool in the middle
- * opens to the whole screen and the words turn white on it (motion.ts).
- * Without motion it is the pile under the words, still.
- */
-function Burst() {
-  // One size for every print, as CSS variables, so the opening photo starts
-  // exactly the size of a print.
-  const card =
-    "absolute left-[calc(50%-var(--bw)/2)] top-[calc(50%-var(--bh)/2)] h-[var(--bh)] w-[var(--bw)] overflow-hidden";
-  return (
-    <section
-      id="intro"
-      data-burst
-      className="relative h-[100svh] overflow-hidden bg-[#f3f0ed] [--bh:46vw] [--bw:36vw] sm:[--bh:26vw] sm:[--bw:20.8vw] lg:[--bh:20vw] lg:[--bw:16vw]"
-    >
-      {BURST.map((b, i) => (
-        <div
-          key={b.src}
-          data-burst-card
-          data-x={b.x}
-          data-y={b.y}
-          data-r={b.r}
-          className={cn(card, "shadow-[0_24px_60px_rgba(24,22,21,0.18)]")}
-          style={{ zIndex: i + 1 }}
-        >
-          <img src={b.src} alt="" loading="lazy" className="size-full object-cover" />
-        </div>
-      ))}
-      <div data-burst-center aria-hidden className={cn(card, "invisible")} />
-      <div
-        data-burst-fill
-        className="absolute inset-0 z-10 overflow-hidden"
-        style={{
-          clipPath:
-            "inset(calc(50% - var(--bh) / 2) calc(50% - var(--bw) / 2) calc(50% - var(--bh) / 2) calc(50% - var(--bw) / 2))",
-        }}
-      >
-        <img
-          src={BURST_FILL}
-          alt="The Vistan Villa's pool at twilight"
-          loading="lazy"
-          className="size-full object-cover"
-        />
-        <div data-burst-shade className="absolute inset-0 bg-black/35 opacity-0" />
-      </div>
-      <div className="pointer-events-none absolute inset-0 z-20 grid place-items-center px-4">
-        <h2
-          data-burst-title
-          className="text-balance text-center font-vero text-[13.5vw] leading-[0.9] tracking-[-0.01em] text-[#181615] sm:text-[9.5vw] lg:text-[8.6rem]"
-        >
-          <Vero text={FACEBOOK.headline} />
-        </h2>
-      </div>
-      <p
-        data-burst-after
-        className="absolute inset-x-0 bottom-8 z-20 px-4 text-center font-vero text-[15px] tracking-[0.04em] text-white opacity-0 sm:bottom-12"
-      >
-        <Vero text="The Vistan Villa, Bamban, Tarlac | Malaya's newest" />
-      </p>
-    </section>
-  );
-}
-
-function Intro({ c }: C) {
-  return (
-    <section className="px-4 pb-28 pt-24 text-center sm:pt-32 lg:pb-40">
-      <p
-        data-reveal
-        className="mx-auto max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.015em] sm:text-3xl"
-      >
-        {c.hero.sub}
-      </p>
-      <p
-        data-reveal
-        className="mx-auto mt-6 max-w-md font-vero text-[17px] leading-relaxed text-[#181615]/75"
-      >
-        {startedLines(AIRBNB_HOST.bio)}
-      </p>
-      <div data-reveal className="mt-9">
-        <VeroButton href="#offers">Work with Marj</VeroButton>
-      </div>
-    </section>
-  );
-}
-
-// --------------------------------------------------------------- essence
-
-/**
- * His story in three photos (lib/offers.ts, coaching: renting, hosting,
- * running). The first is also the small photo under the heading that grows
- * to the full screen. No Casa Martha here (Clarence, 2026-11-04).
- */
-const STORY = [
-  { word: "from guest,", src: "/hd/malaya-1-pool.webp", position: "center" },
-  { word: "to host,", src: "/hd/vistan/23.webp", position: "center" },
-  { word: "to operator.", src: "/hd/bacoor-aerial.webp", position: "center" },
-];
-
-/**
- * Vero's "where INNOVATION meets CRAFTSMANSHIP": one pinned stage. The
- * heading on the beige with a small photo under it; as you scroll the photo
- * grows over the heading to the whole screen and becomes the first slide;
- * then the next photos wipe in from the right and their words light up
- * (motion.ts, data-seq). The small photo's box is [data-seq-start].
- */
-function Essence() {
-  return (
-    <section
-      data-seq
-      className="relative h-[100svh] overflow-hidden bg-[#f3f0ed] [--sw:46vw] sm:[--sw:26vw] lg:[--sw:min(19vw,300px)]"
-    >
-      <div className="absolute inset-x-0 top-[9vh] px-4 text-center sm:top-[11vh]">
-        <Kicker text="the essence of Malaya" />
-        <Big
-          text="where hospitality meets systems"
-          className="mx-auto mt-6 max-w-6xl"
-          split={false}
-        />
-      </div>
-      {/* Where the first photo starts: under the heading, a little over it. */}
-      <div
-        data-seq-start
-        aria-hidden
-        className="invisible absolute left-[calc(50%-var(--sw)/2)] top-[52%] aspect-[4/5] w-[var(--sw)] sm:top-[50%]"
-      />
-      {STORY.map((s, i) => (
-        <div
-          key={s.src}
-          data-seq-slide
-          className="absolute inset-0 overflow-hidden bg-[#181615]"
-          style={i === 0 ? undefined : { clipPath: "inset(0% 0% 0% 100%)" }}
-        >
-          <img
-            src={s.src}
-            alt=""
-            loading="lazy"
-            style={{ objectPosition: s.position }}
-            className="size-full object-cover"
+    <section className="px-3 sm:px-6">
+      <div className="relative mx-auto max-w-[1400px]">
+        {/* The frame. The photo's own backdrop is this near-black, so the frame
+            and the photo read as one studio wall. */}
+        <div className="relative h-[600px] overflow-hidden rounded-[2rem] bg-[#151314] shadow-level-3 sm:h-[620px] lg:h-[min(76vh,680px)]">
+          <ParallaxImage
+            src={c.hero.photo}
+            alt="Marj Lopez"
+            strength={6}
+            frameClassName="absolute inset-0 lg:left-auto lg:aspect-square lg:h-full"
+            className="object-[62%_center] lg:object-center"
+            loading="eager"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-black/10" />
+          {/* A bottom fade on a phone, a left fade on a laptop, so the type always sits on dark. */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#151314] via-[#151314]/60 to-transparent lg:hidden" />
+          <div className="absolute inset-y-0 left-0 hidden w-[70%] bg-gradient-to-r from-[#151314] from-55% to-transparent lg:block" />
+
+          {/* Top-right glass chip, like Malaya's "Casa Martha · See this villa". */}
+          <a
+            href={FACEBOOK.url}
+            target="_blank"
+            rel="noreferrer"
+            className="absolute right-4 top-4 flex items-center gap-2.5 rounded-2xl border border-white/20 bg-white/10 p-2 pr-4 text-white backdrop-blur-md transition hover:bg-white/20 sm:right-6 sm:top-6"
+          >
+            <span className="grid size-9 place-items-center rounded-xl bg-white">
+              <PlatformLogo platform="facebook" className="size-5" />
+            </span>
+            <span className="text-left leading-tight">
+              <span className="flex items-center gap-1 text-sm font-semibold">
+                Marj Lopez <BadgeCheck className="size-4 text-[#4a9bff]" />
+              </span>
+              <span className="text-xs text-white/80">{c.numbers.facebook} followers →</span>
+            </span>
+          </a>
+
+          <div className="absolute inset-x-0 bottom-0 p-6 pb-8 sm:p-10 sm:pb-10 lg:inset-y-0 lg:right-auto lg:flex lg:w-[58%] lg:flex-col lg:justify-center lg:p-16">
+            <p className="brand-eyebrow text-[10px] text-white/70 sm:text-xs">{c.hero.eyebrow}</p>
+            <h1 className="site-display mt-4 text-[2.5rem] leading-[0.95] text-white sm:text-6xl xl:text-7xl">
+              {c.hero.headline[0]}
+              <br />
+              {c.hero.headline[1]}
+            </h1>
+            <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-white/80 sm:text-base">
+              {c.hero.sub}
+            </p>
+            <a
+              href="#offers"
+              className="brand-caps mt-7 inline-flex h-12 w-fit items-center gap-2 rounded-full bg-white px-7 text-[15px] text-[#2b1a10] shadow-level-2 transition hover:bg-white/90"
+            >
+              See how Marj can help <ArrowRight className="size-4 rotate-90" />
+            </a>
+          </div>
         </div>
-      ))}
-      <ul
-        data-seq-ui
-        className="absolute left-4 top-1/2 flex -translate-y-1/2 flex-col gap-3 sm:left-6"
-      >
-        {STORY.map((s) => (
-          <li key={s.src} data-seq-dot className="block size-1.5 rotate-45 bg-white" />
-        ))}
-      </ul>
-      <p
-        data-seq-ui
-        className="absolute inset-x-0 bottom-8 px-4 text-center font-vero text-[8.5vw] leading-none text-white sm:bottom-12 sm:text-6xl lg:text-[5.2rem]"
-      >
-        {STORY.map((s, i) => (
-          <span key={s.word} data-seq-word className="opacity-40">
-            <Vero text={s.word} />
-            {i < STORY.length - 1 && " "}
-          </span>
-        ))}
-      </p>
+      </div>
+
+      <Followers c={c} />
     </section>
   );
 }
@@ -362,380 +147,341 @@ function Essence() {
 // ---------------------------------------------------------------- offers
 
 /**
- * Each offer's photos: the big one held on the left (on a laptop), and two
- * beside its words. All real: Malaya's villas, Marj, the Lian build, the
- * system Malaya runs on. `devices` sets Malaya's site on a laptop and a
- * phone over the photo, and `laptop` replaces the pair with one laptop, so
- * the system reads as product shots among the villa photos, not bare
- * screenshots.
+ * The four offers, laid out like the boss's diagram (2026-11-03): the verb
+ * (MANAGE · LEARN · INVEST · SYSTEMIZE), the offer, and who it's for — big
+ * enough to read at a glance, each a whole card that opens its page. The
+ * words are each offer page's own (Admin → Website → that offer).
  */
-const OFFER_SHOTS: Record<
-  OfferSlug,
-  {
-    main: string;
-    position?: string;
-    devices?: { laptop: string; phone: string };
-    laptop?: string;
-    pair: [string, string];
-  }
-> = {
-  management: {
-    main: "/hd/hidden-loft-pool.webp",
-    pair: ["/villas/pr-hidden-cabin-a/1.webp", "/villas/pr-bacoor/0.webp"],
-  },
-  seminar: {
-    main: "/brand/marj.webp",
-    position: "60% center",
-    pair: ["/brand/ptv-feature.webp", "/malaya/lanai-set-for-dinner.webp"],
-  },
-  invest: {
-    main: "/builds/lian/3.webp",
-    pair: ["/builds/lian/1.webp", "/builds/lian/4.webp"],
-  },
-  system: {
-    main: "/hd/vistan/21.webp",
-    devices: { laptop: "/system/site-desk.webp", phone: "/system/site-phone.webp" },
-    laptop: "/system/dashboard.webp",
-    pair: ["/system/dashboard.webp", "/system/calendar.webp"],
-  },
-};
-
-/** An offer's big photo; with `devices`, Malaya's site on a laptop and a phone over it. */
-function OfferShot({ slug, className }: { slug: OfferSlug; className?: string }) {
-  const s = OFFER_SHOTS[slug];
+function Offers({ c, offers }: C & { offers: Offer[] }) {
   return (
-    <div className={cn("overflow-hidden bg-[#181615]", className)}>
-      <img
-        src={s.main}
-        alt=""
-        loading="lazy"
-        style={s.position ? { objectPosition: s.position } : undefined}
-        className="absolute inset-0 size-full object-cover"
-      />
-      {s.devices && (
-        <>
-          <div className="absolute inset-0 bg-black/35" />
-          <Laptop
-            src={s.devices.laptop}
-            className="absolute left-[4%] top-1/2 w-[88%] -translate-y-[58%]"
-          />
-          <IPhone
-            src={s.devices.phone}
-            className="absolute bottom-[8%] right-[5%] w-[27%] max-w-[170px] sm:w-[24%]"
-          />
-        </>
-      )}
+    <section id="offers" className="mx-auto max-w-6xl scroll-mt-20 px-4 pt-20 sm:px-8 lg:pt-28">
+      <div className="mx-auto max-w-2xl text-center">
+        <Eyebrow>Work with Marj</Eyebrow>
+        <h2 className="site-display mt-4 text-4xl leading-none text-brand-heading sm:text-6xl">
+          {c.offers.heading}
+        </h2>
+        <p className="mt-4 text-[15px] text-muted-foreground sm:text-base">{c.offers.lead}</p>
+      </div>
+
+      <ul className="mt-10 grid gap-3 sm:gap-4 md:grid-cols-2">
+        {offers.map((o) => {
+          const Icon = TYPES[o.type].icon;
+          return (
+            <li key={o.slug}>
+              <Link
+                to={offerPath(o.slug)}
+                className="group flex h-full items-stretch gap-4 overflow-hidden rounded-[1.75rem] bg-card p-3 shadow-level-2 transition duration-200 active:scale-[0.98] sm:gap-5 lg:hover:-translate-y-1 lg:hover:shadow-level-3"
+              >
+                <span className="flex min-w-0 flex-1 flex-col p-2 sm:p-4">
+                  <span className="flex items-center gap-2.5">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
+                      <Icon className="size-[18px]" />
+                    </span>
+                    <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                      {o.pillar}
+                    </span>
+                  </span>
+                  <span className="site-display mt-4 block text-[1.75rem] leading-[1.05] text-brand-heading sm:text-4xl">
+                    {o.name}
+                  </span>
+                  <span className="mt-2 block text-sm text-muted-foreground sm:text-[15px]">
+                    {o.forWhom}
+                  </span>
+                  <span className="mt-auto flex flex-wrap items-center gap-2 pt-5">
+                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                      See the offer
+                      <ArrowRight className="size-4 transition group-hover:translate-x-1" />
+                    </span>
+                    {o.price.show && o.price.amount && (
+                      <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold tabular-nums">
+                        {o.price.amount}
+                      </span>
+                    )}
+                  </span>
+                </span>
+                <span className="relative hidden w-[38%] shrink-0 overflow-hidden rounded-[1.25rem] bg-secondary min-[420px]:block">
+                  <img
+                    src={o.hero.src}
+                    alt=""
+                    loading="lazy"
+                    style={o.hero.position ? { objectPosition: o.hero.position } : undefined}
+                    className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-105"
+                  />
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+// ----------------------------------------------------------------- proof
+
+/**
+ * Malaya, the proof of execution — the bottom box of the boss's diagram:
+ * "real villas, actual operations, systems, and documented projects". One
+ * band, four numbers and four photos, instead of the whole villa list.
+ */
+function Proof({ c }: C) {
+  return (
+    <section id="proof" className="mx-auto max-w-6xl scroll-mt-20 px-4 pt-20 sm:px-8 lg:pt-28">
+      <div className="overflow-hidden rounded-[2rem] bg-[#151314] text-white shadow-level-3">
+        <div className="grid gap-8 p-7 sm:p-10 lg:grid-cols-[1fr_1.1fr] lg:items-end lg:gap-12 lg:p-14">
+          <div>
+            <p className="brand-eyebrow text-[10px] text-white/60 sm:text-xs">Proof of execution</p>
+            <h2 className="site-display mt-4 text-4xl leading-none sm:text-5xl">
+              {c.proof.heading}
+            </h2>
+            <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/75">
+              {c.proof.body}
+            </p>
+            <a
+              href={MALAYA_SITE}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-white underline-offset-4 hover:underline"
+            >
+              See Malaya Villas <ArrowUpRight className="size-4" />
+            </a>
+          </div>
+          <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-white/10">
+            {proofWith(c.numbers.facebook).map((p) => (
+              <div key={p.small} className="bg-[#1d1a1b] p-5">
+                <dt className="site-display text-3xl leading-none tabular-nums sm:text-4xl">
+                  {p.big}
+                </dt>
+                <dd className="mt-2 text-xs leading-snug text-white/60">{p.small}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+        <div className="grid grid-cols-4 gap-1 px-1 pb-1">
+          {c.proof.photos.slice(0, 4).map(({ src }, i) => (
+            <img
+              key={src + i}
+              src={src}
+              alt=""
+              loading="lazy"
+              className={cn(
+                "aspect-[4/3] w-full object-cover",
+                i === 0 && "rounded-bl-[1.8rem]",
+                i === 3 && "rounded-br-[1.8rem]",
+              )}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Every audience number. A quiet row of pills on a laptop. On a phone the
+ * row wrapped 2 · 1 · 1 · 1, centred and ragged (Clarence, 2026-10-25: "placement
+ * looks awkward"), so there it is a two-column grid of equal tiles, number
+ * over label, with "As seen on PTV" across the bottom.
+ */
+function Followers({ c }: C) {
+  const pills: { logo?: Platform; big: string; small: string; href: string; tv?: boolean }[] = [
+    { logo: "facebook", big: c.numbers.facebook, small: "Facebook", href: FACEBOOK.url },
+    { logo: "instagram", big: c.numbers.instagram, small: "Instagram", href: INSTAGRAM.url },
+    {
+      logo: "airbnb",
+      big: `${AIRBNB_HOST.rating}★`,
+      small: `${AIRBNB_HOST.reviews} reviews`,
+      href: AIRBNB_HOST.url,
+    },
+    { big: `${TOTAL_REVIEWS}+`, small: "guest reviews", href: "/management#reviews" },
+    {
+      big: "As seen on",
+      small: "PTV",
+      href: "https://www.youtube.com/watch?v=Uq1KitcVAwQ",
+      tv: true,
+    },
+  ];
+  return (
+    <div className="mx-auto mt-6 grid max-w-5xl grid-cols-2 gap-2 px-3 sm:flex sm:flex-wrap sm:justify-center sm:px-1">
+      {pills.map((p) => (
+        <a
+          key={p.small}
+          href={p.href}
+          {...(p.href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}
+          className={cn(
+            "flex items-center gap-3 rounded-2xl bg-card px-4 py-3 text-sm shadow-level-1 transition hover:shadow-level-2 sm:gap-2 sm:rounded-full sm:px-3.5 sm:py-2",
+            p.tv && "col-span-2",
+          )}
+        >
+          {p.logo ? (
+            <PlatformLogo platform={p.logo} className="size-5 shrink-0 sm:size-[18px]" />
+          ) : p.tv ? (
+            <Play className="size-5 shrink-0 fill-[#FF0000] text-[#FF0000] sm:size-[18px]" />
+          ) : (
+            <Star className="size-5 shrink-0 fill-warning text-warning sm:size-[18px]" />
+          )}
+          <span className="flex min-w-0 flex-col leading-tight sm:flex-row sm:items-center sm:gap-2">
+            <span className="font-semibold tabular-nums">{p.big}</span>
+            <span className="truncate text-xs text-muted-foreground sm:text-sm">{p.small}</span>
+          </span>
+        </a>
+      ))}
     </div>
   );
 }
 
-function Offers({ c, offers }: C & { offers: Offer[] }) {
+// -------------------------------------------------------------- meet marj
+
+/** Where he's been featured. Labels are ours, not the outlets' headlines. */
+const FEATURES = [
+  {
+    kind: "video" as const,
+    outlet: "PTV",
+    title: "PTV · Rise and Shine Pilipinas",
+    meta: "Father's Day Special",
+    image: "/brand/ptv-feature.webp",
+    url: "https://www.youtube.com/watch?v=Uq1KitcVAwQ",
+  },
+  {
+    kind: "article" as const,
+    outlet: "Latest Chika",
+    title: "Latest Chika · The Philippine STAR",
+    meta: "Feature · June 24, 2024",
+    image: null,
+    url: "https://latestchika.com/just-in/2024/06/24/107133/single-father-shares-life-with-3-kids-stresses-importance-of-co-parenting/",
+  },
+];
+
+function MeetMarj({ c }: C) {
+  // His follower counts as set in the editor, on his own two accounts.
+  const followers = (l: ProfileLink) =>
+    l.url === FACEBOOK.url
+      ? { ...l, stat: `${c.numbers.facebook} followers` }
+      : l.url === INSTAGRAM.url
+        ? { ...l, stat: `${c.numbers.instagram} followers` }
+        : l;
+  const mine = LINKS.filter((l) => l.kind === "personal").map(followers);
+  const more = LINKS.filter((l) => l.kind !== "personal");
   return (
-    <section id="offers" className="scroll-mt-20 px-4 pt-32 sm:px-6 lg:pt-44">
-      <div className="text-center">
-        <Kicker text="four ways to work with Marj" />
-        <Big text={c.offers.heading} className="mx-auto mt-6 max-w-6xl" />
-        <p
-          data-reveal
-          className="mx-auto mt-8 max-w-md text-[15px] leading-relaxed text-[#181615]/70"
-        >
-          {c.offers.lead}
-        </p>
-      </div>
-
-      <div data-collage className="mx-auto mt-16 grid max-w-[1440px] gap-6 lg:mt-24 lg:grid-cols-2">
-        {/* The big photo, held while the offers scroll past (laptop only). */}
-        <div className="hidden lg:block">
-          <div className="sticky top-[10vh] h-[80vh] overflow-hidden bg-[#e8e3dd]">
-            {offers.map((o) => (
-              <div key={o.slug} data-collage-shot className="absolute inset-0">
-                <OfferShot slug={o.slug} className="absolute inset-0" />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          {offers.map((o, i) => {
-            const s = OFFER_SHOTS[o.slug];
-            return (
-              <article
-                key={o.slug}
-                data-collage-block
-                className="flex flex-col justify-center py-10 lg:min-h-[85vh] lg:py-16"
-              >
-                {/* On a phone the big photo sits here, with the words under it. */}
-                <OfferShot slug={o.slug} className="relative mb-8 aspect-[4/5] lg:hidden" />
-                {s.laptop && (
-                  <div data-reveal className="hidden px-[6%] lg:block">
-                    <Laptop src={s.laptop} />
-                  </div>
-                )}
-                <div className={cn("hidden grid-cols-2 gap-4", !s.laptop && "lg:grid")}>
-                  {s.pair.map((src) => (
-                    <div
-                      key={src}
-                      data-reveal
-                      className="aspect-[4/3] overflow-hidden bg-[#e8e3dd]"
-                    >
-                      <img
-                        src={src}
-                        alt=""
-                        loading="lazy"
-                        className="size-full object-cover object-top transition duration-1000 hover:scale-105"
-                      />
-                    </div>
-                  ))}
-                </div>
-                <div data-reveal className="mx-auto max-w-md text-center lg:mt-14">
-                  <Kicker
-                    text={`${String(i + 1).padStart(2, "0")} · ${o.pillar}`}
-                    className="text-primary"
-                  />
-                  <h3 className="mt-4 text-3xl font-semibold leading-tight tracking-[-0.02em] sm:text-4xl">
-                    {o.name}
-                  </h3>
-                  <p className="mt-2 font-vero text-xl italic text-[#181615]/80">
-                    {o.forWhom}
-                    {o.price.show && o.price.amount && ` · ${o.price.amount}`}
-                  </p>
-                  <p className="mt-5 text-[15px] leading-relaxed text-[#181615]/70">{o.sub}</p>
-                  <VeroButton to={offerPath(o.slug)} className="mt-8">
-                    Discover the offer
-                  </VeroButton>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// --------------------------------------------------------------- founder
-
-/** "“A quote.” The rest" → the quote, and the rest. */
-function splitQuote(text: string): { quote: string | null; rest: string } {
-  const m = text.match(/^\s*[“"]([^”"]+)[”"]\s*([\s\S]*)$/);
-  return m ? { quote: m[1]!.trim(), rest: m[2]!.trim() } : { quote: null, rest: text };
-}
-
-function Founder({ c }: C) {
-  const { quote, rest } = splitQuote(c.meet.story);
-  const links = [
-    { label: `Facebook · ${c.numbers.facebook}`, href: FACEBOOK.url },
-    { label: `Instagram · ${c.numbers.instagram}`, href: INSTAGRAM.url },
-    { label: `Airbnb · ${AIRBNB_HOST.rating}★`, href: AIRBNB_HOST.url },
-    { label: "As seen on PTV", href: "https://www.youtube.com/watch?v=Uq1KitcVAwQ" },
-  ];
-  return (
-    <section id="about" className="scroll-mt-20 px-4 pt-32 sm:px-6 lg:pt-44">
-      <div className="text-center">
-        <Kicker text={c.meet.eyebrow} />
-        <Big text={c.meet.heading} className="mx-auto mt-6 max-w-5xl" />
-      </div>
-      <div className="mx-auto mt-16 grid max-w-[1440px] items-center gap-12 lg:mt-24 lg:grid-cols-2 lg:gap-6">
-        <div className="overflow-hidden bg-[#e8e3dd]">
-          <img
+    <section id="about" className="mx-auto max-w-6xl scroll-mt-20 px-4 pt-24 sm:px-8 lg:pt-28">
+      <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)] lg:gap-16">
+        <div className="space-y-3">
+          <ParallaxImage
             src={c.meet.photo}
             alt="Marj with his family"
-            loading="lazy"
-            data-parallax="-4"
-            className="aspect-square w-full scale-110 object-cover object-top"
+            strength={6}
+            frameClassName="aspect-square w-full rounded-[2rem] bg-white shadow-level-3"
+            className="object-center"
           />
-        </div>
-        <div data-reveal className="mx-auto max-w-md text-center">
-          {quote && (
-            <blockquote className="text-[1.7rem] font-semibold leading-[1.2] tracking-[-0.02em] sm:text-[2rem]">
-              “{quote}”
-            </blockquote>
-          )}
-          <p className="mt-5 font-vero text-[15px] tracking-[0.04em]">
-            <Vero text="Marj Lopez, founder of Malaya Villas" />
-          </p>
-          {rest && (
-            <p className="mt-8 font-vero text-[17px] leading-relaxed text-[#181615]/75">{rest}</p>
-          )}
-          <ul className="mt-8 space-y-1.5 text-[15px] text-[#181615]/80">
-            {c.meet.pitch.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
-          <div className="mt-9 flex flex-wrap justify-center gap-2">
-            {links.map((l) => (
+          {/* As featured on — TV and the press, neutral labels in our own words. */}
+          <div className="grid grid-cols-2 gap-3">
+            {FEATURES.map((f) => (
               <a
-                key={l.href}
-                href={l.href}
+                key={f.url}
+                href={f.url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-9 items-center bg-white px-4 text-[13px] font-semibold shadow-[0_2px_14px_rgba(24,22,21,0.06)] transition-colors hover:bg-[#181615] hover:text-white"
+                className="group overflow-hidden rounded-2xl bg-card shadow-level-2 transition hover:-translate-y-0.5 hover:shadow-level-3"
               >
-                {l.label}
+                <span className="relative block aspect-video overflow-hidden bg-secondary">
+                  {f.image ? (
+                    <img
+                      src={f.image}
+                      alt=""
+                      loading="lazy"
+                      className="size-full object-cover transition duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <span className="grid size-full place-items-center bg-[#3a2314] p-3 text-center">
+                      <span className="site-display text-lg leading-tight text-white sm:text-2xl">
+                        {f.outlet}
+                      </span>
+                    </span>
+                  )}
+                  {f.kind === "video" && (
+                    <span className="absolute inset-0 grid place-items-center bg-black/15">
+                      <span className="grid size-11 place-items-center rounded-full bg-white/95 text-[#FF0000] shadow-level-2 transition group-hover:scale-110">
+                        <Play className="size-5 fill-current" />
+                      </span>
+                    </span>
+                  )}
+                </span>
+                <span className="block p-3">
+                  <span className="block text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                    {f.kind === "video" ? "As seen on TV" : "In the press"}
+                  </span>
+                  <span className="mt-0.5 block text-sm font-semibold leading-snug">{f.title}</span>
+                  <span className="block text-xs text-muted-foreground">{f.meta}</span>
+                </span>
               </a>
             ))}
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
+        <div>
+          <Eyebrow>{c.meet.eyebrow}</Eyebrow>
+          <h2 className="site-display mt-4 text-4xl leading-none text-brand-heading sm:text-5xl">
+            {c.meet.heading}
+          </h2>
+          <p className="mt-5 whitespace-pre-line text-base leading-relaxed text-foreground">
+            {c.meet.story}
+          </p>
+          <ul className="mt-5 space-y-2">
+            {c.meet.pitch.map((line) => (
+              <li key={line} className="flex items-start gap-2.5 text-sm text-foreground">
+                <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-success/15 text-success">
+                  <Check className="size-3" />
+                </span>
+                {line}
+              </li>
+            ))}
+          </ul>
 
-// --------------------------------------------------------------- gallery
-
-/**
- * Malaya's villas, picked for sharpness and range (2026-11-04). The four
- * photos set in Admin → Website (landing → proof) come first.
- */
-const GALLERY = [
-  "/villas/pr-malaya-2/0.webp",
-  "/villas/pr-hidden/5.webp",
-  "/villas/pr-malaya-2/1.webp",
-  "/villas/pr-saglit/4.webp",
-  "/villas/pr-hidden-loft/2.webp",
-  "/villas/pr-012/1.webp",
-  "/villas/pr-012/0.webp",
-  "/villas/pr-hidden/0.webp",
-  "/villas/pr-hidden-cabin-b/0.webp",
-  "/villas/pr-hidden-cabin-b/4.webp",
-  "/villas/pr-hidden-loft/4.webp",
-  "/villas/pr-casa-martha/0.webp",
-  "/villas/pr-hidden-loft/0.webp",
-  "/villas/pr-saglit/1.webp",
-  "/villas/pr-hidden-cabin-a/0.webp",
-];
-const COL_SPEED = [10, -6, 14, -10, 8];
-
-function Gallery({ c }: C) {
-  const photos = [...new Set([...c.proof.photos.map((p) => p.src), ...GALLERY])].slice(0, 15);
-  const cols = COL_SPEED.map((_, k) => photos.filter((_, i) => i % 5 === k));
-  return (
-    <section id="proof" className="scroll-mt-20 pt-32 lg:pt-44">
-      <div className="px-4 text-center">
-        <Kicker text="proof of execution" />
-        <Big text={c.proof.heading} className="mx-auto mt-6 max-w-6xl" />
-        <p
-          data-reveal
-          className="mx-auto mt-8 max-w-md text-[15px] leading-relaxed text-[#181615]/70"
-        >
-          {c.proof.body}
-        </p>
-        <dl className="mx-auto mt-14 grid max-w-5xl grid-cols-2 gap-y-10 lg:grid-cols-4">
-          {proofWith(c.numbers.facebook).map((p) => (
-            <div key={p.small} data-reveal>
-              <dt data-count className="font-vero text-6xl leading-none sm:text-7xl">
-                {p.big}
-              </dt>
-              <dd className="mx-auto mt-3 max-w-[13rem] text-[13px] leading-snug text-[#181615]/65">
-                {p.small}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </div>
-
-      <div className="relative mt-24 overflow-hidden px-4 py-16 sm:px-6 lg:mt-32 lg:py-28">
-        <div className="mx-auto grid max-w-[1440px] grid-cols-3 gap-x-5 sm:grid-cols-5 sm:gap-x-10 lg:gap-x-20">
-          {cols.map((col, k) => (
-            <div
-              key={k}
-              data-gallery-col={COL_SPEED[k]}
-              className={cn(
-                "flex flex-col gap-8 lg:gap-16",
-                k > 2 && "hidden sm:flex",
-                k % 2 === 1 && "pt-16",
-              )}
-            >
-              {col.map((src) => (
-                <div key={src} className="aspect-[4/5] overflow-hidden bg-[#e8e3dd]">
-                  <img src={src} alt="" loading="lazy" className="size-full object-cover" />
-                </div>
+          {/* Every account, one clean list — the admin's white card. */}
+          <div className="mt-8 overflow-hidden rounded-2xl bg-card shadow-level-2">
+            {mine.map((l) => (
+              <AccountRow key={l.url} link={l} />
+            ))}
+            {/* Just his own accounts and Malaya's site (2026-11-03): the villas'
+                Facebook pages and listings live on Malaya's own site. */}
+            {more
+              .filter((l) => l.kind === "site")
+              .map((l) => (
+                <AccountRow key={l.url} link={l} last />
               ))}
-            </div>
-          ))}
-        </div>
-        <div className="pointer-events-none absolute inset-0 grid place-items-center">
-          <VeroButton href={MALAYA_SITE} className="pointer-events-auto">
-            Explore the villas
-          </VeroButton>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-// ----------------------------------------------------------------- quote
-
-/** A guest's words, word for word (lib/brand.ts), in giant sliding type. */
-const QUOTE = GUEST_REVIEWS.find((r) => r.name === "Jen") ?? GUEST_REVIEWS[0]!;
-
-function quoteRows(text: string, rows = 4): string[] {
-  const first = text
-    .split(/(?<=[.!?])\s+/)
-    .slice(0, 2)
-    .join(" ");
-  const words = first.split(" ");
-  const per = Math.ceil(words.length / rows);
-  return Array.from({ length: rows }, (_, i) => words.slice(i * per, (i + 1) * per).join(" "));
-}
-
-function GuestQuote() {
-  const rows = quoteRows(QUOTE.text);
+function AccountRow({ link, last = false }: { link: ProfileLink; last?: boolean }) {
   return (
-    <section className="relative overflow-hidden py-28 lg:py-40">
-      <figure>
-        <blockquote aria-label={QUOTE.text} className="relative">
-          {rows.map((r, i) => (
-            <p
-              key={i}
-              aria-hidden
-              data-marquee-row={i % 2 ? -1 : 1}
-              className={cn(
-                "whitespace-nowrap font-vero text-[15vw] uppercase leading-[0.92] lg:text-[9.5rem]",
-                i % 2 ? "pl-[6vw]" : "-ml-[8vw]",
-              )}
-            >
-              {r}
-              <span className="mx-[0.4em] text-primary">·</span>
-              {rows[(i + 1) % rows.length]}
-            </p>
-          ))}
-          <img
-            src="/brand/malaya-mark.png"
-            alt=""
-            data-coin
-            className="absolute left-1/2 top-1/2 size-24 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_18px_40px_rgba(24,22,21,0.25)] sm:size-32 lg:size-36"
-          />
-        </blockquote>
-        <figcaption className="mt-10 text-center font-vero text-[15px] tracking-[0.04em]">
-          <Vero text={`${QUOTE.name}, a guest at ${QUOTE.villa} · ${QUOTE.when}`} />
-        </figcaption>
-      </figure>
-    </section>
-  );
-}
-
-// --------------------------------------------------------------- closing
-
-function Closing() {
-  return (
-    <section className="px-4 pb-10 pt-16 text-center lg:pt-24">
-      <h2 className="text-3xl font-semibold leading-tight tracking-[-0.02em] sm:text-4xl">
-        Start. Build. Earn.
-      </h2>
-      <p className="mt-3 font-vero text-xl text-[#181615]/80">
-        Tell Marj&apos;s team what you need and we&apos;ll reply in your inbox.
-      </p>
-      <VeroButton href="#offers" className="mt-8">
-        Work with Marj
-      </VeroButton>
-      <p
-        aria-hidden
-        data-split
-        className="mt-24 whitespace-nowrap font-vero text-[15.5vw] uppercase leading-[0.8] tracking-[-0.02em] lg:mt-32"
-      >
-        Marj Lopez
-      </p>
-    </section>
+    <a
+      href={link.url}
+      target="_blank"
+      rel="noreferrer"
+      className={cn(
+        "group flex items-center gap-3 px-4 py-3 transition hover:bg-secondary/60",
+        !last && "border-b border-border/60",
+      )}
+    >
+      {link.platform === "web" ? (
+        <Globe className="size-6 text-primary" />
+      ) : (
+        <PlatformLogo platform={link.platform} className="size-6" />
+      )}
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-1 text-sm font-semibold">
+          {link.name}
+          {link.platform === "facebook" && <BadgeCheck className="size-4 text-[#0866FF]" />}
+        </span>
+        <span className="block text-xs text-muted-foreground">{link.handle}</span>
+      </span>
+      {link.stat && (
+        <span className="text-sm font-semibold tabular-nums text-foreground">{link.stat}</span>
+      )}
+      <ArrowUpRight className="size-4 shrink-0 text-muted-foreground transition group-hover:text-primary" />
+    </a>
   );
 }

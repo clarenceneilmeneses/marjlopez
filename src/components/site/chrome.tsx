@@ -12,7 +12,7 @@ import {
   LogOut,
   MessageCircle,
   ArrowRight,
-  Briefcase,
+  LayoutGrid,
   MoreHorizontal,
   User,
 } from "@/components/icons";
@@ -421,7 +421,7 @@ function PublicBottomNav() {
               aria-current={onOffer ? "page" : undefined}
               className={navPillTab(onOffer)}
             >
-              <Briefcase className="size-[22px]" strokeWidth={onOffer ? 2.2 : 1.8} />
+              <LayoutGrid className="size-[22px]" strokeWidth={onOffer ? 2.2 : 1.8} />
               <span>Offers</span>
             </button>
           )}
@@ -441,7 +441,7 @@ function PublicBottomNav() {
         >
           <SheetTitle className="px-1 font-display text-xl">Work with Marj</SheetTitle>
           <p className="px-1 pb-4 text-sm text-muted-foreground">
-            Pick what you need | each has its own page.
+            Pick what you need — each has its own page.
           </p>
           <OfferLinks big onPick={() => setOffersOpen(false)} />
         </SheetContent>

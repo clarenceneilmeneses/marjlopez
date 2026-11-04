@@ -12,7 +12,7 @@ export const Route = createFileRoute("/system")({
     const offer = offerFrom("system", loaderData ?? {});
     return {
       meta: [
-        { title: `${offer.name} | ${BRAND.name}` },
+        { title: `${offer.name} — ${BRAND.name}` },
         { name: "description", content: offer.sub },
       ],
     };

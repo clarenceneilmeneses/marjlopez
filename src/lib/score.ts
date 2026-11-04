@@ -110,7 +110,7 @@ export function fitOf(type: LeadType, answers: Record<string, unknown>): Fit {
       { key: "offer", label: offerLabel, points: offer, max: 25 },
     ],
     reason:
-      type === "other" ? "Not scored | read it" : [sizeLabel, readyLabel, offerLabel].join(" · "),
+      type === "other" ? "Not scored — read it" : [sizeLabel, readyLabel, offerLabel].join(" · "),
   };
 }
 

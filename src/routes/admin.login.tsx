@@ -19,7 +19,7 @@ import { BRAND } from "@/lib/brand";
 import { useAuth } from "@/state/auth";
 
 export const Route = createFileRoute("/admin/login")({
-  head: () => ({ meta: [{ title: `Team sign in | ${BRAND.name}` }] }),
+  head: () => ({ meta: [{ title: `Team sign in — ${BRAND.name}` }] }),
   component: AdminLogin,
 });
 
@@ -79,7 +79,7 @@ function AdminLogin() {
                 Every inquiry, from first message to closed deal.
               </p>
               <p className="mt-3 max-w-sm text-sm text-white/75">
-                Reply, book the call, send the proposal and see how many close | in one place for{" "}
+                Reply, book the call, send the proposal and see how many close — in one place for{" "}
                 {BRAND.team}.
               </p>
             </div>

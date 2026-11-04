@@ -87,7 +87,7 @@ import {
 import { useFilters } from "@/state/filters";
 
 export const Route = createFileRoute("/admin/clients")({
-  head: () => ({ meta: [{ title: "Clients | Marj Lopez" }] }),
+  head: () => ({ meta: [{ title: "Clients — Marj Lopez" }] }),
   component: ClientsPage,
 });
 

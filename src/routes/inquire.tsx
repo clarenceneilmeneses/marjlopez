@@ -87,7 +87,7 @@ export const Route = createFileRoute("/inquire")({
   },
   head: () => ({
     meta: [
-      { title: `Work with me | ${BRAND.name}` },
+      { title: `Work with me — ${BRAND.name}` },
       { name: "description", content: "Tell Marj's team what you need. It takes about a minute." },
     ],
   }),
