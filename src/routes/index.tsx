@@ -421,7 +421,7 @@ function OfferShot({ slug, className }: { slug: OfferSlug; className?: string })
           />
           <IPhone
             src={s.devices.phone}
-            className="absolute bottom-[9%] right-[6%] w-[24%] max-w-[170px]"
+            className="absolute bottom-[8%] right-[5%] w-[27%] max-w-[170px] sm:w-[24%]"
           />
         </>
       )}
