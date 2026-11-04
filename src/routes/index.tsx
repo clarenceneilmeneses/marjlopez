@@ -35,6 +35,7 @@ import { ChevronDown } from "@/components/icons";
 import { useRef } from "react";
 
 import { PublicFooter, PublicHeader } from "@/components/site/chrome";
+import { IPhone, Laptop } from "@/components/site/offers/devices";
 import { usePageMotion, useSmoothScroll } from "@/components/site/motion";
 import { Vero, VeroButton } from "@/components/site/vero";
 import { AIRBNB_HOST, FACEBOOK, GUEST_REVIEWS, INSTAGRAM } from "@/lib/brand";
@@ -363,12 +364,20 @@ function Essence() {
 /**
  * Each offer's photos: the big one held on the left (on a laptop), and two
  * beside its words. All real: Malaya's villas, Marj, the Lian build, the
- * system Malaya runs on. `device` puts a screenshot in a phone over the
- * photo, so the system reads as a product shot among the villa photos.
+ * system Malaya runs on. `devices` sets Malaya's site on a laptop and a
+ * phone over the photo, and `laptop` replaces the pair with one laptop, so
+ * the system reads as product shots among the villa photos, not bare
+ * screenshots.
  */
 const OFFER_SHOTS: Record<
   OfferSlug,
-  { main: string; position?: string; device?: string; pair: [string, string] }
+  {
+    main: string;
+    position?: string;
+    devices?: { laptop: string; phone: string };
+    laptop?: string;
+    pair: [string, string];
+  }
 > = {
   management: {
     main: "/hd/hidden-loft-pool.webp",
@@ -385,12 +394,13 @@ const OFFER_SHOTS: Record<
   },
   system: {
     main: "/hd/vistan/21.webp",
-    device: "/system/site-phone.webp",
+    devices: { laptop: "/system/site-desk.webp", phone: "/system/site-phone.webp" },
+    laptop: "/system/dashboard.webp",
     pair: ["/system/dashboard.webp", "/system/calendar.webp"],
   },
 };
 
-/** An offer's big photo; with `device`, Malaya's site on a phone over it. */
+/** An offer's big photo; with `devices`, Malaya's site on a laptop and a phone over it. */
 function OfferShot({ slug, className }: { slug: OfferSlug; className?: string }) {
   const s = OFFER_SHOTS[slug];
   return (
@@ -402,17 +412,17 @@ function OfferShot({ slug, className }: { slug: OfferSlug; className?: string })
         style={s.position ? { objectPosition: s.position } : undefined}
         className="absolute inset-0 size-full object-cover"
       />
-      {s.device && (
+      {s.devices && (
         <>
-          <div className="absolute inset-0 bg-black/30" />
-          <div className="absolute left-1/2 top-1/2 w-[42%] max-w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-[2.4rem] bg-[#0f0e0e] p-[2.5%] shadow-[0_40px_80px_rgba(0,0,0,0.5)] ring-1 ring-white/15">
-            <img
-              src={s.device}
-              alt="Malaya's booking site on a phone"
-              loading="lazy"
-              className="w-full rounded-[2rem]"
-            />
-          </div>
+          <div className="absolute inset-0 bg-black/35" />
+          <Laptop
+            src={s.devices.laptop}
+            className="absolute left-[4%] top-1/2 w-[88%] -translate-y-[58%]"
+          />
+          <IPhone
+            src={s.devices.phone}
+            className="absolute bottom-[9%] right-[6%] w-[24%] max-w-[170px]"
+          />
         </>
       )}
     </div>
@@ -456,7 +466,12 @@ function Offers({ c, offers }: C & { offers: Offer[] }) {
               >
                 {/* On a phone the big photo sits here, with the words under it. */}
                 <OfferShot slug={o.slug} className="relative mb-8 aspect-[4/5] lg:hidden" />
-                <div className="hidden grid-cols-2 gap-4 lg:grid">
+                {s.laptop && (
+                  <div data-reveal className="hidden px-[6%] lg:block">
+                    <Laptop src={s.laptop} />
+                  </div>
+                )}
+                <div className={cn("hidden grid-cols-2 gap-4", !s.laptop && "lg:grid")}>
                   {s.pair.map((src) => (
                     <div
                       key={src}
