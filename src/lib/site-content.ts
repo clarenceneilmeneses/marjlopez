@@ -46,9 +46,10 @@ export const LANDING_DEFAULT: LandingContent = {
     eyebrow: "Hospitality entrepreneur · Operator · Business builder",
     headline: ["Building hospitality", "businesses that earn"],
     sub: `Marj runs ${PORTFOLIO.villas} villas under Malaya. Pick what you need below | have it managed, learn it, invest in it, or systemize it.`,
-    // The full-screen hero and the preloader's photo: Malaya Villa 1 at
-    // sunset over Taal (the sharpest wide shot we have, 2026-11-04).
-    photo: "/villas/pr-malaya-1/0.webp",
+    // The full-screen hero and the preloader's photo: Casa Martha's pool at
+    // sunset, at the full 2000px Malaya uploaded (public/hd). Each villa's
+    // cover is only ~1450px even at the source, too soft for a full screen.
+    photo: "/hd/casa-martha-sunset.webp",
   },
   offers: {
     heading: "One expertise, four ways in",
@@ -60,10 +61,10 @@ export const LANDING_DEFAULT: LandingContent = {
     // The first photos of the landing's gallery wall (more follow from the
     // villas). The old first one, a frame from a drone video, read as blurry.
     photos: [
-      { src: "/villas/pr-casa-martha/1.webp" },
       { src: "/villas/pr-saglit/2.webp" },
       { src: "/villas/pr-casa-martha/6.webp" },
       { src: "/villas/pr-012/2.webp" },
+      { src: "/villas/pr-casa-martha/0.webp" },
     ],
   },
   meet: {
@@ -145,6 +146,11 @@ export const offerFrom = (slug: OfferSlug, rows: Record<string, unknown>): Offer
 
 /** The photos already on the site, offered by the editor's photo picker. */
 export const SITE_PHOTOS: { src: string; label: string }[] = [
+  { src: "/hd/casa-martha-sunset.webp", label: "Casa Martha pool at sunset (full size)" },
+  { src: "/hd/malaya-1-pool.webp", label: "Malaya Villa 1 pool (full size)" },
+  { src: "/hd/casa-martha-garden.webp", label: "Casa Martha garden (full size)" },
+  { src: "/hd/bacoor-aerial.webp", label: "Bacoor from above (full size)" },
+  { src: "/hd/hidden-loft-pool.webp", label: "Hidden Villas loft pool (full size)" },
   { src: "/villas/pr-malaya-1/0.webp", label: "Malaya Villa 1 at sunset" },
   { src: "/villas/pr-malaya-2/6.webp", label: "Malaya Villa 2 pool" },
   { src: "/villas/pr-casa-martha/6.webp", label: "Casa Martha" },

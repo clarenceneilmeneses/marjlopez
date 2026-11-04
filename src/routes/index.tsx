@@ -8,7 +8,7 @@
  *
  *   (preloader)  the headline with a photo set into it, opening to the hero
  *                (components/site/intro.tsx)
- *   Hero         full screen: Malaya at sunset, his name; pinned, it shrinks
+ *   Hero         full screen: Casa Martha at sunset, his name; pinned, it shrinks
  *   Intro        his family photo, "WE HELP you START & EARN through AIRBNB"
  *                over it (his own Facebook cover line), the message, his bio
  *   Essence      "where HOSPITALITY meets SYSTEMS", then a pinned slideshow,
@@ -24,7 +24,9 @@
  * the motion is components/site/motion.ts, driven by the data- attributes.
  * The words and photos marked "c." can be changed from Admin → Website; the
  * defaults are in lib/site-content.ts, and each offer's words in lib/offers.ts.
- * Photos were picked for sharpness (2026-11-04): no drone-video frames.
+ * Big photos (hero, slideshow, the held offer photo) come from public/hd:
+ * Malaya's originals at their full 2000px. The villas' 1400px copies are
+ * only used small (the gallery, the pairs).
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { ChevronDown } from "@/components/icons";
@@ -124,7 +126,7 @@ function Hero({ c }: C) {
       <div data-hero-media className="absolute inset-0 overflow-hidden bg-[#181615]">
         <img
           src={c.hero.photo}
-          alt="Malaya Villas at sunset, Tagaytay"
+          alt="Casa Martha, a Malaya villa, at sunset"
           loading="eager"
           fetchPriority="high"
           className="size-full object-cover"
@@ -143,7 +145,7 @@ function Hero({ c }: C) {
           >
             Marj Lopez
           </h1>
-          <p data-hero-rest className="mt-4 font-vero text-lg sm:text-2xl">
+          <p data-hero-rest className="mt-6 font-vero text-lg sm:mt-10 sm:text-2xl">
             <Vero text={c.hero.eyebrow} />
           </p>
         </div>
@@ -209,9 +211,9 @@ function Intro({ c }: C) {
 
 /** His story in three photos (lib/offers.ts, coaching: renting, hosting, running). */
 const STORY = [
-  { word: "from guest,", src: "/villas/pr-malaya-2/6.webp", position: "center" },
-  { word: "to host,", src: "/villas/pr-casa-martha/4.webp", position: "center" },
-  { word: "to operator.", src: "/malaya/villa-aerial.webp", position: "center" },
+  { word: "from guest,", src: "/hd/malaya-1-pool.webp", position: "center" },
+  { word: "to host,", src: "/hd/casa-martha-garden.webp", position: "center" },
+  { word: "to operator.", src: "/hd/bacoor-aerial.webp", position: "center" },
 ];
 
 function Essence() {
@@ -278,7 +280,7 @@ const OFFER_SHOTS: Record<
   { main: string; position?: string; contain?: boolean; pair: [string, string] }
 > = {
   management: {
-    main: "/villas/pr-malaya-2/3.webp",
+    main: "/hd/hidden-loft-pool.webp",
     pair: ["/villas/pr-hidden-cabin-a/1.webp", "/villas/pr-bacoor/0.webp"],
   },
   seminar: {
@@ -478,12 +480,12 @@ const GALLERY = [
   "/villas/pr-hidden/5.webp",
   "/villas/pr-malaya-2/1.webp",
   "/villas/pr-saglit/4.webp",
-  "/villas/pr-hidden-loft/1.webp",
+  "/villas/pr-hidden-loft/2.webp",
   "/villas/pr-012/1.webp",
   "/villas/pr-012/0.webp",
   "/villas/pr-hidden/0.webp",
   "/villas/pr-hidden-cabin-b/0.webp",
-  "/villas/pr-malaya-1/1.webp",
+  "/villas/pr-hidden-cabin-b/4.webp",
   "/villas/pr-hidden-loft/4.webp",
   "/villas/pr-casa-martha/0.webp",
   "/villas/pr-hidden-loft/0.webp",

@@ -1137,6 +1137,12 @@ html.lenis body {
   padding: 0 0.1em 0.16em 0;
   margin: 0 -0.1em -0.16em 0;
 }
+/* The hero name's letters (motion.ts): the J of MARJ hangs well below the
+   line in Cormorant, so each letter's mask gets room underneath. */
+.hchar-mask {
+  padding-bottom: 0.3em;
+  margin-bottom: -0.3em;
+}
 
 /* The hero's name waits for GSAP when motion is allowed (`html.motion` is
    set by the head script in intro.tsx); if the script never runs, it shows

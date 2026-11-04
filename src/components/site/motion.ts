@@ -129,6 +129,7 @@ export function usePageMotion(scope: RefObject<HTMLElement | null>) {
               SplitText.create(name, {
                 type: "words,chars",
                 mask: "chars",
+                charsClass: "hchar",
                 autoSplit: true,
                 onSplit: (self) =>
                   gsap.from(self.chars, {
