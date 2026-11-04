@@ -377,14 +377,34 @@ export function usePageMotion(scope: RefObject<HTMLElement | null>) {
           shots.forEach((s, k) =>
             gsap.set(s, { clipPath: k === 0 ? "inset(0% 0% 0% 0%)" : "inset(100% 0% 0% 0%)" }),
           );
-          blocks.forEach((b, i) =>
-            ScrollTrigger.create({
-              trigger: b,
-              start: "top 55%",
-              end: "bottom 55%",
-              onToggle: (self) => self.isActive && show(i),
-            }),
-          );
+          // Whichever offer's middle is nearest the middle of the screen owns
+          // the photo. Checked on every scroll (both directions, jumps, a
+          // reload halfway down), so it can't get stuck on the wrong one.
+          let current = 0;
+          const pick = () => {
+            const mid = window.innerHeight / 2;
+            let best = 0;
+            let bestD = Infinity;
+            blocks.forEach((b, i) => {
+              const r = b.getBoundingClientRect();
+              const d = Math.abs(r.top + r.height / 2 - mid);
+              if (d < bestD) {
+                bestD = d;
+                best = i;
+              }
+            });
+            if (best !== current) {
+              current = best;
+              show(best);
+            }
+          };
+          ScrollTrigger.create({
+            trigger: collage,
+            start: "top bottom",
+            end: "bottom top",
+            onUpdate: pick,
+            onRefresh: pick,
+          });
         });
 
         // ---- the gallery wall: each column at its own speed.
