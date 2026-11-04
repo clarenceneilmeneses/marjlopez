@@ -280,62 +280,81 @@ function Intro({ c }: C) {
 
 // --------------------------------------------------------------- essence
 
-/** His story in three photos (lib/offers.ts, coaching: renting, hosting, running). */
+/**
+ * His story in three photos (lib/offers.ts, coaching: renting, hosting,
+ * running). The first is also the small photo under the heading that grows
+ * to the full screen. No Casa Martha here (Clarence, 2026-11-04).
+ */
 const STORY = [
   { word: "from guest,", src: "/hd/malaya-1-pool.webp", position: "center" },
-  { word: "to host,", src: "/hd/casa-martha-garden.webp", position: "center" },
+  { word: "to host,", src: "/hd/vistan/23.webp", position: "center" },
   { word: "to operator.", src: "/hd/bacoor-aerial.webp", position: "center" },
 ];
 
+/**
+ * Vero's "where INNOVATION meets CRAFTSMANSHIP": one pinned stage. The
+ * heading on the beige with a small photo under it; as you scroll the photo
+ * grows over the heading to the whole screen and becomes the first slide;
+ * then the next photos wipe in from the right and their words light up
+ * (motion.ts, data-seq). The small photo's box is [data-seq-start].
+ */
 function Essence() {
   return (
-    <>
-      <section className="px-4 pt-10 text-center">
+    <section
+      data-seq
+      className="relative h-[100svh] overflow-hidden bg-[#f3f0ed] [--sw:46vw] sm:[--sw:26vw] lg:[--sw:min(19vw,300px)]"
+    >
+      <div className="absolute inset-x-0 top-[9vh] px-4 text-center sm:top-[11vh]">
         <Kicker text="the essence of Malaya" />
-        <Big text="where hospitality meets systems" className="mx-auto mt-6 max-w-6xl" />
-        <div data-reveal className="mx-auto mt-8 w-[min(300px,62vw)] overflow-hidden">
+        <Big
+          text="where hospitality meets systems"
+          className="mx-auto mt-6 max-w-6xl"
+          split={false}
+        />
+      </div>
+      {/* Where the first photo starts: under the heading, a little over it. */}
+      <div
+        data-seq-start
+        aria-hidden
+        className="invisible absolute left-[calc(50%-var(--sw)/2)] top-[52%] aspect-[4/5] w-[var(--sw)] sm:top-[50%]"
+      />
+      {STORY.map((s, i) => (
+        <div
+          key={s.src}
+          data-seq-slide
+          className="absolute inset-0 overflow-hidden bg-[#181615]"
+          style={i === 0 ? undefined : { clipPath: "inset(0% 0% 0% 100%)" }}
+        >
           <img
-            src="/villas/pr-saglit/0.webp"
-            alt="A Malaya villa's pool"
+            src={s.src}
+            alt=""
             loading="lazy"
-            className="aspect-[4/5] w-full object-cover"
+            style={{ objectPosition: s.position }}
+            className="size-full object-cover"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-black/10" />
         </div>
-      </section>
-
-      <section data-seq className="relative mt-24 h-[100svh] overflow-hidden bg-[#181615] lg:mt-32">
-        {STORY.map((s, i) => (
-          <div key={s.src} data-seq-slide className="absolute inset-0 overflow-hidden">
-            <img
-              src={s.src}
-              alt=""
-              loading="lazy"
-              style={{ objectPosition: s.position }}
-              className="size-full object-cover"
-            />
-            <div
-              className={cn(
-                "absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-black/10",
-                i === 0 && "from-black/55",
-              )}
-            />
-          </div>
+      ))}
+      <ul
+        data-seq-ui
+        className="absolute left-4 top-1/2 flex -translate-y-1/2 flex-col gap-3 sm:left-6"
+      >
+        {STORY.map((s) => (
+          <li key={s.src} data-seq-dot className="block size-1.5 rotate-45 bg-white" />
         ))}
-        <ul className="absolute left-4 top-1/2 flex -translate-y-1/2 flex-col gap-3 sm:left-6">
-          {STORY.map((s) => (
-            <li key={s.src} data-seq-dot className="block size-1.5 rotate-45 bg-white" />
-          ))}
-        </ul>
-        <p className="absolute inset-x-0 bottom-8 px-4 text-center font-vero text-[8.5vw] leading-none text-white sm:bottom-12 sm:text-6xl lg:text-[5.2rem]">
-          {STORY.map((s, i) => (
-            <span key={s.word} data-seq-word className="opacity-40">
-              <Vero text={s.word} />
-              {i < STORY.length - 1 && " "}
-            </span>
-          ))}
-        </p>
-      </section>
-    </>
+      </ul>
+      <p
+        data-seq-ui
+        className="absolute inset-x-0 bottom-8 px-4 text-center font-vero text-[8.5vw] leading-none text-white sm:bottom-12 sm:text-6xl lg:text-[5.2rem]"
+      >
+        {STORY.map((s, i) => (
+          <span key={s.word} data-seq-word className="opacity-40">
+            <Vero text={s.word} />
+            {i < STORY.length - 1 && " "}
+          </span>
+        ))}
+      </p>
+    </section>
   );
 }
 
