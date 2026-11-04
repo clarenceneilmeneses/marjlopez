@@ -71,7 +71,7 @@ const LANDING: Section[] = [
         kind: "image",
         key: "photo",
         label: "Photo",
-        hint: "A portrait works best | it sits on the right on a laptop.",
+        hint: "Fills the whole screen behind his name, and opens out of the loading screen. A sharp, wide photo works best.",
       },
     ],
   },

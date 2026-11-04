@@ -46,7 +46,9 @@ export const LANDING_DEFAULT: LandingContent = {
     eyebrow: "Hospitality entrepreneur · Operator · Business builder",
     headline: ["Building hospitality", "businesses that earn"],
     sub: `Marj runs ${PORTFOLIO.villas} villas under Malaya. Pick what you need below | have it managed, learn it, invest in it, or systemize it.`,
-    photo: "/brand/marj.webp",
+    // The full-screen hero and the preloader's photo: Malaya Villa 1 at
+    // sunset over Taal (the sharpest wide shot we have, 2026-11-04).
+    photo: "/villas/pr-malaya-1/0.webp",
   },
   offers: {
     heading: "One expertise, four ways in",
@@ -55,11 +57,13 @@ export const LANDING_DEFAULT: LandingContent = {
   proof: {
     heading: "Malaya | the proof it works",
     body: "Real villas, actual operations, systems, and documented projects. Everything Marj offers, he runs here first.",
+    // The first photos of the landing's gallery wall (more follow from the
+    // villas). The old first one, a frame from a drone video, read as blurry.
     photos: [
-      { src: "/brand/about-tagaytay-aerial.webp" },
-      { src: "/malaya/villa-hillside-pool.webp" },
-      { src: "/builds/lian/4.webp" },
-      { src: "/system/dashboard.webp" },
+      { src: "/villas/pr-casa-martha/1.webp" },
+      { src: "/villas/pr-saglit/2.webp" },
+      { src: "/villas/pr-casa-martha/6.webp" },
+      { src: "/villas/pr-012/2.webp" },
     ],
   },
   meet: {
@@ -141,6 +145,12 @@ export const offerFrom = (slug: OfferSlug, rows: Record<string, unknown>): Offer
 
 /** The photos already on the site, offered by the editor's photo picker. */
 export const SITE_PHOTOS: { src: string; label: string }[] = [
+  { src: "/villas/pr-malaya-1/0.webp", label: "Malaya Villa 1 at sunset" },
+  { src: "/villas/pr-malaya-2/6.webp", label: "Malaya Villa 2 pool" },
+  { src: "/villas/pr-casa-martha/6.webp", label: "Casa Martha" },
+  { src: "/villas/pr-012/2.webp", label: "Casa Grey" },
+  { src: "/villas/pr-casa-martha/1.webp", label: "Casa Martha pool at dusk" },
+  { src: "/villas/pr-saglit/2.webp", label: "Saglit" },
   { src: "/brand/marj.webp", label: "Marj | studio" },
   { src: "/brand/marj-family.webp", label: "Marj with family" },
   { src: "/brand/about-team.webp", label: "Team Malaya" },

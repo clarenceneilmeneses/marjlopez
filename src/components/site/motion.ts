@@ -1,24 +1,27 @@
 /**
  * The landing's motion (Clarence, 2026-11-04: "fancy like those portfolio
- * websites while still being simple, with over the top gsap animations",
- * pointing at verostudio.com). GSAP + ScrollTrigger + SplitText, on Lenis
- * smooth scrolling.
+ * websites … with over the top gsap animations", then "pretty much copy
+ * vero's landing page", verostudio.com). GSAP + ScrollTrigger + SplitText,
+ * on Lenis smooth scrolling.
  *
  * Pages mark what moves with data attributes and call `usePageMotion` once;
  * nothing else needs GSAP:
  *
- *   data-hero-title    the h1: its lines rise out of a mask, after the intro
- *   data-hero-fade     hero bits that fade up after the title
- *   data-hero-photo    the hero photo's frame: opens from the bottom
+ *   data-hero          the full-screen hero, pinned while it shrinks to a
+ *                      band: [data-hero-media] (clipped), [data-hero-mark]
+ *                      (the name, whose letters rise after the preloader)
  *   data-split         a heading: lines rise out of a mask on scroll
- *   data-scrub-words   a paragraph that lights up word by word as you scroll
  *   data-reveal        fades up when it scrolls in (siblings stagger)
  *   data-count         a figure ("73K", "4.47★", "202+") that counts up
  *   data-parallax="n"  drifts n% against the scroll (negative = faster)
- *   data-expand        a pinned stage whose [data-expand-media] grows from a
- *                      framed photo to the full screen as you scroll
- *   data-offers        a list whose rows ([data-offer-row][data-index]) show
- *                      [data-offer-preview] following the cursor
+ *   data-seq           a pinned full-screen slideshow: [data-seq-slide]s
+ *                      wipe in from the right, [data-seq-word] lights the
+ *                      matching word of the caption, [data-seq-dot] too
+ *   data-collage       a sticky photo ([data-collage-shot]s) that changes
+ *                      as each [data-collage-block] scrolls through
+ *   data-gallery-col="n"  a gallery column drifting at its own speed
+ *   data-marquee-row="±1" a giant line of type sliding as you scroll
+ *   data-coin          spins as you scroll
  *
  * All of it sits inside `prefers-reduced-motion: no-preference`; with
  * reduced motion the page is simply still, and everything is visible.
@@ -29,6 +32,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import Lenis from "lenis";
 import { useEffect, type RefObject } from "react";
+
+import { INTRO_DONE_S } from "./intro";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
@@ -65,16 +70,12 @@ export function useSmoothScroll() {
   }, []);
 }
 
-/**
- * How long until the brand intro (components/site/intro.tsx) has lifted, so
- * the hero starts as the last curtain clears. Zero when it isn't playing.
- */
+/** Seconds until the preloader (intro.tsx) has lifted; a beat when it isn't playing. */
 function introDelay(): number {
-  const intro = document.querySelector(".brand-intro");
+  const loader = document.querySelector(".ml-loader");
   const skipped = document.documentElement.getAttribute("data-intro") === "skip";
-  if (!intro || skipped) return 0.15;
-  const left = 2.15 - performance.now() / 1000;
-  return Math.max(0.15, left);
+  if (!loader || skipped) return 0.2;
+  return Math.max(0.2, INTRO_DONE_S - 0.35 - performance.now() / 1000);
 }
 
 /** "73K" → 0…73 + "K"; "4.47★" keeps two decimals. Non-numbers are left alone. */
@@ -82,9 +83,11 @@ function countUp(el: HTMLElement) {
   const text = el.textContent ?? "";
   const m = text.match(/^(\D*)([\d,]*\.?\d+)(.*)$/);
   if (!m) return;
-  const [, pre, num, post] = m as unknown as [string, string, string, string];
+  const pre = m[1] ?? "";
+  const num = m[2] ?? "0";
+  const post = m[3] ?? "";
   const target = parseFloat(num.replace(/,/g, ""));
-  const decimals = num.includes(".") ? num.split(".")[1]!.length : 0;
+  const decimals = num.includes(".") ? (num.split(".")[1] ?? "").length : 0;
   const state = { v: 0 };
   el.textContent = `${pre}${(0).toFixed(decimals)}${post}`;
   gsap.to(state, {
@@ -108,56 +111,50 @@ export function usePageMotion(scope: RefObject<HTMLElement | null>) {
       mm.add(MOTION_OK, () => {
         const q = gsap.utils.selector(scope);
         const delay = introDelay();
+        const wide = window.matchMedia("(min-width: 1024px)").matches;
 
-        // ---- hero: title lines rise, the photo opens, the rest fades up.
-        const title = q<HTMLElement>("[data-hero-title]")[0];
-        if (title) {
-          SplitText.create(title, {
-            type: "lines",
-            mask: "lines",
-            linesClass: "sline",
-            autoSplit: true,
-            onSplit: (self) => {
-              gsap.set(title, { autoAlpha: 1 });
-              return gsap.from(self.lines, {
-                yPercent: 115,
-                rotate: 2,
-                duration: 1.5,
-                stagger: 0.12,
-                ease: EASE,
-                delay,
+        // ---- the hero: the name rises letter by letter as the preloader
+        // lifts; then, pinned, the photo shrinks to a band and the name with it.
+        const hero = q<HTMLElement>("[data-hero]")[0];
+        if (hero) {
+          const media = hero.querySelector<HTMLElement>("[data-hero-media]");
+          const img = media?.querySelector("img");
+          const mark = hero.querySelector<HTMLElement>("[data-hero-mark]");
+          if (mark) {
+            const name = mark.querySelector<HTMLElement>("[data-hero-name]");
+            const rest = mark.querySelectorAll<HTMLElement>("[data-hero-rest]");
+            gsap.set(mark, { autoAlpha: 1 });
+            if (name) {
+              // Words first, so a phone wraps between words, never inside one.
+              SplitText.create(name, {
+                type: "words,chars",
+                mask: "chars",
+                autoSplit: true,
+                onSplit: (self) =>
+                  gsap.from(self.chars, {
+                    yPercent: 110,
+                    duration: 1.4,
+                    stagger: 0.045,
+                    ease: EASE,
+                    delay,
+                  }),
               });
-            },
-          });
-        }
-        const photo = q<HTMLElement>("[data-hero-photo]")[0];
-        if (photo) {
-          const img = photo.querySelector("img");
-          gsap.fromTo(
-            photo,
-            { clipPath: "inset(100% 0% 0% 0% round 1.5rem)" },
-            {
-              clipPath: "inset(0% 0% 0% 0% round 1.5rem)",
-              duration: 1.6,
-              ease: "expo.inOut",
-              delay: delay - 0.1,
-            },
-          );
-          if (img) {
-            gsap.from(img, { scale: 1.35, duration: 2.2, ease: EASE, delay: delay - 0.1 });
-            // …then it drifts as the page scrolls past.
-            gsap.to(img, {
-              yPercent: 12,
-              ease: "none",
-              scrollTrigger: { trigger: photo, start: "top top", end: "bottom top", scrub: true },
-            });
+            }
+            gsap.from(rest, { autoAlpha: 0, y: 16, duration: 1.2, ease: EASE, delay: delay + 0.6 });
           }
+          if (img) gsap.from(img, { scale: 1.12, duration: 2.4, ease: EASE, delay: delay - 0.3 });
+          const tl = gsap.timeline({
+            scrollTrigger: { trigger: hero, start: "top top", end: "+=75%", pin: true, scrub: 0.6 },
+          });
+          if (media)
+            tl.fromTo(
+              media,
+              { clipPath: "inset(0% 0% 0% 0%)" },
+              { clipPath: wide ? "inset(26% 18% 26% 18%)" : "inset(28% 6% 28% 6%)", ease: "none" },
+            );
+          if (img) tl.fromTo(img, { yPercent: 0 }, { yPercent: 6, ease: "none" }, 0);
+          if (mark) tl.to(mark, { scale: 0.62, ease: "none" }, 0);
         }
-        gsap.fromTo(
-          q("[data-hero-fade]"),
-          { autoAlpha: 0, y: 24 },
-          { autoAlpha: 1, y: 0, duration: 1.2, stagger: 0.1, ease: EASE, delay: delay + 0.5 },
-        );
 
         // ---- headings: lines rise out of a mask as they scroll in.
         q<HTMLElement>("[data-split]").forEach((el) => {
@@ -177,25 +174,6 @@ export function usePageMotion(scope: RefObject<HTMLElement | null>) {
           });
         });
 
-        // ---- the statement: each word lights up as you scroll through it.
-        q<HTMLElement>("[data-scrub-words]").forEach((el) => {
-          SplitText.create(el, {
-            type: "words",
-            autoSplit: true,
-            onSplit: (self) =>
-              gsap.fromTo(
-                self.words,
-                { opacity: 0.14 },
-                {
-                  opacity: 1,
-                  stagger: 0.08,
-                  ease: "none",
-                  scrollTrigger: { trigger: el, start: "top 80%", end: "bottom 40%", scrub: true },
-                },
-              ),
-          });
-        });
-
         // ---- reveals, staggered within whatever scrolls in together.
         gsap.set(q("[data-reveal]"), { autoAlpha: 0 });
         ScrollTrigger.batch(q("[data-reveal]"), {
@@ -204,7 +182,7 @@ export function usePageMotion(scope: RefObject<HTMLElement | null>) {
           onEnter: (els) =>
             gsap.fromTo(
               els,
-              { autoAlpha: 0, y: 48 },
+              { autoAlpha: 0, y: 40 },
               { autoAlpha: 1, y: 0, duration: 1.2, stagger: 0.09, ease: EASE, overwrite: true },
             ),
         });
@@ -224,81 +202,130 @@ export function usePageMotion(scope: RefObject<HTMLElement | null>) {
           );
         });
 
-        // ---- the stage: a framed photo that grows to the full screen.
-        q<HTMLElement>("[data-expand]").forEach((stage) => {
-          const media = stage.querySelector<HTMLElement>("[data-expand-media]");
-          const img = media?.querySelector("img");
-          const after = stage.querySelectorAll<HTMLElement>("[data-expand-after]");
-          if (!media) return;
+        // ---- the slideshow: pinned; each next photo wipes in from the right
+        // and its word in the caption lights up.
+        q<HTMLElement>("[data-seq]").forEach((seq) => {
+          const slides = seq.querySelectorAll<HTMLElement>("[data-seq-slide]");
+          const words = seq.querySelectorAll<HTMLElement>("[data-seq-word]");
+          const dots = seq.querySelectorAll<HTMLElement>("[data-seq-dot]");
+          const light = (i: number) => {
+            words.forEach((w, k) => gsap.to(w, { opacity: k === i ? 1 : 0.38, duration: 0.5 }));
+            dots.forEach((d, k) =>
+              gsap.to(d, { opacity: k === i ? 1 : 0.4, scale: k === i ? 1.3 : 1, duration: 0.4 }),
+            );
+          };
+          light(0);
           const tl = gsap.timeline({
             scrollTrigger: {
-              trigger: stage,
+              trigger: seq,
               start: "top top",
-              end: "+=120%",
+              end: () => `+=${(slides.length - 1) * 100}%`,
               pin: true,
-              scrub: 0.6,
-              anticipatePin: 1,
+              scrub: 0.7,
+              onUpdate: (self) =>
+                light(Math.min(slides.length - 1, Math.round(self.progress * (slides.length - 1)))),
             },
           });
-          tl.fromTo(
-            media,
-            { clipPath: "inset(16% 24% 16% 24% round 1.5rem)" },
-            { clipPath: "inset(0% 0% 0% 0% round 0rem)", ease: "power2.inOut", duration: 1 },
-          );
-          if (img)
-            tl.fromTo(img, { scale: 1.3 }, { scale: 1, ease: "power2.inOut", duration: 1 }, 0);
-          if (after.length)
+          slides.forEach((s, i) => {
+            if (i === 0) return;
+            const img = s.querySelector("img");
             tl.fromTo(
-              after,
-              { autoAlpha: 0, y: 40 },
-              { autoAlpha: 1, y: 0, stagger: 0.08, duration: 0.4, ease: "power2.out" },
-              0.7,
+              s,
+              { clipPath: "inset(0% 0% 0% 100%)" },
+              { clipPath: "inset(0% 0% 0% 0%)", ease: "power2.inOut", duration: 1 },
             );
+            if (img)
+              tl.fromTo(
+                img,
+                { xPercent: 12, scale: 1.1 },
+                { xPercent: 0, scale: 1, ease: "power2.inOut", duration: 1 },
+                "<",
+              );
+          });
         });
 
-        // ---- the offers: a photo that follows the cursor over the list.
-        const list = q<HTMLElement>("[data-offers]")[0];
-        const preview = q<HTMLElement>("[data-offer-preview]")[0];
-        if (list && preview && window.matchMedia("(pointer: fine)").matches) {
-          const shots = preview.querySelectorAll<HTMLElement>("[data-offer-shot]");
-          gsap.set(preview, { xPercent: -50, yPercent: -50, scale: 0.6, autoAlpha: 0 });
-          const x = gsap.quickTo(preview, "x", { duration: 0.6, ease: "power3" });
-          const y = gsap.quickTo(preview, "y", { duration: 0.6, ease: "power3" });
-          const rot = gsap.quickTo(preview, "rotation", { duration: 0.8, ease: "power3" });
-          let lastX = 0;
-          const move = (e: PointerEvent) => {
-            x(e.clientX);
-            y(e.clientY);
-            rot(gsap.utils.clamp(-12, 12, (e.clientX - lastX) * 0.6));
-            lastX = e.clientX;
-          };
-          const show = (i: number) => {
+        // ---- the collage: on a laptop the big photo on the left changes as
+        // each offer on the right scrolls through the middle of the screen.
+        q<HTMLElement>("[data-collage]").forEach((collage) => {
+          const shots = collage.querySelectorAll<HTMLElement>("[data-collage-shot]");
+          const blocks = collage.querySelectorAll<HTMLElement>("[data-collage-block]");
+          if (!wide || !shots.length) return;
+          const show = (i: number) =>
             shots.forEach((s, k) =>
               gsap.to(s, {
-                autoAlpha: k === i ? 1 : 0,
-                scale: k === i ? 1 : 1.15,
-                duration: 0.5,
-                ease: "power3.out",
+                clipPath: k <= i ? "inset(0% 0% 0% 0%)" : "inset(100% 0% 0% 0%)",
+                duration: 1,
+                ease: "expo.inOut",
+                overwrite: true,
               }),
             );
-            gsap.to(preview, { autoAlpha: 1, scale: 1, duration: 0.5, ease: "power3.out" });
-          };
-          const hide = () =>
-            gsap.to(preview, { autoAlpha: 0, scale: 0.6, duration: 0.4, ease: "power3.in" });
-          const rows = list.querySelectorAll<HTMLElement>("[data-offer-row]");
-          const enters = Array.from(rows).map((row) => {
-            const fn = () => show(Number(row.dataset["index"] ?? 0));
-            row.addEventListener("pointerenter", fn);
-            return () => row.removeEventListener("pointerenter", fn);
-          });
-          list.addEventListener("pointermove", move);
-          list.addEventListener("pointerleave", hide);
-          return () => {
-            enters.forEach((off) => off());
-            list.removeEventListener("pointermove", move);
-            list.removeEventListener("pointerleave", hide);
-          };
-        }
+          shots.forEach((s, k) =>
+            gsap.set(s, { clipPath: k === 0 ? "inset(0% 0% 0% 0%)" : "inset(100% 0% 0% 0%)" }),
+          );
+          blocks.forEach((b, i) =>
+            ScrollTrigger.create({
+              trigger: b,
+              start: "top 55%",
+              end: "bottom 55%",
+              onToggle: (self) => self.isActive && show(i),
+            }),
+          );
+        });
+
+        // ---- the gallery wall: each column at its own speed.
+        q<HTMLElement>("[data-gallery-col]").forEach((col) => {
+          const n = parseFloat(col.dataset["galleryCol"] ?? "0");
+          gsap.fromTo(
+            col,
+            { yPercent: n },
+            {
+              yPercent: -n,
+              ease: "none",
+              scrollTrigger: {
+                trigger: col.parentElement,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true,
+              },
+            },
+          );
+        });
+
+        // ---- the quote in giant type: rows slide against each other.
+        q<HTMLElement>("[data-marquee-row]").forEach((row) => {
+          const dir = parseFloat(row.dataset["marqueeRow"] ?? "1");
+          gsap.fromTo(
+            row,
+            { xPercent: dir > 0 ? -18 : 0 },
+            {
+              xPercent: dir > 0 ? 0 : -18,
+              ease: "none",
+              scrollTrigger: {
+                trigger: row.parentElement,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true,
+              },
+            },
+          );
+        });
+        q<HTMLElement>("[data-coin]").forEach((coin) =>
+          gsap.fromTo(
+            coin,
+            { rotate: -40 },
+            {
+              rotate: 320,
+              ease: "none",
+              scrollTrigger: {
+                trigger: coin.parentElement,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true,
+              },
+            },
+          ),
+        );
+
         return undefined;
       });
       return () => mm.revert();
