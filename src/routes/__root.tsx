@@ -94,7 +94,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         // Outfit + Karla, on both sides since 2026-10-25 (styles.css, "the
         // public side = the admin"). Barqen, Montserrat and Clash are gone.
-        href: "https://fonts.googleapis.com/css2?family=Outfit:wght@400..700&family=Karla:ital,wght@0,300..800;1,300..800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Outfit:wght@300..700&family=Instrument+Serif:ital@1&family=Karla:ital,wght@0,300..800;1,300..800&display=swap",
       },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
     ],

@@ -1254,3 +1254,56 @@ html[data-intro="skip"] .intro-settle {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * The landing's motion (components/site/motion.ts). Lenis's own rules, the
+ * italic serif for the headline's last word, and the hero held back until
+ * GSAP takes it: `html.motion` is set by the head script (intro.tsx) only
+ * when motion is allowed, and if the script never runs the hero still shows
+ * after a few seconds.
+ * ------------------------------------------------------------------------- */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+.accent-serif {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  padding-right: 0.06em;
+}
+
+html.motion [data-hero-title],
+html.motion [data-hero-fade] {
+  visibility: hidden;
+  animation: motion-fallback 0s linear 5s forwards;
+}
+html.motion [data-hero-photo] {
+  clip-path: inset(100% 0 0 0 round 1.5rem);
+  animation: motion-fallback 0s linear 5s forwards;
+}
+@keyframes motion-fallback {
+  to {
+    visibility: visible;
+    clip-path: inset(0 0 0 0 round 1.5rem);
+  }
+}
+
+/* SplitText's line masks (motion.ts) clip at the line box, which cuts off
+   descenders at a tight leading and the italic word's overhang. Room for
+   both, given back with a negative margin so the layout doesn't move. */
+.sline-mask {
+  padding: 0 0.1em 0.16em 0;
+  margin: 0 -0.1em -0.16em 0;
+}

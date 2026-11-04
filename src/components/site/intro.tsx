@@ -15,13 +15,16 @@
  *     pages and coming back never replays it;
  *   - the page is inside Admin → Website's preview frame;
  *   - the visitor asked for reduced motion (that one is CSS, below).
+ *
+ * It also marks <html> with `motion` when motion is allowed, so the landing's
+ * hero can stay hidden until GSAP animates it in (styles.css, motion.ts).
  */
 import { BRAND } from "@/lib/brand";
 
 const SEEN_KEY = "ml-intro-seen";
 
 /** Runs in <head>, before the body paints. Kept tiny and dependency-free. */
-export const INTRO_SCRIPT = `(function(){try{var d=document.documentElement;if(window.self!==window.top||sessionStorage.getItem("${SEEN_KEY}")){d.setAttribute("data-intro","skip")}else{sessionStorage.setItem("${SEEN_KEY}","1")}}catch(e){}})();`;
+export const INTRO_SCRIPT = `(function(){try{var d=document.documentElement;if(window.matchMedia("(prefers-reduced-motion: no-preference)").matches){d.classList.add("motion")}if(window.self!==window.top||sessionStorage.getItem("${SEEN_KEY}")){d.setAttribute("data-intro","skip")}else{sessionStorage.setItem("${SEEN_KEY}","1")}}catch(e){}})();`;
 
 export function BrandIntro() {
   const letters = Array.from(BRAND.wordmark);
